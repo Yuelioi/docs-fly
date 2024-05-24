@@ -1,0 +1,33 @@
+<template>
+    <transition appear>
+        <button
+            v-show="show"
+            id="scrollToTop"
+            class="fixed right-12 duration-200 transition-opacity ease-in-out bottom-12 w-8 h-8 bg-white-base p-3 rounded-full flex items-center justify-center"
+            @click="scrollToTop()">
+            <i class="pi pi-sort-up"></i></button
+    ></transition>
+</template>
+
+<script lang="ts" setup>
+import { onMounted, ref } from 'vue'
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    })
+}
+
+const show = ref(false)
+
+onMounted(() => {
+    window.addEventListener('scroll', function () {
+        if (window.scrollY > 100) {
+            show.value = true
+        } else {
+            show.value = false
+        }
+    })
+})
+</script>

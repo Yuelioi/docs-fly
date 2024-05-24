@@ -1,0 +1,32 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
+    },
+    "hide-files.files": [],
+    "go.toolsManagement.autoUpdate": true,
+    "go.toolsManagement.autoInstall": true,
+    "go.buildOnSave": "workspace",
+    "go.lintOnSave": "package",
+    "go.vetOnSave": "package",
+    "go.buildTags": "",
+    "go.buildFlags": [],
+    "go.testFlags": [],
+    "go.testTags": "",
+    "go.coverOnSave": false,
+    "go.useLanguageServer": true,
+    "go.languageServerExperimentalFeatures": {
+        "diagnostics": true
+    },
+    "cSpell.words": [
+        "chromahtml",
+        "docsfly",
+        "Hitokoto",
+        "metas"
+    ],
+    "git.ignoreLimitWarning": true
+}

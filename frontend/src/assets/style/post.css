@@ -1,0 +1,184 @@
+.main h1,
+.main h2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid #eaecef;
+}
+
+.main h1 {
+    font-size: 1.85rem;
+}
+.main h2 {
+    font-size: 1.55rem;
+}
+.main h3 {
+    font-size: 1.2rem;
+}
+
+.main h1,
+.main h2,
+.main h3,
+.main h4,
+.main h5,
+.main h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.main h1:before {
+    content: 'H1';
+}
+.main h2:before {
+    content: 'H2';
+}
+.main h3:before {
+    content: 'H3';
+}
+.main h4:before {
+    content: 'H4';
+}
+.main h5:before {
+    content: 'H5';
+}
+.main h6:before {
+    content: 'H6';
+}
+
+.main > h1:before,
+.main > h2:before,
+.main > h3:before,
+.main > h4:before,
+.main > h5:before,
+.main > h6:before {
+    float: left;
+
+    padding-right: 0.25rem;
+    margin-top: 0.25rem;
+    margin-left: -1.75rem;
+    font-size: 0.85rem;
+    font-weight: normal;
+    color: rgba(88, 96, 105, 0.36);
+}
+
+.main p {
+    margin: 0.75rem 0;
+}
+
+.main a {
+    color: #18a8ff;
+}
+
+.main img {
+    margin: 1rem 0;
+}
+#vditor code {
+    background: #1e293b;
+}
+
+.chroma {
+    overflow-x: scroll;
+}
+
+.chroma tr {
+    background: #1e293b;
+}
+
+.chroma pre {
+    color: #e2e4e5;
+}
+.chroma table td {
+    border: none;
+}
+
+.chroma .copy-button {
+    position: absolute;
+    top: -1rem;
+    right: 10px;
+    background: #e7e7e7;
+    padding: 3px 6px;
+    border-radius: 6px;
+    font-size: small;
+    opacity: 0;
+    z-index: 10;
+    transition: opacity 0.5s;
+}
+
+.code-block {
+    position: relative;
+}
+
+.chroma .code-block:hover .copy-button {
+    opacity: 1;
+}
+
+.chroma tr > td:first-child {
+    padding: 1.5rem 0.6rem 0.6rem 0.6rem;
+    border: none;
+    border-right: 2px solid #000000;
+}
+.chroma tr > td:nth-child(2) {
+    padding: 1.5rem 0.6rem 0.6rem 0.75rem;
+    border: none;
+    border-left: 2px solid #454545;
+}
+
+.chroma tr > td:nth-child(2) pre {
+    position: relative;
+}
+.chroma tr > td:nth-child(2) pre::before {
+    content: attr(data-language);
+    color: rgba(235, 235, 235, 0.38);
+    padding: 3px;
+    position: absolute;
+    top: -1.2rem;
+    right: 10px;
+    z-index: 2;
+    font-size: 12px;
+    font-weight: 500;
+    transition: opacity 0.5s;
+}
+
+.chroma tr > td:nth-child(2) {
+    width: 100%;
+}
+
+iframe {
+    height: 500px;
+}
+
+.vditor-content,
+.vditor-sv.vditor-reset,
+.vditor-preview,
+.vditor-wysiwyg,
+pre.vditor-reset,
+.vditor-ir pre.vditor-reset {
+    background: transparent !important;
+}
+
+.vditor {
+    border: none;
+}
+.vditor-toolbar.vditor-toolbar--pin {
+    background: transparent !important;
+}
+.vditor .vditor-reset {
+    padding: 1rem !important;
+}
+
+#vditor code {
+    padding: 0.6rem;
+    font-size: 1rem;
+}
+@media screen and (min-width: 576px) {
+    .vditor .vditor-reset {
+        padding: 2rem !important;
+    }
+}
+
+@media screen and (min-width: 960px) {
+    .vditor .vditor-reset {
+        padding: 5rem !important;
+    }
+}

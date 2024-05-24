@@ -1,0 +1,141 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    font-weight: normal;
+    outline: none;
+}
+
+body {
+    min-height: 100vh;
+
+    transition:
+        color 0.5s,
+        background-color 0.5s;
+    line-height: 1.6;
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        'Fira Sans',
+        'Droid Sans',
+        'Helvetica Neue',
+        sans-serif;
+    font-size: 16px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* *:not([class*='icon']):not(i) {
+    font-family: 'iconfont';
+    font-weight: 100;
+} */
+
+html {
+    font-size: 100%;
+    overflow-y: scroll;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    overflow-x: hidden;
+    max-width: 100%;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+body::before {
+    content: '';
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    background-image: url(https://cdn.yuelili.com/2023/07/20230710145615-Hp.jpg);
+    background-size: cover;
+    filter: blur(10px);
+    transform: scale(1.1);
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+a {
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 8px;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+}
+
+html ::-webkit-scrollbar-corner,
+html ::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+/* 滚动条的轨道 */
+::-webkit-scrollbar-track {
+    background-color: transparent !important;
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 5px;
+}
+
+/* 滚动条滑块悬停状态 */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #717171;
+}
+
+h1,
+h2 {
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #eaecef;
+}
+
+hr {
+    background-color: #eaecef;
+}
+
+blockquote {
+    color: #6a737d;
+    border-left: 0.25em solid #eaecef;
+}
+
+iframe {
+    border: 1px solid #d1d5da;
+}
+
+table tr {
+    background-color: #fafbfc;
+}
+
+table td,
+.vditor-reset table th {
+    border: 1px solid #dfe2e5;
+}
+
+td {
+    padding: 0.6rem;
+}
+
+table tbody tr:nth-child(2n) {
+    background-color: #fff;
+}
+
+.vditor-reset code:not(.hljs):not(.highlight-chroma) {
+    background-color: rgba(27, 31, 35, 0.05);
+}
