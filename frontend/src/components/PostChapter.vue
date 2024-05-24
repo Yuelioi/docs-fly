@@ -16,7 +16,7 @@
                     v-for="(chapter, chapter_index) in filteredChapters"
                     :key="chapter.id"
                     class="scroll-item lg:mt-4 overflow-hidden"
-                    :ref="(el) => setChapterRef(el, chapter)"
+                    :data-index="chapter.id"
                     @click.prevent="chapter.collapsed = !chapter.collapsed">
                     <!-- 情况1. 没有章节 speedTree -->
                     <div v-if="chapter.document.order">
@@ -30,6 +30,7 @@
                                     document: chapter.document.identity
                                 }
                             }"
+                            :data-index="chapter.id"
                             :key="chapter.document.identity"
                             class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-400 hover:rounded dark:hover:bg-slate-800">
                             {{ chapter.document.display_name }}</router-link
@@ -122,10 +123,6 @@ const containerHeigh = computed(() =>
     scrollContainerRef.value ? scrollContainerRef.value.clientHeight : 800
 ) // 容器高度
 
-function setChapterRef(el: any, chapter: ChapterData) {
-    chapter.ref = el
-}
-
 // 填充总高度
 const fillHeigh = computed(() => {
     if (chaptersData.value.length < virtual_limit_length) {
@@ -141,14 +138,45 @@ const filteredChapters = computed(() => {
     if (chaptersData.value.length < virtual_limit_length) {
         return chaptersData.value
     } else {
-        return chaptersData.value.slice(start.value, end.value) as ChapterData[]
+        return chaptersData.value.slice(
+            Math.max(start.value, 0),
+            Math.min(end.value, chaptersData.value.length - 1)
+        ) as ChapterData[]
     }
 })
 
-function handleScroll(event: UIEvent) {
-    console.log(event)
+function getVisibleFirstLastElementId(container: HTMLElement) {
+    const ul = listRef.value
+    let container_start = 0
+    let container_end = 0
+    if (ul) {
+        const containerRect = container.getBoundingClientRect() // 获取父级元素的范围
+        const elements = ul.querySelectorAll('ul') as NodeListOf<HTMLUListElement>
+        let firstVisible: HTMLUListElement | null = null
+        let lastVisible: HTMLUListElement | null = null
 
-    event.preventDefault()
+        elements.forEach((el) => {
+            const rect = el.getBoundingClientRect()
+            if (rect.top >= containerRect.top && rect.bottom <= containerRect.bottom) {
+                if (!firstVisible) {
+                    firstVisible = el
+                }
+
+                lastVisible = el
+            }
+        })
+
+        if (firstVisible) {
+            container_start = parseInt(firstVisible.dataset.index) // @ts-ignore
+        }
+        if (lastVisible) {
+            container_end = parseInt(lastVisible.dataset.index)
+        }
+    }
+    return { container_start, container_end }
+}
+
+function handleScroll() {
     // 小数据直接渲染 不处理
     if (chaptersData.value.length < virtual_limit_length) {
         return
@@ -161,15 +189,26 @@ function handleScroll(event: UIEvent) {
     }
 
     // 当前滚动高度
+    // const currentScrollTop = container.scrollTop
+
+    let { container_start, container_end } = getVisibleFirstLastElementId(container)
     const currentScrollTop = container.scrollTop
 
-    if (Math.abs(currentScrollTop - lastScrollTop.value) > chapter_collapsed_height.value * 50) {
-        const newStart = Math.floor(currentScrollTop / chapter_collapsed_height.value)
-        listTop.value = currentScrollTop - chapter_collapsed_height.value * 50
-        start.value = newStart - 50
-        end.value = newStart + 100
+    // 如果是向上滚动
+    if (currentScrollTop - lastScrollTop.value < 0 && container_start - start.value < 5) {
+        start.value = container_start - 80
+        end.value = container_end + 20
+
         lastScrollTop.value = currentScrollTop
-        console.log(currentScrollTop, listTop.value, newStart, start.value, end.value)
+        console.log(container_start, container_end, start.value, end.value)
+    }
+
+    // 如果是向下滚动
+    if (currentScrollTop - lastScrollTop.value > 0 && container_end > end.value - 5) {
+        start.value = container_start - 20
+        end.value = container_end + 80
+        console.log(container_start, container_end, start.value, end.value)
+        lastScrollTop.value = currentScrollTop
     }
 }
 

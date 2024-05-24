@@ -12,7 +12,6 @@ func main() {
 	engine := gin.Default()
 
 	routes.SetupRouter(engine)
-	routes.SetupRouterPlugins(engine)
 
 	engine.Run(":" + global.AppConfig.Addr)
 
