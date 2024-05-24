@@ -2,7 +2,7 @@
 Resource = "E:\\Scripting\\docs-v3"
 
 # 数据库存储位置 Sqlite
-Database = "E:\\Scripting\\docs-v3-data\\main.db"
+Database = "E:\\Scripting\\docs-v3\\main.db"
 
 # 端口
 Addr = "8088"

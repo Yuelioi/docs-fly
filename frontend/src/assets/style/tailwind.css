@@ -2,3 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 @tailwind screens;
+
+
+@layer components {
+    .btn-primary {
+        @apply rounded-md bg-sky-500 hover:bg-sky-700 text-white-base text-sm font-semibold shadow-sm focus-visible:outline;
+    }
+
+}

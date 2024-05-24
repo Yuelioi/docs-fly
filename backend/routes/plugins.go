@@ -20,6 +20,7 @@ func registerPlugins(engine *gin.Engine) {
 func DecodeQueryParams() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		for key, value := range c.Request.URL.Query() {
+
 			decodedValue, err := url.QueryUnescape(value[0])
 			if err == nil {
 				c.Request.URL.Query()[key] = []string{decodedValue}

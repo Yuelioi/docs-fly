@@ -50,11 +50,7 @@
                             </p>
                             <div
                                 class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
-                                <a
-                                    href="#"
-                                    class="rounded-md bg-sky-500 hover:bg-sky-700 text-white-light px-3.5 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                                    >开始阅读</a
-                                >
+                                <a href="#" class="btn-primary px-3.5 py-2.5">开始阅读</a>
                                 <a href="#" class="text-sm font-semibold leading-6"
                                     >Start Reading <span aria-hidden="true">→</span></a
                                 >

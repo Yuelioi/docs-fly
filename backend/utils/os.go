@@ -14,33 +14,32 @@ func GetFilePath(category, book, locale, chapter, section, document string) stri
 }
 
 func ReadJson(filepath string) (element any, err error) {
-	mdBytes, err := os.ReadFile(filepath)
+	bytes, err := os.ReadFile(filepath)
 	if err != nil {
 		return
 	}
 
-	err = json.Unmarshal(mdBytes, &element)
+	err = json.Unmarshal(bytes, &element)
 	if err != nil {
 		return
 	}
 	return
 }
 
-func WriteJson(filePath string, data interface{}) {
+func WriteJson(filePath string, data interface{}) error {
 	jsonData, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		fmt.Println("Error marshalling JSON:", err)
-		return
+		return err
 	}
 
 	// 写入 JSON 数据到文件
 	err = os.WriteFile(filePath, jsonData, 0644)
 	if err != nil {
 		fmt.Println("Error writing JSON to file:", err)
-		return
+		return err
 	}
-
-	fmt.Println("json file has been written successfully.")
+	return nil
 }
 
 func ReadChapter(cat string, docs string) (navs []models.ChapterInfo, err error) {

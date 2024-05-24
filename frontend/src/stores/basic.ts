@@ -24,16 +24,30 @@ export const basicStore = defineStore('basic', () => {
      * 语言字典,后续可以单独保存配置文件
      */
     const i18n = {
-        en: 'English',
-        zh: '中文'
+        locale: {
+            en: 'English',
+            zh: '中文'
+        },
+        displayName: {
+            en: 'Display Name',
+            zh: '显示名称'
+        },
+        order: {
+            en: 'Order',
+            zh: '序号'
+        },
+        hidden: {
+            en: 'Hidden',
+            zh: '隐藏'
+        }
     }
 
     /**
      * 翻译函数
      */
-    const t = function (source: string) {
-        return i18n[source as keyof typeof i18n]
+    const translate = function (source: string) {
+        return i18n[source as keyof typeof i18n][locale.value as 'en' | 'zh']
     }
 
-    return { isAdmin, token, locale, t }
+    return { isAdmin, token, locale, translate }
 })

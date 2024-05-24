@@ -61,7 +61,7 @@
                 <div class="tab-item" v-if="tabId == 1">
                     <div class="flex flex-col">
                         <div class="" v-if="bookDatas.children.length == 0">
-                            本书尚未有{{ t(locale) }}版本
+                            本书尚未有{{ translate(locale) }}版本
                         </div>
                         <router-link
                             v-else
@@ -85,6 +85,56 @@
                 </div>
 
                 <div class="tab-item" v-if="tabId == 2">评论</div>
+                <div class="tab-item" v-if="tabId == 3">
+                    <div class="toolbar flex flex-row-reverse">
+                        <button type="button" class="btn-primary px-3 py-1" @click="saveMeta">
+                            保存
+                        </button>
+                    </div>
+                    <div>
+                        <table class="table-auto w-full border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="border px-4 py-2">ID</th>
+                                    <th class="border px-4 py-2">{{ translate('displayName') }}</th>
+                                    <th class="border px-4 py-2">{{ translate('order') }}</th>
+                                    <th class="border px-4 py-2">{{ translate('hidden') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="meta in metas" :key="meta.identity">
+                                    <td class="px-4 py-2">
+                                        <input
+                                            type="text"
+                                            class=""
+                                            disabled
+                                            v-model="meta.identity" />
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <input
+                                            type="text"
+                                            class="p-2 border rounded-sm w-full"
+                                            v-model="meta.display_name" />
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <input
+                                            type="text"
+                                            class="p-2 border rounded-sm w-full"
+                                            v-model.number="meta.order" />
+                                    </td>
+                                    <td class="px-4 py-2 text-center">
+                                        <input
+                                            type="checkbox"
+                                            id="checkbox"
+                                            v-model="meta.hidden"
+                                            :true-value="false"
+                                            :false-value="true" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -93,9 +143,9 @@
 <script setup lang="ts">
 import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
 
-import { BookData } from '@/models'
+import { BookData, MetaData } from '@/models'
 import { Message } from '@/plugins/message'
-import { fetchBook, fetchStatisticBook } from '@/handlers/index'
+import { fetchBook, fetchBookMeta, fetchStatisticBook, saveBookMeta } from '@/handlers/index'
 
 import { getBookData, addBookData } from '@/database'
 
@@ -107,9 +157,11 @@ const basic = basicStore()
 const locale = computed(() => basic.locale)
 const isAdmin = computed(() => basic.isAdmin)
 
-const t = basic.t
+const metas = ref<MetaData[]>([])
 
-const tabId = ref(1)
+const translate = basic.translate
+
+const tabId = ref(3)
 
 const route = useRoute()
 const bookReadCount = ref(0)
@@ -117,6 +169,15 @@ const bookChapterCount = ref(0)
 const bookDocumentCount = ref(0)
 
 const bookDatas = ref<BookData>(new BookData())
+
+async function saveMeta() {
+    await saveBookMeta(
+        route.params['category'] as string,
+        route.params['book'] as string,
+        locale.value,
+        metas.value
+    )
+}
 
 async function refreshBook(params: RouteParams) {
     // /book/Ae/basic
@@ -148,6 +209,17 @@ async function refreshBook(params: RouteParams) {
         bookReadCount.value = statisticData['read_count']
         bookChapterCount.value = statisticData['chapter_count']
         bookDocumentCount.value = statisticData['document_count']
+    }
+
+    let ok3
+    ;[ok3, metas.value] = await fetchBookMeta(
+        params['category'] as string,
+        params['book'] as string,
+        locale.value
+    )
+
+    if (ok3) {
+        console.log(metas.value)
     }
 }
 

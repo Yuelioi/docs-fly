@@ -1,6 +1,6 @@
 // package handlers: 用于管理api接口
 
-import { fetchBook } from './book'
+import { fetchBook, fetchBookMeta, saveBookMeta } from './book'
 import { fetchNav, fetchKeyword, fetchSearchOptions } from './home'
 import { fetchChapter, fetchPost, fetchPostHtml, savePost } from './post'
 import { AddVisitorLog } from './visitor'
@@ -11,6 +11,8 @@ import { fetchYiYan } from './vendor'
 
 export {
     fetchBook,
+    fetchBookMeta,
+    saveBookMeta,
     fetchStatisticHome,
     fetchStatisticBook,
     fetchNav,
