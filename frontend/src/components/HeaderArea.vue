@@ -109,7 +109,7 @@ import { basicStore } from '@/stores/index'
 import { Message } from '@/plugins/message'
 const basic = basicStore()
 const { locale, token, isAdmin } = storeToRefs(basic)
-const { t } = basic
+const { translate } = basic
 
 const navs = ref<NavData[]>([])
 
@@ -124,7 +124,7 @@ function changeLocale() {
         locale.value = 'en'
     }
 
-    Message(`已切换为${t(locale.value)}`)
+    Message(`已切换为${translate('locale')}`)
     localStorage.setItem('locale', locale.value)
 
     const newParams = { ...route.params, locale: locale.value } // 替换 'newLocaleValue' 为你想要设置的新的参数值

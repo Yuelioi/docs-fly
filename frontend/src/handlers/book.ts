@@ -1,5 +1,5 @@
 import type { MetaData } from '@/models'
-import { fetchContent } from './utils'
+import { fetchContent, fetchContentAdmin } from './utils'
 
 // BookPage
 
@@ -20,6 +20,7 @@ export const fetchBookMeta = async (category: string, book: string, locale: stri
         locale: locale
     })
 }
+
 export const saveBookMeta = async (
     category: string,
     book: string,
@@ -34,6 +35,13 @@ export const saveBookMeta = async (
             locale: locale,
             metas: JSON.stringify(metas)
         },
-        'post'
+        'put'
     )
+}
+
+/**
+ * 本地修改后, 基于本地更新meta, 会修改数据库
+ */
+export const updateBookMeta = async () => {
+    return await fetchContent('/book/meta', {}, 'post')
 }

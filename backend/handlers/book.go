@@ -118,6 +118,11 @@ func SaveBookMeta(c *gin.Context) {
 	locale := c.Query("locale")
 	metas_data := c.Query("metas")
 
+	ok, err := TokenVerifyMiddleware(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	}
+
 	// 解析meta数据
 	var metas []models.MetaData
 
@@ -141,7 +146,7 @@ func SaveBookMeta(c *gin.Context) {
 
 	// 保存meta.json
 	filepath := bookInfo.Filepath + "/" + locale + "/" + "meta.json"
-	err = utils.WriteJson(filepath, metas_data)
+	err = utils.WriteJson(filepath, metas)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Save Data"})
 		return
@@ -183,4 +188,74 @@ func SaveBookMeta(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Data saved successfully"})
+}
+
+func UpdateBookMeta(c *gin.Context) {
+	category := c.Query("category")
+	book := c.Query("book")
+	locale := c.Query("locale")
+
+	db, err := database.DbManager.Connect()
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Parse Data"})
+		return
+	}
+
+	var catInfo models.Category
+	var bookInfo models.Book
+
+	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
+	db.Model(&bookInfo).Preload("Chapters").Where("identity = ?", book).Where("category_id = ?", catInfo.ID).First(&bookInfo)
+
+	// 保存meta.json
+	filepath := bookInfo.Filepath + "/" + locale + "/" + "meta.json"
+	metas, err := utils.ReadJson(filepath)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load data"})
+		return
+	}
+
+	// 更新数据库
+
+	metaMap := make(map[string]models.MetaData)
+
+	metadataSlice, ok := metas.([]models.MetaData)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error converting to []Metadata"})
+		return
+	}
+	for _, meta := range metadataSlice {
+		metaMap[meta.Identity] = meta
+	}
+	chaptersToUpdate := make([]models.Chapter, 0)
+
+	for _, chapter := range bookInfo.Chapters {
+		if meta, exists := metaMap[chapter.Identity]; exists {
+			needsUpdate := false
+			if chapter.DisplayName != meta.DisplayName {
+				chapter.DisplayName = meta.DisplayName
+				needsUpdate = true
+			}
+			if chapter.Hidden != meta.Hidden {
+				chapter.Hidden = meta.Hidden
+				needsUpdate = true
+			}
+			if chapter.Order != meta.Order {
+				chapter.Order = meta.Order
+				needsUpdate = true
+			}
+			if needsUpdate {
+				chaptersToUpdate = append(chaptersToUpdate, chapter)
+			}
+		}
+	}
+
+	// 批量更新有变化的章节
+	if len(chaptersToUpdate) > 0 {
+		db.Save(&chaptersToUpdate)
+	}
+
+	c.JSON(http.StatusOK, &metas)
 }

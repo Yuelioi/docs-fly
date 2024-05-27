@@ -43,7 +43,6 @@
                                 >评论</span
                             >
                         </li>
-                        <!-- TODO 编辑元数据 -->
                         <li
                             v-if="isAdmin"
                             :class="['me-2', 'group', { active: tabId === 3 }]"
@@ -61,7 +60,7 @@
                 <div class="tab-item" v-if="tabId == 1">
                     <div class="flex flex-col">
                         <div class="" v-if="bookDatas.children.length == 0">
-                            本书尚未有{{ translate(locale) }}版本
+                            本书尚未有{{ translate('locale') }}版本
                         </div>
                         <router-link
                             v-else
@@ -79,20 +78,28 @@
                                     document: chapter.document
                                 }
                             }">
-                            <span class="pl-2">{{ chapter.display_name }}</span></router-link
+                            <span class="pl-2">{{
+                                addZero(chapter.order, 3) + '. ' + chapter.display_name
+                            }}</span></router-link
                         >
                     </div>
                 </div>
 
                 <div class="tab-item" v-if="tabId == 2">评论</div>
                 <div class="tab-item" v-if="tabId == 3">
-                    <div class="toolbar flex flex-row-reverse">
-                        <button type="button" class="btn-primary px-3 py-1" @click="saveMeta">
+                    <div class="toolbar flex flex-row-reverse pb-4">
+                        <button
+                            type="button"
+                            class="btn-primary mx-3 px-3 py-1"
+                            @click="updateMeta">
+                            更新
+                        </button>
+                        <button type="button" class="btn-primary mx-3 px-3 py-1" @click="saveMeta">
                             保存
                         </button>
                     </div>
                     <div>
-                        <table class="table-auto w-full border-collapse">
+                        <table v-if="metas.length" class="table-auto w-full border-collapse">
                             <thead>
                                 <tr>
                                     <th class="border px-4 py-2">ID</th>
@@ -143,9 +150,17 @@
 <script setup lang="ts">
 import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
 
+import { addZero } from '@/utils'
+
 import { BookData, MetaData } from '@/models'
 import { Message } from '@/plugins/message'
-import { fetchBook, fetchBookMeta, fetchStatisticBook, saveBookMeta } from '@/handlers/index'
+import {
+    fetchBook,
+    fetchBookMeta,
+    fetchStatisticBook,
+    saveBookMeta,
+    updateBookMeta
+} from '@/handlers/index'
 
 import { getBookData, addBookData } from '@/database'
 
@@ -161,7 +176,7 @@ const metas = ref<MetaData[]>([])
 
 const translate = basic.translate
 
-const tabId = ref(3)
+const tabId = ref(1)
 
 const route = useRoute()
 const bookReadCount = ref(0)
@@ -177,6 +192,10 @@ async function saveMeta() {
         locale.value,
         metas.value
     )
+}
+
+async function updateMeta() {
+    await updateBookMeta()
 }
 
 async function refreshBook(params: RouteParams) {

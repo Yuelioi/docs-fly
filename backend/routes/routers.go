@@ -16,6 +16,7 @@ func registerRoutes(engine *gin.Engine) {
 	engine.GET("/book", handlers.GetBook)
 
 	engine.GET("/book/meta", handlers.GetBookMeta)
+	engine.PUT("/book/meta", handlers.SaveBookMeta)
 	engine.POST("/book/meta", handlers.SaveBookMeta)
 
 	engine.GET("/post", handlers.GetPost)
