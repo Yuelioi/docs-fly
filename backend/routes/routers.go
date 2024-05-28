@@ -7,6 +7,9 @@ import (
 )
 
 func registerRoutes(engine *gin.Engine) {
+	engine.GET("/rand/nickname", handlers.GetRndName)
+	engine.GET("/rand/poem", handlers.GetRndPoem)
+
 	engine.GET("/ip", handlers.GetClientIP)
 	engine.POST("/ip", handlers.VisitorInsertLog)
 

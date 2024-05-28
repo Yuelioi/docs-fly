@@ -35,7 +35,6 @@
                                 >章节</span
                             >
                         </li>
-                        <!-- TODO 评论区 -->
                         <li :class="['me-2', 'group', { active: tabId === 2 }]" @click="tabId = 2">
                             <span
                                 class="inline-block p-4 group-[.active]:text-blue-600 group-[.active]:border-blue-600 group-[.active]:border-b-2 rounded-t-lg"
@@ -85,7 +84,22 @@
                     </div>
                 </div>
 
-                <div class="tab-item" v-if="tabId == 2">评论</div>
+                <div class="tab-item" v-if="tabId == 2">
+                    <div class="border w-full rounded-md">
+                        <textarea
+                            name=""
+                            id=""
+                            cols="30"
+                            rows="3"
+                            class="w-full py-3 px-4"
+                            :placeholder="poem"></textarea>
+                    </div>
+                    <div class="mt-2 flex">
+                        <button class="btn-primary px-3 py-1 ml-auto" @click="postNewComment">
+                            发布
+                        </button>
+                    </div>
+                </div>
                 <div class="tab-item" v-if="tabId == 3">
                     <div class="toolbar flex flex-row-reverse pb-4">
                         <button
@@ -159,7 +173,10 @@ import {
     fetchBookMeta,
     fetchStatisticBook,
     saveBookMeta,
-    updateBookMeta
+    updateBookMeta,
+    getRandNickname,
+    postBookComment,
+    getRandPoem
 } from '@/handlers/index'
 
 import { getBookData, addBookData } from '@/database'
@@ -182,6 +199,7 @@ const route = useRoute()
 const bookReadCount = ref(0)
 const bookChapterCount = ref(0)
 const bookDocumentCount = ref(0)
+const poem = ref('')
 
 const bookDatas = ref<BookData>(new BookData())
 
@@ -193,6 +211,8 @@ async function saveMeta() {
         metas.value
     )
 }
+
+async function postNewComment() {}
 
 async function updateMeta() {
     await updateBookMeta()
@@ -248,5 +268,13 @@ watch(route, async (val: RouteLocationNormalizedLoaded) => {
 
 onMounted(async () => {
     refreshBook(route.params)
+
+    poem.value = '山重水复疑无路，柳暗花明又一村。'
+
+    const [ok, data] = await getRandPoem()
+
+    if (ok) {
+        poem.value = data['content']
+    }
 })
 </script>

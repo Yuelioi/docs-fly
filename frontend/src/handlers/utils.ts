@@ -27,7 +27,7 @@ apiClient.interceptors.request.use(
 
 export const fetchContent = async (
     query: string,
-    params: any,
+    params: any = '',
     method: string = 'get',
     base: string = ''
 ) => {

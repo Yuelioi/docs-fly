@@ -8,6 +8,9 @@ import { fetchStatisticHome, fetchStatisticBook } from './statistic'
 import { fetchAuthLogin, fetchCheckToken } from './auth'
 
 import { fetchYiYan } from './vendor'
+import { postBookComment } from './comment'
+
+import { getRandNickname, getRandPoem } from './others'
 
 export {
     fetchBook,
@@ -19,6 +22,7 @@ export {
     fetchNav,
     fetchKeyword,
     fetchChapter,
+    postBookComment,
     fetchPostHtml,
     fetchCheckToken,
     savePost,
@@ -26,5 +30,7 @@ export {
     AddVisitorLog,
     fetchYiYan,
     fetchSearchOptions,
-    fetchAuthLogin
+    fetchAuthLogin,
+    getRandNickname,
+    getRandPoem
 }

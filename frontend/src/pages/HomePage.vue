@@ -80,15 +80,6 @@
                             src="https://cdn.yuelili.com/docs/web/assert/anime-girl-dream.jpg"
                             alt=""
                             class="relative -translate-y-1/4 inset-0 -z-10 h-full w-full object-cover object-right md:object-center" />
-
-                        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-                            <div class="mx-auto max-w-2xl lg:mx-0">
-                                <h2
-                                    class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                                    站点统计
-                                </h2>
-                            </div>
-                        </div>
                     </div>
                     <div class="flex text-center shadow-2xl sm:rounded-3xl">
                         <div class="rounded-es-lg border-2 border-r-0 basis-1/4 py-6">
