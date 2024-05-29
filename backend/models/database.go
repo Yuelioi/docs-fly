@@ -6,13 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-/*
-Category
-Document
-Post
-*/
-
-// 用于写入本地 追加个
+// 用于写入本地 追加个临时的
 type MetaDataLocal struct {
 	MetaDatas []MetaData
 	Filepath  string
@@ -29,7 +23,6 @@ type Category struct {
 type Book struct {
 	gorm.Model
 	MetaData
-
 	ModTime     time.Time
 	Description string `json:"description"` // 从Readme读取
 	CategoryID  uint
@@ -87,6 +80,7 @@ type Document struct {
 	Filepath   string
 }
 
+// 访客记录
 type Visitor struct {
 	gorm.Model
 	IP       string    // 访客的 IP 地址
@@ -94,10 +88,14 @@ type Visitor struct {
 	Time     time.Time // 访问时间
 	Category string    // 分类 identity
 	Book     string    // 书籍 identity
+	Locale   string    // 语言
 }
 
+// 用户
 type User struct {
 	gorm.Model
 	Username string `gorm:"unique_index"`
-	Password string
+	Nickname string `json:"nickname"`
+	Password string `json:"password"`
+	IP       string `json:"ip"`
 }

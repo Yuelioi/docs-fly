@@ -4,7 +4,7 @@
             <div class="book-logo md:basis-1/3 lg:basis-1/4">
                 <img src="https://docs.yuelili.com/uploads/202305/1761bef95f7235da.jpg" alt="" />
             </div>
-            <div class="flex flex-col px-6">
+            <div class="flex flex-col px-6 select-none">
                 <div class="py-3 border-b">
                     <BIconBook class="inline-block"></BIconBook>
                     <span class="pl-2">书籍名称: {{ bookDatas.book.display_name }}</span>
@@ -28,7 +28,7 @@
             <div class="border-b">
                 <div
                     class="text-sm font-medium text-center text-gray-500 border-b dark:text-gray-400 dark:border-gray-700">
-                    <ul class="flex flex-wrap -mb-px">
+                    <ul class="flex flex-wrap -mb-px select-none">
                         <li :class="['me-2', 'group', { active: tabId === 1 }]" @click="tabId = 1">
                             <span
                                 class="inline-block p-4 group-[.active]:text-blue-600 group-[.active]:border-blue-600 group-[.active]:border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
@@ -50,6 +50,16 @@
                                 class="inline-block p-4 group-[.active]:text-blue-600 group-[.active]:border-blue-600 group-[.active]:border-b-2 rounded-t-lg"
                                 aria-current="page"
                                 >编辑元数据</span
+                            >
+                        </li>
+                        <li
+                            v-if="isAdmin"
+                            @click="tabId = 4"
+                            :class="['me-2', 'group', { active: tabId === 4 }]">
+                            <span
+                                class="inline-block p-4 group-[.active]:text-blue-600 group-[.active]:border-blue-600 group-[.active]:border-b-2 rounded-t-lg"
+                                aria-current="page"
+                                >书籍设置</span
                             >
                         </li>
                     </ul>
@@ -95,20 +105,20 @@
                             :placeholder="poem"></textarea>
                     </div>
                     <div class="mt-2 flex">
-                        <button class="btn-primary px-3 py-1 ml-auto" @click="postNewComment">
+                        <button class="btn primary px-3 py-1 ml-auto" @click="postNewComment">
                             发布
                         </button>
                     </div>
                 </div>
                 <div class="tab-item" v-if="tabId == 3">
-                    <div class="toolbar flex flex-row-reverse pb-4">
+                    <div class="toolbar flex pb-4">
                         <button
                             type="button"
-                            class="btn-primary mx-3 px-3 py-1"
+                            class="btn primary ml-auto px-3 py-1"
                             @click="updateMeta">
                             更新
                         </button>
-                        <button type="button" class="btn-primary mx-3 px-3 py-1" @click="saveMeta">
+                        <button type="button" class="btn success ml-3 px-3 py-1" @click="saveMeta">
                             保存
                         </button>
                     </div>
@@ -156,6 +166,20 @@
                         </table>
                     </div>
                 </div>
+
+                <div class="tab-item" v-if="tabId == 4">
+                    <div class="toolbar flex pb-4">
+                        <button class="btn primary px-3 py-1 ml-auto" @click="postNewComment">
+                            更新
+                        </button>
+                        <button class="btn warn px-3 py-1 ml-3" @click="postNewComment">
+                            禁用
+                        </button>
+                        <button class="btn danger px-3 py-1 ml-3" @click="postNewComment">
+                            删除
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -188,6 +212,7 @@ import { basicStore } from '@/stores/index'
 const basic = basicStore()
 const locale = computed(() => basic.locale)
 const isAdmin = computed(() => basic.isAdmin)
+const nickname = computed(() => basic.nickname)
 
 const metas = ref<MetaData[]>([])
 

@@ -50,7 +50,7 @@
                             </p>
                             <div
                                 class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
-                                <a href="#" class="btn-primary px-3.5 py-2.5">开始阅读</a>
+                                <a href="#" class="btn primary px-3.5 py-2.5">开始阅读</a>
                                 <a href="#" class="text-sm font-semibold leading-6"
                                     >Start Reading <span aria-hidden="true">→</span></a
                                 >

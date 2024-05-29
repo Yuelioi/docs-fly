@@ -12,3 +12,6 @@ Addr = "8088"
 # @1 ,初始化数据库, 只会生成文件配置信息meta.json,不会更改markdown文章内容
 # @2 ,更新模式,根据@0@1生成的meta.json更新
 DBMode = 2
+
+Username = "admin"
+Password = "admin"

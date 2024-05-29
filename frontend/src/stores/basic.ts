@@ -20,6 +20,8 @@ export const basicStore = defineStore('basic', () => {
      */
     const locale = ref('')
 
+    const nickname = ref('')
+
     /**
      * 语言字典,后续可以单独保存配置文件
      */
@@ -51,5 +53,5 @@ export const basicStore = defineStore('basic', () => {
         return i18n[source as keyof typeof i18n][locale.value as 'en' | 'zh']
     }
 
-    return { isAdmin, token, locale, translate }
+    return { isAdmin, token, nickname, locale, translate }
 })

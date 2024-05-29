@@ -9,8 +9,12 @@ import (
 type Config struct {
 	Resource string
 	Database string
-	Addr     string
-	DBMode   int
+
+	Addr   string
+	DBMode int
+
+	Username string
+	Password string
 }
 
 var AppConfig Config

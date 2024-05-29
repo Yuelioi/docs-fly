@@ -5,8 +5,32 @@
 
 
 @layer components {
-    .btn-primary {
-        @apply rounded-md bg-sky-500 hover:bg-sky-700 text-white-base text-sm font-semibold shadow-sm focus-visible:outline;
+    .btn {
+        @apply rounded-md text-white-base text-sm font-semibold shadow-sm focus-visible:outline;
+    }
+
+    .primary {
+        @apply bg-blue-500 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-500;
+    }
+
+    .secondary {
+        @apply bg-blue-500 hover:bg-blue-700;
+    }
+
+    .info {
+        @apply bg-blue-300 hover:bg-blue-600;
+    }
+
+    .success {
+        @apply bg-emerald-400 hover:bg-emerald-600;
+    }
+
+    .warn {
+        @apply bg-amber-300 hover:bg-amber-500;
+    }
+
+    .danger {
+        @apply bg-red-400 hover:bg-red-600;
     }
 
 }
