@@ -5,7 +5,7 @@
             <div class="w-full h-[50vh] relative">
                 <div class="flex justify-center items-center h-full select-none">
                     <span
-                        class="animated-text absolute z-20 top-1/3 text-red-50 md:text-2xl text-xl lg:text-3xl"
+                        class="animated-text absolute z-20 text-slate-200 top-1/3 md:text-2xl text-xl lg:text-3xl"
                         >{{ yiyan }}</span
                     >
                 </div>
@@ -21,7 +21,7 @@
             <div class="md:mt-[-14rem]">
                 <div class="mx-auto max-w-7xl py-12 sm:px-8 sm:py-24 lg:px-8">
                     <div
-                        class="relative isolate overflow-hidden bg-slate-100 dark:bg-dark-base px-8 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0">
+                        class="relative isolate overflow-hidden bg-theme-base px-8 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0">
                         <svg
                             viewBox="0 0 1024 1024"
                             class="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)] sm:left-full sm:-ml-80 lg:left-1/2 lg:ml-0 lg:-translate-x-1/2 lg:translate-y-0"
@@ -59,7 +59,7 @@
                         <div class="mt-8 relative lg:w-1/2 h-80 lg:-mt-8">
                             <div class="h-80 w-full lg:-mt-8 absolute">
                                 <img
-                                    class="absolute left-0 top-8 w-full lg:w-[60rem] max-w-none rounded-md bg-white-base/5 ring-1 ring-white/10"
+                                    class="absolute left-0 top-8 w-full lg:w-[60rem] max-w-none rounded-md ring-1 ring-white/10"
                                     src="https://cdn.yuelili.com/docs/web/assert/anime-girl.jpg"
                                     alt="App screenshot"
                                     width="1824"
@@ -72,10 +72,10 @@
             <!--  -->
 
             <!-- 主页信息统计区域 -->
-            <div class="bg-white-base dark:bg-dark-base">
+            <div class="">
                 <div class="mx-auto max-w-7xl py-18 sm:px-6 sm:py-32 lg:px-8">
                     <div
-                        class="max-h-96 relative rounded-b-none rounded-3xl border-radius isolate overflow-hidden bg-gray-900 py-24 sm:py-32">
+                        class="max-h-96 relative rounded-b-none rounded-3xl border-radius isolate overflow-hidden py-24 sm:py-32">
                         <img
                             src="https://cdn.yuelili.com/docs/web/assert/anime-girl-dream.jpg"
                             alt=""

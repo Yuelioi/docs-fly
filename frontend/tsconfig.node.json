@@ -4,6 +4,7 @@
         "vite.config.*",
         "cypress.config.*",
         "nightwatch.conf.*",
+        "tools/*.ts"
     ],
     "compilerOptions": {
         "composite": true,
