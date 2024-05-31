@@ -32,14 +32,17 @@ export default {
                 '2xl': '1920px'
             },
             colors: {
-                white: {
-                    light: '#e4e8f7',
-                    base: '#fff'
-                },
-                dark: {
-                    light: 'rgb(34 42 59)',
-                    base: '#0f172a',
-                    extra: 'rgb(7 13 26)'
+                theme: {
+                    'text-base': 'var(--color-text-base)',
+                    'text-muted': 'var(--color-text-muted)',
+                    'text-inverse': 'var(--color-text-inverse)',
+
+                    primary: 'var(--color-primary)',
+                    secondary: 'var(--color-secondary)',
+                    danger: 'var(--color-danger)',
+                    warn: 'var(--color-warn)',
+                    success: 'var(--color-success)',
+                    info: 'var(--color-info)'
                 }
             },
             textColor: {
@@ -59,43 +62,53 @@ export default {
                     card: 'var(--color-bg-card)',
                     header: 'var(--color-bg-header)',
                     footer: 'var(--color-bg-footer)',
-                    button: {
-                        primary: 'var(--color-btn-primary)',
-                        secondary: 'var(--color-btn-secondary)',
-                        danger: 'var(--color-btn-danger)'
+
+                    primary: {
+                        base: 'var(--color-bg-primary)',
+                        hover: 'var(--color-bg-primary-hover)'
                     },
-                    tooltip: 'var(--color-tooltip-bg)'
+                    secondary: {
+                        base: 'var(--color-bg-secondary)',
+                        hover: 'var(--color-bg-secondary-hover)'
+                    },
+                    danger: {
+                        base: 'var(--color-bg-danger)',
+                        hover: 'var(--color-bg-danger-hover)'
+                    },
+                    warn: {
+                        base: 'var(--color-bg-warn)',
+                        hover: 'var(--color-bg-warn-hover)'
+                    },
+                    success: {
+                        base: 'var(--color-bg-success)',
+                        hover: 'var(--color-bg-success-hover)'
+                    },
+                    info: {
+                        base: 'var(--color-bg-info)',
+                        hover: 'var(--color-bg-info-hover)'
+                    },
+
+                    tooltip: 'var(--color-tooltip-bg)',
+                    backToTop: {
+                        base: 'var(--color-bg-back-top)',
+                        hover: 'var(--color-bg-back-top-hover)'
+                    }
                 }
             },
             borderColor: {
                 theme: {
-                    base: withOpacity('--color-border-base'),
-                    muted: withOpacity('--color-border-muted')
+                    base: 'var(--color-border-base)',
+                    primary: 'var(--color-primary)',
+                    muted: 'var(--color-border-muted)'
                 }
             }
         }
     },
     plugins: [
-        plugin(function ({ addComponents }) {
-            addComponents({
-                '.btn': {
-                    padding: '.5rem 1rem',
-                    borderRadius: '.25rem',
-                    fontWeight: '600'
-                },
-                '.btn-blue': {
-                    backgroundColor: '#3490dc',
-                    color: '#fff',
-                    '&:hover': {
-                        backgroundColor: '#2779bd'
-                    }
-                },
-                '.btn-red': {
-                    backgroundColor: '#e3342f',
-                    color: '#fff',
-                    '&:hover': {
-                        backgroundColor: '#cc1f1a'
-                    }
+        plugin(function ({ addComponents, addBase }) {
+            addBase({
+                textarea: {
+                    backgroundColor: 'transparent'
                 }
             })
         })

@@ -72,7 +72,7 @@
                                             }
                                         }"
                                         :key="chapter_index + document_index"
-                                        class="block border-l pl-4 -ml-px border-slate-300 hover:pl-3.5 hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-400 hover:rounded dark:hover:bg-slate-800"
+                                        class="pl-4 -ml-px hover:pl-3.5 hover:pr-4 hover:border-theme-primary hover:border-l-4"
                                         @click.stop
                                         ><span>{{
                                             addZero(document_index + 1, 2) +
@@ -267,7 +267,7 @@ function init() {
     chapters.value.forEach((chapter: ChapterInfo, index: number) => {
         const chapterData = {
             ...chapter,
-            collapsed: true,
+            collapsed: chapters.value.length > virtual_limit_length,
             id: index
         } as ChapterData
 

@@ -1,14 +1,30 @@
 :root {
-    --color-bg-base: rgb(245, 245, 245);
+    --color-bg-base: rgb(234, 235, 237);
     --color-bg-card: rgb(255, 255, 255);
 
     --color-bg-header: rgb(230, 230, 230);
-    --color-bg-footer: rgb(220, 220, 220);
+    --color-bg-footer: rgb(235, 235, 235);
 
-    --color-btn-primary: rgb(34, 139, 230);
-    --color-btn-secondary: rgb(100, 100, 100);
-    --color-btn-danger: rgb(255, 59, 48);
-    --color-tooltip-bg: rgb(0, 0, 0);
+    --color-primary: rgb(34, 139, 230);
+    --color-secondary: rgb(128, 0, 128);
+    --color-danger: rgb(255, 59, 48);
+    --color-warn: rgb(255, 159, 10);
+    --color-success: rgb(52, 199, 89);
+    --color-info: rgb(90, 200, 250);
+
+    --color-bg-primary: rgb(34, 139, 230);
+    --color-bg-secondary: rgb(128, 0, 128);
+    --color-bg-danger: rgb(255, 59, 48);
+    --color-bg-warn: rgb(255, 159, 10);
+    --color-bg-success: rgb(52, 199, 89);
+    --color-bg-info: rgb(90, 200, 250);
+
+    --color-bg-primary-hover: rgba(34, 139, 230, 0.8);
+    --color-bg-secondary-hover: rgba(128, 0, 128, 0.8);
+    --color-bg-danger-hover: rgba(255, 59, 48, 0.8);
+    --color-bg-warn-hover: rgba(255, 159, 10, 0.8);
+    --color-bg-success-hover: rgba(52, 199, 89, 0.8);
+    --color-bg-info-hover: rgba(90, 200, 250, 0.8);
 
     --color-text-base: rgb(33, 37, 41);
     --color-text-muted: rgb(108, 117, 125);
@@ -19,4 +35,9 @@
 
     --color-link-base: rgb(0, 123, 255);
     --color-link-hover: rgb(0, 86, 179);
+
+    --color-tooltip-bg: rgb(0, 0, 0);
+
+    --color-bg-back-top: rgb(230, 231, 234);
+    --color-bg-back-top-hover: rgb(200, 201, 204);
 }

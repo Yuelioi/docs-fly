@@ -1,6 +1,6 @@
 <template>
     <div class="fixed h-full w-full left-0 py-64 px-8 z-50">
-        <div class="rounded-lg w-[576px] mx-auto top-36 bg-white-base dark:bg-dark-light">
+        <div class="rounded-lg w-[576px] mx-auto top-36 bg-theme-card dark:bg-dark-light">
             <div class="flex flex-col justify-center py-12 relative">
                 <div class="absolute right-4 top-4">
                     <i class="pi pi-times" @click="showLoginWindow = false" :size="24"></i>
@@ -29,7 +29,7 @@
                                     type="username"
                                     autocomplete="username"
                                     required
-                                    class="px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 dark:bg-slate-800 placeholder:text-gray-400 focus:ring-2 focus:ring-inset !focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                    class="px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 bg-theme-base placeholder:text-gray-400 focus:ring-2 focus:ring-inset !focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                             </div>
                         </div>
 
@@ -46,7 +46,7 @@
                                     type="password"
                                     autocomplete="current-password"
                                     required
-                                    class="dark:bg-slate-800 px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-200 sm:text-sm sm:leading-6" />
+                                    class="bg-theme-base px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-200 sm:text-sm sm:leading-6" />
                             </div>
                         </div>
 
@@ -54,7 +54,7 @@
                             <button
                                 type="submit"
                                 @click.prevent="login"
-                                class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                class="flex w-full justify-center rounded-md bg-theme-primary-base px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                 登录
                             </button>
                         </div>

@@ -3,7 +3,7 @@
         <button
             v-show="show"
             id="scrollToTop"
-            class="fixed right-12 duration-200 transition-opacity ease-in-out bottom-12 w-8 h-8 bg-white-base p-3 rounded-full flex items-center justify-center"
+            class="fixed right-12 duration-200 transition-opacity ease-in-out bottom-12 w-8 h-8 bg-theme-backToTop-base hover:bg-theme-backToTop-hover p-3 rounded-full flex items-center justify-center"
             @click="scrollToTop()">
             <i class="pi pi-sort-up"></i></button
     ></transition>

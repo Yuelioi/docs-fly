@@ -2,7 +2,7 @@
     <div class="">
         <!-- 书籍章节大纲 Chapter -->
         <aside
-            class="hidden mt-1 lg:block fixed lg:w-[15rem] xl:w-[18rem] z-20 top-[3.8125rem] border-r-slate-300 border-r-2 right-auto pb-16 pl-8 h-full">
+            class="hidden mt-1 lg:block fixed lg:w-[15rem] xl:w-[18rem] z-20 top-[3.8125rem] border-r-2 right-auto pb-16 pl-8 h-full">
             <PostChapter v-model:chapters="chapters" />
         </aside>
 
@@ -13,7 +13,7 @@
 
         <!-- 文章目录 Toc -->
         <div
-            class="pl-6 mt-1 hidden lg:block fixed lg:w-[15rem] xl:w-[20rem] right-2 border-l-slate-300 border-l-2 w-[14rem] top-[3.8125rem] h-full">
+            class="pl-6 mt-1 hidden lg:block fixed lg:w-[15rem] xl:w-[20rem] right-2 border-l-2 w-[14rem] top-[3.8125rem] h-full">
             <PostToc :toc="toc" />
         </div>
     </div>

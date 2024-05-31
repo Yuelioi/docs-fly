@@ -1,5 +1,5 @@
 <template>
-    <div class="h-16 w-full basis-10">
+    <div class="h-16 w-full basis-10 shadow-md">
         <div
             class="flex flex-row h-16 items-center justify-around sm:mx-[2rem] md:mx-[3rem] lg:mx-[5rem] xl:mx-[7.5rem] 2xl:mx-[10rem]">
             <div class="left flex cat-menu">
@@ -20,9 +20,9 @@
                         <span class="font-bold cursor-default">{{ nav.display_name }}</span>
 
                         <ul
-                            class="absolute top-16 rounded-lg bg-white-base dark:bg-dark-light scale-0 group-hover:scale-100 ease-in-out duration-300 origin-top-left z-50">
+                            class="absolute top-16 rounded-lg bg-theme-card scale-0 group-hover:scale-100 ease-in-out duration-300 origin-top-left z-50">
                             <router-link
-                                class="px-6 py-3 flex items-center last:pb-4 hover:bg-slate-100 dark:hover:bg-slate-500 w-full whitespace-nowrap"
+                                class="px-6 py-3 flex items-center last:pb-4 hover:bg-theme-primary-hover w-full whitespace-nowrap"
                                 v-for="(child, index_item) in nav.children"
                                 :key="index_item"
                                 :to="{

@@ -6,7 +6,7 @@
             class="search fixed w-screen h-full pt-8 z-50 flex flex-col align-center">
             <div
                 @click.stop
-                class="dialog relative bg-white-base dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] md:w-[80%] md:left-[10%] lg:w-1/2 lg:left-1/4 max-h-1/2 z-50 top-18">
+                class="dialog relative bg-theme-card dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] md:w-[80%] md:left-[10%] lg:w-1/2 lg:left-1/4 max-h-1/2 z-50 top-18">
                 <!-- 顶部工具 -->
                 <div class="w-full flex-col h-16 z-50">
                     <div class="flex justify-around border-b-2 mt-4 pb-4">
@@ -28,10 +28,10 @@
                                     class="absolute z-[100] top-[3rem] rounded h-32">
                                     <ul
                                         @mouseleave="showSearchDropdown = false"
-                                        class="bg-white-base dark:bg-dark-light overflow-y-scroll mt-1 max-h-56 w-full rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                        class="bg-theme-base dark:bg-dark-light overflow-y-scroll mt-1 max-h-56 w-full rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                         <li
                                             v-for="(option, index) in options"
-                                            class="px-6 py-3 last:pb-4 hover:bg-slate-100 dark:hover:bg-dark-base hover:rounded-lg w-full whitespace-normal"
+                                            class="px-6 py-3 last:pb-4 hover:bg-theme-primary-hover hover:rounded-lg w-full whitespace-normal"
                                             :key="index"
                                             @click="select(option)">
                                             <span>{{ option.display_name }}</span>
@@ -85,7 +85,7 @@
                                 :key="data.document_identity">
                                 <div class="p-2">
                                     <div
-                                        class="hover:bg-slate-100 dark:hover:bg-dark-light relative border-b dark:bg-slate-800 rounded-lg hover:rounded-lg p-4">
+                                        class="hover:bg-theme-primary-hover relative border-b rounded-lg hover:rounded-lg p-4">
                                         <a
                                             class="relative max-w-[1/2]"
                                             v-bind:href="conventLink(data)"
@@ -97,9 +97,8 @@
                                                         {{ data.document_display_name }}</span
                                                     >
                                                     <div class="absolute right-4 top-0">
-                                                        <i
-                                                            class="pi pi-book pr-2 text-slate-400"></i>
-                                                        <span class="text-slate-400">
+                                                        <i class="pi pi-book pr-2"></i>
+                                                        <span class="">
                                                             {{
                                                                 data.category_display_name +
                                                                 '/' +
@@ -129,6 +128,7 @@
 </template>
 
 <script setup lang="ts">
+// TODO 搜索结果分页
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 import { useRouter } from 'vue-router'

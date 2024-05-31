@@ -26,18 +26,17 @@
 
         <div class="tab pt-16">
             <div class="border-b">
-                <div
-                    class="text-sm font-medium text-center text-gray-500 border-b dark:text-gray-400 dark:border-gray-700">
+                <div class="text-sm font-medium text-center border-b">
                     <ul class="flex flex-wrap -mb-px select-none">
                         <li :class="['me-2', 'group', { active: tabId === 1 }]" @click="tabId = 1">
                             <span
-                                class="inline-block p-4 group-[.active]:text-blue-600 group-[.active]:border-blue-600 group-[.active]:border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                                class="inline-block p-4 group-[.active]:text-theme-primary group-[.active]:border-theme-primary group-[.active]:border-b-2 rounded-t-lg"
                                 >章节</span
                             >
                         </li>
                         <li :class="['me-2', 'group', { active: tabId === 2 }]" @click="tabId = 2">
                             <span
-                                class="inline-block p-4 group-[.active]:text-blue-600 group-[.active]:border-blue-600 group-[.active]:border-b-2 rounded-t-lg"
+                                class="inline-block p-4 group-[.active]:text-theme-primary group-[.active]:border-theme-primary group-[.active]:border-b-2 rounded-t-lg"
                                 aria-current="page"
                                 >评论</span
                             >
@@ -47,7 +46,7 @@
                             :class="['me-2', 'group', { active: tabId === 3 }]"
                             @click="tabId = 3">
                             <span
-                                class="inline-block p-4 group-[.active]:text-blue-600 group-[.active]:border-blue-600 group-[.active]:border-b-2 rounded-t-lg"
+                                class="inline-block p-4 group-[.active]:text-theme-primary group-[.active]:border-theme-primary group-[.active]:border-b-2 rounded-t-lg"
                                 aria-current="page"
                                 >编辑元数据</span
                             >
@@ -57,7 +56,7 @@
                             @click="tabId = 4"
                             :class="['me-2', 'group', { active: tabId === 4 }]">
                             <span
-                                class="inline-block p-4 group-[.active]:text-blue-600 group-[.active]:border-blue-600 group-[.active]:border-b-2 rounded-t-lg"
+                                class="inline-block p-4 group-[.active]:text-theme-primary group-[.active]:border-theme-primary group-[.active]:border-b-2 rounded-t-lg"
                                 aria-current="page"
                                 >书籍设置</span
                             >
@@ -75,7 +74,7 @@
                             v-else
                             v-for="(chapter, index) in bookDatas.children"
                             :key="index"
-                            class="py-2 px-4 border-b hover:bg-slate-100 border-dashed dark:hover:bg-slate-700 rounded-md flex items-center"
+                            class="py-2 px-4 border-b hover:bg-theme-card border-dashed rounded-md flex items-center"
                             :to="{
                                 name: 'post',
                                 params: {
@@ -105,7 +104,9 @@
                             :placeholder="poem"></textarea>
                     </div>
                     <div class="mt-2 flex">
-                        <button class="btn primary px-3 py-1 ml-auto" @click="postNewComment">
+                        <button
+                            class="btn bg-theme-primary-base hover:bg-theme-primary-hover px-3 py-1 ml-auto"
+                            @click="postNewComment">
                             发布
                         </button>
                     </div>
@@ -114,7 +115,7 @@
                     <div class="toolbar flex pb-4">
                         <button
                             type="button"
-                            class="btn primary ml-auto px-3 py-1"
+                            class="btn bg-theme-primary-base hover:bg-theme-primary-hover ml-auto px-3 py-1"
                             @click="updateMeta">
                             更新
                         </button>
