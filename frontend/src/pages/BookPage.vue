@@ -25,8 +25,8 @@
         </div>
 
         <div class="tab pt-16">
-            <div class="border-b">
-                <div class="text-sm font-medium text-center border-b">
+            <div class="border-b-2 border-theme-muted">
+                <div class="text-sm font-medium text-center">
                     <ul class="flex flex-wrap -mb-px select-none">
                         <li :class="['me-2', 'group', { active: tabId === 1 }]" @click="tabId = 1">
                             <span
@@ -94,13 +94,13 @@
                 </div>
 
                 <div class="tab-item" v-if="tabId == 2">
-                    <div class="border w-full rounded-md">
+                    <div class="w-full">
                         <textarea
                             name=""
                             id=""
                             cols="30"
                             rows="3"
-                            class="w-full py-3 px-4"
+                            class="w-full py-3 px-4 rounded-md min-h-12"
                             :placeholder="poem"></textarea>
                     </div>
                     <div class="mt-2 flex">

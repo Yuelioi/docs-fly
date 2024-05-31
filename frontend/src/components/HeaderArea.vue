@@ -1,5 +1,5 @@
 <template>
-    <div class="h-16 w-full basis-10 shadow-md">
+    <div class="h-16 w-full">
         <div
             class="flex flex-row h-16 items-center justify-around sm:mx-[2rem] md:mx-[3rem] lg:mx-[5rem] xl:mx-[7.5rem] 2xl:mx-[10rem]">
             <div class="left flex cat-menu">
@@ -22,7 +22,7 @@
                         <ul
                             class="absolute top-16 rounded-lg bg-theme-card scale-0 group-hover:scale-100 ease-in-out duration-300 origin-top-left z-50">
                             <router-link
-                                class="px-6 py-3 flex items-center last:pb-4 hover:bg-theme-primary-hover w-full whitespace-nowrap"
+                                class="px-6 py-3 flex items-center last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover w-full whitespace-nowrap"
                                 v-for="(child, index_item) in nav.children"
                                 :key="index_item"
                                 :to="{
@@ -54,23 +54,27 @@
                     <!-- pi-sun -->
                     <button @click="toggleDark()">
                         <i
-                            class="pi pi-moon ml-2 p-2 text-lg rounded-lg"
+                            class="outline-theme-primary outline-1 hover:outline pi pi-moon ml-2 p-2 text-lg rounded-lg"
                             :class="isDark ? 'i-sun' : 'pi-moon'"></i>
                     </button>
 
                     <button>
                         <router-link :to="{ name: 'star' }" :key="'star'">
-                            <i class="pi pi-star ml-2 fontsize p-2 text-lg rounded-lg"></i>
+                            <i
+                                class="outline-theme-primary outline-1 hover:outline pi pi-star ml-2 fontsize p-2 text-lg rounded-lg"></i>
                         </router-link>
                     </button>
                     <button @click="changeLocale">
-                        <i class="pi pi-language ml-2 fontsize p-2 text-lg rounded-lg"></i>
+                        <i
+                            class="outline-theme-primary outline-1 hover:outline pi pi-language ml-2 fontsize p-2 text-lg rounded-lg"></i>
                     </button>
                     <button v-if="!isAdmin" @click="showLoginWindow = true">
-                        <i class="pi pi-user ml-2 fontsize p-2 text-lg rounded-lg"></i>
+                        <i
+                            class="outline-theme-primary outline-1 hover:outline pi pi-user ml-2 fontsize p-2 text-lg rounded-lg"></i>
                     </button>
                     <button v-else @click="logout">
-                        <i class="pi pi-sign-in ml-2 fontsize p-2 text-lg rounded-lg"></i>
+                        <i
+                            class="outline-theme-primary outline-1 hover:outline pi pi-sign-in ml-2 fontsize p-2 text-lg rounded-lg"></i>
                     </button>
 
                     <div v-if="showLoginWindow">

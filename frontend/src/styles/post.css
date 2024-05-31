@@ -8,9 +8,11 @@
 .main h1 {
     font-size: 1.85rem;
 }
+
 .main h2 {
     font-size: 1.55rem;
 }
+
 .main h3 {
     font-size: 1.2rem;
 }
@@ -30,30 +32,34 @@
 .main h1:before {
     content: 'H1';
 }
+
 .main h2:before {
     content: 'H2';
 }
+
 .main h3:before {
     content: 'H3';
 }
+
 .main h4:before {
     content: 'H4';
 }
+
 .main h5:before {
     content: 'H5';
 }
+
 .main h6:before {
     content: 'H6';
 }
 
-.main > h1:before,
-.main > h2:before,
-.main > h3:before,
-.main > h4:before,
-.main > h5:before,
-.main > h6:before {
+.main>h1:before,
+.main>h2:before,
+.main>h3:before,
+.main>h4:before,
+.main>h5:before,
+.main>h6:before {
     float: left;
-
     padding-right: 0.25rem;
     margin-top: 0.25rem;
     margin-left: -1.75rem;
@@ -73,6 +79,7 @@
 .main img {
     margin: 1rem 0;
 }
+
 #vditor code {
     background: #1e293b;
 }
@@ -88,6 +95,7 @@
 .chroma pre {
     color: #e2e4e5;
 }
+
 .chroma table td {
     border: none;
 }
@@ -113,21 +121,23 @@
     opacity: 1;
 }
 
-.chroma tr > td:first-child {
+.chroma tr>td:first-child {
     padding: 1.5rem 0.6rem 0.6rem 0.6rem;
     border: none;
     border-right: 2px solid #000000;
 }
-.chroma tr > td:nth-child(2) {
+
+.chroma tr>td:nth-child(2) {
     padding: 1.5rem 0.6rem 0.6rem 0.75rem;
     border: none;
     border-left: 2px solid #454545;
 }
 
-.chroma tr > td:nth-child(2) pre {
+.chroma tr>td:nth-child(2) pre {
     position: relative;
 }
-.chroma tr > td:nth-child(2) pre::before {
+
+.chroma tr>td:nth-child(2) pre::before {
     content: attr(data-language);
     color: rgba(235, 235, 235, 0.38);
     padding: 3px;
@@ -140,7 +150,7 @@
     transition: opacity 0.5s;
 }
 
-.chroma tr > td:nth-child(2) {
+.chroma tr>td:nth-child(2) {
     width: 100%;
 }
 
@@ -160,9 +170,11 @@ pre.vditor-reset,
 .vditor {
     border: none;
 }
+
 .vditor-toolbar.vditor-toolbar--pin {
     background: transparent !important;
 }
+
 .vditor .vditor-reset {
     padding: 1rem !important;
 }
@@ -171,6 +183,7 @@ pre.vditor-reset,
     padding: 0.6rem;
     font-size: 1rem;
 }
+
 @media screen and (min-width: 576px) {
     .vditor .vditor-reset {
         padding: 2rem !important;

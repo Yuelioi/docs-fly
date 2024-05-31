@@ -1,6 +1,6 @@
 <template>
     <div class="w-full">
-        <div class="flex flex-col">
+        <div class="flex flex-col -mt-1">
             <!-- 主页手风琴 -->
             <div class="w-full h-[50vh] relative">
                 <div class="flex justify-center items-center h-full select-none">

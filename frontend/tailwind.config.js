@@ -105,12 +105,8 @@ export default {
         }
     },
     plugins: [
-        plugin(function ({ addComponents, addBase }) {
-            addBase({
-                textarea: {
-                    backgroundColor: 'transparent'
-                }
-            })
+        plugin(function ({ addComponents, addBase, theme }) {
+            addBase({})
         })
     ]
 }

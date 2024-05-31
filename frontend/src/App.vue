@@ -10,11 +10,11 @@ import { themeState } from './utils/themeManager'
     <div :class="themeState.currentTheme" class="bg-theme-base text-theme-base border-theme-base">
         <div class="flex flex-col h-lvh">
             <!--  顶部导航栏  -->
-            <div class="header-area shadow-md"><HeaderArea /></div>
+            <div class="header-area shadow-md border border-b-theme-base"><HeaderArea /></div>
             <!--  顶部导航栏结束  -->
 
             <!--  主要内容  -->
-            <div class="content flex-grow bg-theme-base">
+            <div class="content flex-grow bg-theme-base border-2 border-t-theme-muted">
                 <router-view></router-view>
             </div>
             <!--  主要内容结束 -->
@@ -28,3 +28,5 @@ import { themeState } from './utils/themeManager'
     </div>
     <BackTop />
 </template>
+
+<style scoped></style>
