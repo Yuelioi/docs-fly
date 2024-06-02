@@ -22,20 +22,20 @@ type SearchResult struct {
 type SearchData struct {
 	Locale string `json:"locale"`
 
-	CategoryIdentity    string `json:"category_identity"`
-	CategoryDisplayName string `json:"category_display_name"`
+	CategoryName  string `json:"category_identity"`
+	CategoryTitle string `json:"category_display_name"`
 
-	BookIdentity    string `json:"book_identity"`
-	BookDisplayName string `json:"book_display_name"`
+	BookName  string `json:"book_identity"`
+	BookTitle string `json:"book_display_name"`
 
-	ChapterIdentity    string `json:"chapter_identity"`
-	ChapterDisplayName string `json:"chapter_display_name"`
+	ChapterName  string `json:"chapter_identity"`
+	ChapterTitle string `json:"chapter_display_name"`
 
-	SectionIdentity    string `json:"section_identity"`
-	SectionDisplayName string `json:"section_display_name"`
+	SectionName  string `json:"section_identity"`
+	SectionTitle string `json:"section_display_name"`
 
-	DocumentIdentity    string `json:"document_identity"`
-	DocumentDisplayName string `json:"document_display_name"`
+	DocumentName  string `json:"document_identity"`
+	DocumentTitle string `json:"document_display_name"`
 
 	Content string `json:"content"`
 }

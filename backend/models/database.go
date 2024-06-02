@@ -1,3 +1,4 @@
+// 数据库模型
 package models
 
 import (
@@ -6,78 +7,28 @@ import (
 	"gorm.io/gorm"
 )
 
-// 用于写入本地 追加个临时的
-type MetaDataLocal struct {
-	MetaDatas []MetaData
-	Filepath  string
-}
-
+// 分类, 记录文件夹
 type Category struct {
 	gorm.Model
 	MetaData
-	ModTime  time.Time
-	Books    []Book
-	Filepath string
+	ModTime   time.Time
+	Display   bool // 是否显示
+	Documents []Document
 }
 
-type Book struct {
-	gorm.Model
-	MetaData
-	ModTime     time.Time
-	Description string `json:"description"` // 从Readme读取
-	CategoryID  uint
-	Category    Category
-	Chapters    []Chapter
-	Sections    []Section
-	Documents   []Document
-	Filepath    string
-}
-
-type Chapter struct {
-	gorm.Model
-	MetaData
-	ModTime    time.Time
-	Locale     string
-	CategoryID uint
-	Category   Category
-	BookID     uint
-	Book       Book
-	Sections   []Section
-	Documents  []Document
-	Filepath   string
-}
-
-type Section struct {
-	gorm.Model
-	MetaData
-	ModTime    time.Time
-	Locale     string
-	CategoryID uint
-	Category   Category
-	BookID     uint
-	Book       Book
-	ChapterID  uint
-	Chapter    Chapter
-	Documents  []Document
-	Filepath   string
-}
-
+// 文档(.md) 记录文件信息
 type Document struct {
 	gorm.Model
 	MetaData
 	ModTime    time.Time
 	Locale     string
 	Content    string
-	Html       string
+	Filepath   string
+	Hash       string
+	Size       uint
 	CategoryID uint
 	Category   Category
-	BookID     uint
-	Book       Book
-	ChapterID  uint
-	Chapter    Chapter
-	Section    Section
-	SectionID  uint
-	Filepath   string
+	Status     string
 }
 
 // 访客记录
@@ -95,7 +46,7 @@ type Visitor struct {
 type User struct {
 	gorm.Model
 	Username string `gorm:"unique_index"`
-	Nickname string `json:"nickname"`
 	Password string `json:"password"`
+	Nickname string `json:"nickname"`
 	IP       string `json:"ip"`
 }

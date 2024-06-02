@@ -25,7 +25,6 @@ func GetStatisticHome(c *gin.Context) {
 		TodayVisitorCount      int64
 	)
 
-	db.Model(models.Book{}).Count(&BooksCount)
 	db.Model(models.Document{}).Count(&DocumentsCount)
 
 	db.Model(models.Visitor{}).Count(&HistoricalVisitorCount)
@@ -62,7 +61,6 @@ func GetStatisticBook(c *gin.Context) {
 	}
 
 	var catInfo models.Category
-	var bookInfo models.Book
 	var bookReadCount int64
 	var chapterCount int64
 	var documentCount int64
@@ -72,9 +70,6 @@ func GetStatisticBook(c *gin.Context) {
 
 	// 获取书籍数量
 	db.Model(models.Category{}).Where("identity= ?", category).First(&catInfo)
-	db.Model(models.Book{}).Where("category_id = ?", catInfo.ID).Where("identity = ?", book).Find(&bookInfo)
-	db.Model(models.Chapter{}).Where("category_id = ?", catInfo.ID).Where("book_id=?", bookInfo.ID).Count(&chapterCount)
-	db.Model(models.Document{}).Where("category_id = ?", catInfo.ID).Where("book_id=?", bookInfo.ID).Count(&documentCount)
 
 	type bookCount struct {
 		ReadCount     int64 `json:"read_count"`

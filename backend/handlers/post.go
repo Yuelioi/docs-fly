@@ -143,27 +143,11 @@ func GetPostHtml(c *gin.Context) {
 
 func getPostData(db *gorm.DB, category, book, locale, chapter, section, document string) *models.Document {
 	var catInfo models.Category
-	var bookInfo models.Book
-	var chapterInfo models.Chapter
-	var sectionInfo models.Section
+
 	var documentInfo models.Document
 
 	db.Model(&catInfo).Select("id").Where("identity = ?", category).First(&catInfo)
-	db.Model(&bookInfo).Select("id").Where("identity = ?", book).Where("category_id = ?", catInfo.ID).First(&bookInfo)
 
-	if chapter != "" {
-		db.Model(&chapterInfo).Select("id").Where("identity = ?", chapter).Where("book_id = ?", bookInfo.ID).Where("locale=?", locale).First(&chapterInfo)
-		if section != "" {
-			db.Model(&sectionInfo).Select("id").Where("identity = ?", section).Where("chapter_id = ?", chapterInfo.ID).First(&sectionInfo)
-			db.Model(&documentInfo).Where("identity = ?", document).Where("section_id = ?", sectionInfo.ID).First(&documentInfo)
-		} else {
-			db.Model(&documentInfo).Where("identity = ?", document).Where("chapter_id = ?", chapterInfo.ID).First(&documentInfo)
-
-		}
-
-	} else {
-		db.Model(&documentInfo).Where("identity = ?", document).Where("book_id = ?", bookInfo.ID).Where("locale=?", locale).First(&documentInfo)
-	}
 	return &documentInfo
 
 }
@@ -230,8 +214,6 @@ func SavePost(c *gin.Context) {
 // 获取当前书籍章节信息,没有章节则直接获取文档信息
 func GetChapter(c *gin.Context) {
 	category := c.Query("category")
-	book := c.Query("book")
-	locale := c.Query("locale")
 
 	db, err := database.DbManager.Connect()
 
@@ -241,90 +223,28 @@ func GetChapter(c *gin.Context) {
 	}
 
 	var catInfo models.Category
-	var bookInfo models.Book
-	var chapterInfo models.Chapter
 
 	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-	db.Model(&bookInfo).Select("id").Where("identity = ?", book).Where("category_id = ?", catInfo.ID).First(&bookInfo)
-	db.Model(&models.Chapter{}).Where("book_id = ?", bookInfo.ID).Where("locale=?", locale).First(&chapterInfo)
 
 	var result []models.ChapterInfo
 
-	if bookInfo.ID == 0 {
-		// 未找到当前书籍
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "未找到书籍"})
-		return
+	// 情况2.有章节
+
+	// 情况2.1 章节目录层级也有文章, 即父级chapter为0的文章
+	var chapterDocs []models.Document
+
+	id := uint(1)
+	for _, document := range chapterDocs {
+
+		result = append(result, models.ChapterInfo{
+			Category: catInfo.MetaData,
+			Document: document.MetaData,
+			ID:       id},
+		)
+		id += 1
 	}
 
-	if chapterInfo.ID == 0 {
-		//	情况1. 没有章节, 直接全部获取
-		var documents []models.Document
-		db.Model(&models.Document{}).Where("book_id = ?", bookInfo.ID).Where("locale=?", locale).Find(&documents)
-
-		for id, document := range documents {
-			result = append(result, models.ChapterInfo{
-				Category: catInfo.MetaData,
-				Document: document.MetaData,
-				ID:       uint(id),
-			},
-			)
-		}
-
-	} else {
-		// 情况2.有章节
-
-		// 情况2.1 章节目录层级也有文章, 即父级chapter为0的文章
-		var chapterDocs []models.Document
-		db.Where("book_id = ?", bookInfo.ID).Where("locale=?", locale).Where("chapter_id = ?", 0).Find(&chapterDocs)
-
-		id := uint(1)
-		for _, document := range chapterDocs {
-
-			result = append(result, models.ChapterInfo{
-				Category: catInfo.MetaData,
-				Document: document.MetaData,
-				ID:       id},
-			)
-			id += 1
-		}
-
-		// 情况2.2 获取章节
-		var chapters []models.Chapter
-
-		db.Preload("Documents").Preload("Sections").Where("book_id = ? And locale=?", bookInfo.ID, locale).Find(&chapters)
-
-		for _, chapter := range chapters {
-
-			// 章节基础信息
-			info := models.ChapterInfo{
-				Category:  catInfo.MetaData,
-				Chapter:   chapter.MetaData,
-				ID:        id,
-				Document:  models.MetaData{},
-				Sections:  []models.MetaData{},
-				Documents: []models.MetaData{},
-			}
-
-			// 情况2.2.1 获取章节下小节信息
-
-			for _, section := range chapter.Sections {
-
-				if section.ChapterID == chapter.ID {
-					info.Sections = append(info.Sections, section.MetaData)
-				}
-
-			}
-
-			// 情况2.2.2 获取章节下 没小节的文章
-			for _, document := range chapter.Documents {
-				if document.SectionID == 0 {
-					info.Documents = append(info.Documents, document.MetaData)
-				}
-			}
-			result = append(result, info)
-			id += 1
-		}
-	}
+	// 情况2.2 获取章节
 
 	c.JSON(http.StatusOK, result)
 }

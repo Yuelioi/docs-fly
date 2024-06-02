@@ -63,7 +63,7 @@ func ReadMetas(path string, info os.FileInfo) (*[]models.MetaData, error) {
 
 func SearchMeta(datas *[]models.MetaData, info os.FileInfo, order uint) *models.MetaData {
 	for _, data := range *datas {
-		if data.Identity == info.Name() {
+		if data.Name == info.Name() {
 			return &data
 		}
 	}
@@ -93,10 +93,10 @@ func ReadMarkdownMeta(path string, info os.FileInfo, order uint) (metadata *mode
 	metaReader := meta.Get(context)
 
 	metadata = &models.MetaData{
-		Identity:    Transform[string](metaReader["Identity"]),
-		DisplayName: Transform[string](metaReader["DisplayName"]),
-		Order:       Transform[uint](metaReader["Order"]),
-		Hidden:      Transform[bool](metaReader["Hidden"]),
+		Name:   Transform[string](metaReader["Name"]),
+		Title:  Transform[string](metaReader["Title"]),
+		Order:  Transform[uint](metaReader["Order"]),
+		Status: Transform[uint](metaReader["Status"]),
 	}
 	return metadata, nil
 }
@@ -106,7 +106,7 @@ func GenerateMeta(docs models.Document) string {
 display_name: %v
 order: %v
 ---
-`, docs.DisplayName, docs.Order)
+`, docs.Title, docs.Order)
 
 }
 
@@ -157,7 +157,7 @@ func InitMarkdownMeta(docs models.Document) error {
 		if metaReader["NameZH"] != nil {
 			metaReader["display_name"] = metaReader["NameZH"]
 		} else {
-			metaReader["display_name"] = docs.Identity
+			metaReader["display_name"] = docs.Name
 		}
 
 		if metaReader["Order"] != nil {
@@ -188,26 +188,26 @@ func PureFileName(file string) (fileNameWithoutExt string) {
 // 初始化Meta信息
 func CreateMeta(info os.FileInfo, order uint) *models.MetaData {
 	return &models.MetaData{
-		Identity:    info.Name(),
-		DisplayName: PureFileName(info.Name()),
-		Order:       order,
+		Name:  info.Name(),
+		Title: PureFileName(info.Name()),
+		Order: order,
 	}
 }
 
 // 修改meta数据,把零值替换成替代值
-func UpdateMeta(meta *models.MetaData, Identity, DisplayName string, Order uint, Hidden bool) {
+func UpdateMeta(meta *models.MetaData, Name, Title string, Order uint, Status uint) {
 
-	if IsZeroType(meta.Identity) {
-		meta.Identity = Identity
+	if IsZeroType(meta.Name) {
+		meta.Name = Name
 	}
-	if IsZeroType(meta.DisplayName) {
-		meta.DisplayName = DisplayName
+	if IsZeroType(meta.Title) {
+		meta.Title = Title
 	}
 	if meta.Order == 0 {
 		meta.Order = Order
 	}
-	if !meta.Hidden {
-		meta.Hidden = Hidden
+	if IsZeroType(meta.Status) {
+		meta.Status = Status
 	}
 
 }

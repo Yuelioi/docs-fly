@@ -26,26 +26,15 @@ func GetNav(c *gin.Context) {
 	for _, cat := range cats {
 		nav := models.NavData{
 			MetaData: models.MetaData{
-				Identity:    cat.Identity,
-				DisplayName: cat.DisplayName,
-				Order:       cat.Order,
-				Icon:        cat.Icon,
-				Hidden:      cat.Hidden,
+				Name:   cat.Name,
+				Title:  cat.Title,
+				Order:  cat.Order,
+				Icon:   cat.Icon,
+				Status: cat.Status,
 			},
 			Children: make([]models.MetaData, 0),
 		}
 
-		// 遍历书籍
-		for _, book := range cat.Books {
-			bk := models.MetaData{
-				Identity:    book.Identity,
-				DisplayName: book.DisplayName,
-				Order:       book.Order,
-				Icon:        book.Icon,
-				Hidden:      book.Hidden,
-			}
-			nav.Children = append(nav.Children, bk)
-		}
 		navs = append(navs, nav)
 	}
 

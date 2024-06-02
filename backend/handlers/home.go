@@ -33,13 +33,8 @@ func GetSearchOptions(c *gin.Context) {
 		option := models.SearchOption{}
 		option.MetaData = cat.MetaData
 
-		var child models.MetaData
 		// 遍历书籍
-		for _, book := range cat.Books {
 
-			child = book.MetaData
-			option.Children = append(option.Children, child)
-		}
 		options = append(options, option)
 	}
 
@@ -69,15 +64,12 @@ func Query(c *gin.Context) {
 	count := 30
 
 	var catInfo models.Category
-	var bookInfo models.Book
 	var documentInfo models.Document
 
 	var documents []models.Document
 
 	if category != "" && book != "" {
 		db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-		db.Model(&bookInfo).Where("identity = ?", book).Where("category_id = ?", catInfo.ID).First(&bookInfo)
-		db.Model(&documentInfo).Preload("Chapter").Preload("Section").Where("content LIKE ?", "%"+keyword+"%").Where("book_id = ?", bookInfo.ID).Limit(limit).Find(&documents)
 	} else {
 		db.Model(&documentInfo).Preload("Category").Preload("Book").Preload("Chapter").Preload("Section").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
 
@@ -120,27 +112,21 @@ func Query(c *gin.Context) {
 		nearbyText := string(runeText)
 
 		dsData := models.SearchData{
-			Locale:              document.Locale,
-			ChapterIdentity:     document.Chapter.Identity,
-			ChapterDisplayName:  document.Chapter.DisplayName,
-			SectionIdentity:     document.Section.Identity,
-			SectionDisplayName:  document.Section.DisplayName,
-			DocumentIdentity:    document.Identity,
-			DocumentDisplayName: document.DisplayName,
-			Content:             nearbyText,
+			Locale:        document.Locale,
+			DocumentName:  document.Name,
+			DocumentTitle: document.Title,
+			Content:       nearbyText,
 		}
 
 		// 添加额外条件
 		if category != "" && book != "" {
-			dsData.CategoryIdentity = catInfo.Identity
-			dsData.CategoryDisplayName = catInfo.DisplayName
-			dsData.BookIdentity = bookInfo.Identity
-			dsData.BookDisplayName = bookInfo.DisplayName
+			dsData.CategoryName = catInfo.Name
+			dsData.CategoryTitle = catInfo.Title
+
 		} else {
-			dsData.CategoryIdentity = document.Category.Identity
-			dsData.CategoryDisplayName = document.Category.DisplayName
-			dsData.BookIdentity = document.Book.Identity
-			dsData.BookDisplayName = document.Book.DisplayName
+			dsData.CategoryName = document.Category.Name
+			dsData.CategoryTitle = document.Category.Title
+
 		}
 
 		searchResult.Result = append(searchResult.Result, dsData)

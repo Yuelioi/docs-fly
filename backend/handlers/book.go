@@ -15,93 +15,24 @@ import (
 // 获取当前书籍章节信息,没有章节则直接获取文档信息
 func GetBook(c *gin.Context) {
 	category := c.Query("category")
-	book := c.Query("book")
-	locale := c.Query("locale")
 
 	db, err := database.DbManager.Connect()
+
+	db.Model(models.Category{}).Where("filepath like ?", "%"+category+"%")
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
 		return
 	}
 
-	var catInfo models.Category
-	var bookInfo models.Book
-	var chapterInfo models.Chapter
-
-	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-	db.Model(&bookInfo).Where("identity = ?", book).Where("category_id = ?", catInfo.ID).First(&bookInfo)
-	db.Model(&models.Chapter{}).Where("book_id = ?", bookInfo.ID).First(&chapterInfo)
-
-	result := []models.BookChapter{}
-
-	if chapterInfo.ID == 0 {
-		//	没有章节
-		var documents []models.Document
-		db.Model(&models.Document{}).Where("book_id = ?", bookInfo.ID).Find(&documents)
-
-		if len(documents) > 0 {
-			for _, document := range documents {
-				result = append(result, models.BookChapter{
-					MetaData: document.MetaData,
-					Locale:   locale,
-					Document: document.Identity,
-				},
-				)
-			}
-		}
-
-	} else { // 有章节
-		var chapters []models.Chapter
-
-		// 查询章节并只选择指定的列
-		db.Preload("Documents").Preload("Sections").Where("book_id = ?", bookInfo.ID).Where("locale = ?", locale).Where("locale=?", locale).Find(&chapters)
-
-		if len(chapters) > 0 {
-			// 循环遍历每个章节, 是否要获取文章信息 待定
-			for _, chapter := range chapters {
-
-				firstDocs := chapter.Documents[0]
-
-				result = append(result, models.BookChapter{
-					MetaData: chapter.MetaData,
-					Chapter:  chapter.Identity,
-					Section:  firstDocs.Section.Identity,
-					Document: firstDocs.Identity,
-				})
-			}
-		}
-
-	}
-
-	output := models.BookData{
-		Category: catInfo.MetaData,
-		Book:     bookInfo.MetaData,
-		Children: result,
-	}
-
-	c.JSON(http.StatusOK, output)
+	c.JSON(http.StatusOK, "")
 }
 
 func GetBookMeta(c *gin.Context) {
 	category := c.Query("category")
-	book := c.Query("book")
-	locale := c.Query("locale")
 
-	db, err := database.DbManager.Connect()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
-		return
-	}
-
-	var catInfo models.Category
-	var bookInfo models.Book
-
-	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-	db.Model(&bookInfo).Where("identity = ?", book).Where("category_id = ?", catInfo.ID).First(&bookInfo)
-
-	filepath := bookInfo.Filepath + "/" + locale + "/" + "meta.json"
+	//  TODO 直接读取即可, 不过需要
+	filepath := category + "/" + "meta.json"
 	data, err := utils.ReadJson(filepath)
 
 	if err != nil {
@@ -114,8 +45,7 @@ func GetBookMeta(c *gin.Context) {
 
 func SaveBookMeta(c *gin.Context) {
 	category := c.Query("category")
-	book := c.Query("book")
-	locale := c.Query("locale")
+
 	metas_data := c.Query("metas")
 
 	ok, err := TokenVerifyMiddleware(c)
@@ -139,13 +69,11 @@ func SaveBookMeta(c *gin.Context) {
 	}
 
 	var catInfo models.Category
-	var bookInfo models.Book
 
 	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-	db.Model(&bookInfo).Preload("Chapters").Where("identity = ?", book).Where("category_id = ?", catInfo.ID).First(&bookInfo)
 
 	// 保存meta.json
-	filepath := bookInfo.Filepath + "/" + locale + "/" + "meta.json"
+	filepath := catInfo.Filepath + "/" + "meta.json"
 	err = utils.WriteJson(filepath, metas)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Save Data"})
@@ -157,34 +85,7 @@ func SaveBookMeta(c *gin.Context) {
 	// 使用一个map来快速查找meta数据
 	metaMap := make(map[string]models.MetaData)
 	for _, meta := range metas {
-		metaMap[meta.Identity] = meta
-	}
-	chaptersToUpdate := make([]models.Chapter, 0)
-
-	for _, chapter := range bookInfo.Chapters {
-		if meta, exists := metaMap[chapter.Identity]; exists {
-			needsUpdate := false
-			if chapter.DisplayName != meta.DisplayName {
-				chapter.DisplayName = meta.DisplayName
-				needsUpdate = true
-			}
-			if chapter.Hidden != meta.Hidden {
-				chapter.Hidden = meta.Hidden
-				needsUpdate = true
-			}
-			if chapter.Order != meta.Order {
-				chapter.Order = meta.Order
-				needsUpdate = true
-			}
-			if needsUpdate {
-				chaptersToUpdate = append(chaptersToUpdate, chapter)
-			}
-		}
-	}
-
-	// 批量更新有变化的章节
-	if len(chaptersToUpdate) > 0 {
-		db.Save(&chaptersToUpdate)
+		metaMap[meta.Name] = meta
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Data saved successfully"})
@@ -192,8 +93,6 @@ func SaveBookMeta(c *gin.Context) {
 
 func UpdateBookMeta(c *gin.Context) {
 	category := c.Query("category")
-	book := c.Query("book")
-	locale := c.Query("locale")
 
 	db, err := database.DbManager.Connect()
 
@@ -203,13 +102,11 @@ func UpdateBookMeta(c *gin.Context) {
 	}
 
 	var catInfo models.Category
-	var bookInfo models.Book
 
 	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-	db.Model(&bookInfo).Preload("Chapters").Where("identity = ?", book).Where("category_id = ?", catInfo.ID).First(&bookInfo)
 
 	// 保存meta.json
-	filepath := bookInfo.Filepath + "/" + locale + "/" + "meta.json"
+	filepath := catInfo.Filepath + "/" + "meta.json"
 	metas, err := utils.ReadJson(filepath)
 
 	if err != nil {
@@ -227,34 +124,7 @@ func UpdateBookMeta(c *gin.Context) {
 		return
 	}
 	for _, meta := range metadataSlice {
-		metaMap[meta.Identity] = meta
-	}
-	chaptersToUpdate := make([]models.Chapter, 0)
-
-	for _, chapter := range bookInfo.Chapters {
-		if meta, exists := metaMap[chapter.Identity]; exists {
-			needsUpdate := false
-			if chapter.DisplayName != meta.DisplayName {
-				chapter.DisplayName = meta.DisplayName
-				needsUpdate = true
-			}
-			if chapter.Hidden != meta.Hidden {
-				chapter.Hidden = meta.Hidden
-				needsUpdate = true
-			}
-			if chapter.Order != meta.Order {
-				chapter.Order = meta.Order
-				needsUpdate = true
-			}
-			if needsUpdate {
-				chaptersToUpdate = append(chaptersToUpdate, chapter)
-			}
-		}
-	}
-
-	// 批量更新有变化的章节
-	if len(chaptersToUpdate) > 0 {
-		db.Save(&chaptersToUpdate)
+		metaMap[meta.Name] = meta
 	}
 
 	c.JSON(http.StatusOK, &metas)

@@ -64,10 +64,8 @@ func (m *SQLiteManager) Connect() (*gorm.DB, error) {
 
 	db.AutoMigrate(
 		models.User{},
-		models.Category{}, models.Book{},
-		models.Chapter{}, models.Section{},
-		models.Document{}, models.Visitor{},
-		models.Comment{},
+		models.Category{}, models.Document{},
+		models.Visitor{}, models.Comment{},
 	)
 
 	return db, nil
