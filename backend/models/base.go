@@ -10,9 +10,3 @@ type MetaData struct {
 	Status   uint   `json:"status"`   // 状态 0=草稿 1=发布 2=垃圾桶?
 	Filepath string `json:"filepath"` // 所在父级顺序
 }
-
-// 用于写入本地 追加个临时的
-type MetaDataLocal struct {
-	MetaDatas []MetaData
-	Filepath  string
-}

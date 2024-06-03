@@ -6,12 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
 )
-
-func GetFilePath(category, book, locale, chapter, section, document string) string {
-	return path.Join(global.AppConfig.Resource, category, book, locale, chapter, section, document)
-}
 
 func ReadJson(filepath string) (element any, err error) {
 	bytes, err := os.ReadFile(filepath)
@@ -65,10 +60,4 @@ func ReadNav() (element interface{}, err error) {
 		return
 	}
 	return
-}
-
-func WriteMarkdownFile(category, book, locale, chapter, section, document, content string) error {
-	mdFilepath := GetFilePath(category, book, locale, chapter, section, document)
-	err := os.WriteFile(mdFilepath, []byte(content), 0644)
-	return err
 }

@@ -30,10 +30,10 @@ func NewSQLiteManager(dbFile string) *SQLiteManager {
 	sqlManager := SQLiteManager{DbFile: dbFile}
 	sqlManager.Init(&sqlManager)
 	db, _ := sqlManager.Connect()
-	if !sqlManager.IsInitialized {
-		DBInit(db)
-		sqlManager.IsInitialized = true
-	}
+	// if !sqlManager.IsInitialized {
+	DBInit(db)
+	// 	sqlManager.IsInitialized = true
+	// }
 
 	return &sqlManager
 }
@@ -64,6 +64,7 @@ func (m *SQLiteManager) Connect() (*gorm.DB, error) {
 
 	db.AutoMigrate(
 		models.User{},
+		models.MetaDataLocal{},
 		models.Category{}, models.Document{},
 		models.Visitor{}, models.Comment{},
 	)

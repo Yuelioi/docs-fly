@@ -22,6 +22,8 @@ type FileInfo struct {
 type LocalMetaCache struct {
 	Depth     int               `json:"-"`
 	Folder    string            `json:"-"`
+	Size      int               `json:"-"`
+	Hash      string            `json:"-"`
 	Documents []models.Document `json:"documents"`
 	Categorys []models.Category `json:"categorys"`
 }
@@ -92,6 +94,7 @@ func DBInit(db *gorm.DB) error {
 	cats := make([]models.Category, 0)
 	docs := make([]models.Document, 0)
 	localMetas := make([]LocalMetaCache, 0)
+	dbLocalMetas := make([]models.MetaDataLocal, 0)
 
 	// 上一文件深度
 	var lastDepth int = -1
@@ -112,9 +115,9 @@ func DBInit(db *gorm.DB) error {
 			return filepath.SkipDir
 		}
 
-		// if info.IsDir() && (info.Name() == "Ue") {
-		// 	return filepath.SkipDir
-		// }
+		if info.IsDir() && (info.Name() == "Ue") {
+			return filepath.SkipDir
+		}
 
 		if info.Name() == "meta.json" {
 			return nil
@@ -226,23 +229,37 @@ func DBInit(db *gorm.DB) error {
 	fmt.Println("读取数据用时", time.Since(start))
 
 	start = time.Now()
-	WriteLocalMetaData(localMetas)
+	// WriteLocalMetaData(localMetas)
 	fmt.Println("写入meta数据用时", time.Since(start))
 
-	// start = time.Now()
+	start = time.Now()
 	// WriteContentToDocsData(&docs)
-	// fmt.Println("读取内容用时", time.Since(start))
+	fmt.Println("读取内容用时", time.Since(start))
 
-	// start = time.Now()
+	for _, meta := range localMetas {
+		ml := models.MetaDataLocal{
+			Size:     meta.Size,
+			Hash:     meta.Hash,
+			Filepath: meta.Folder,
+		}
+		dbLocalMetas = append(dbLocalMetas, ml)
+	}
+
+	start = time.Now()
 	// err = WriteIntoDatabase(db,
 	// 	interface{}(cats),
-	// 	interface{}(docs))
-	// if err != nil {
-	// 	return err
-	// }
+	// 	interface{}(docs),
+	// 	interface{}(dbLocalMetas))
 
-	// // fmt.Println("数据库生成成功")
-	// fmt.Println("保存数据库用时", time.Since(start))
+	err = compareAndSync(db, cats, docs)
+
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		return err
+	}
+
+	// fmt.Println("数据库生成成功")
+	fmt.Println("保存数据库用时", time.Since(start))
 
 	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -180,7 +181,7 @@ func SavePost(c *gin.Context) {
 	documentInfo = getPostData(db, category, book, locale, chapter, section, document)
 
 	// 写入本地文件
-	err_write := utils.WriteMarkdownFile(category, book, locale, chapter, section, document, content)
+	err_write := os.WriteFile(category+book+locale+chapter+section+document, []byte(content), 0644)
 	if err_write != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err_write.Error()})
 		return

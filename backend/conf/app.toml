@@ -1,8 +1,8 @@
 # 书籍地址
-Resource = "E:\\Scripting\\docs-v3"
+Resource = "E:\\Scripting\\docs-v3 - Copy"
 
 # 数据库存储位置 Sqlite
-Database = "E:\\Scripting\\docs-v3\\main.db"
+Database = "E:\\Scripting\\docs-v3 - Copy\\main.db"
 
 # 端口
 Addr = "8088"

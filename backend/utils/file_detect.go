@@ -76,7 +76,7 @@ func SaveIndex(filePath string, index FileIndex) error {
 		return err
 	}
 
-	return ioutil.WriteFile(filePath, data, 0644)
+	return os.WriteFile(filePath, data, 0644)
 }
 
 // DetectChanges detects changes in the files and updates the index.

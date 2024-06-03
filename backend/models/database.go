@@ -7,6 +7,13 @@ import (
 	"gorm.io/gorm"
 )
 
+// 用于写入本地
+type MetaDataLocal struct {
+	Size     int
+	Hash     string
+	Filepath string
+}
+
 // 分类, 记录文件夹
 type Category struct {
 	gorm.Model
