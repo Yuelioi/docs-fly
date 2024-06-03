@@ -1,6 +1,7 @@
 package database
 
 import (
+	"docsfly/global"
 	"docsfly/models"
 	"docsfly/utils"
 	"encoding/json"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sync"
 
 	"gorm.io/gorm"
 )
@@ -64,34 +66,52 @@ func WriteIntoDatabase(db *gorm.DB, datas ...interface{}) (err error) {
 // 读写Markdown内容 保存回文档数据
 func WriteContentToDocsData(docsDatas *[]models.Document) {
 
-	go func() {
-		for index, docsData := range *docsDatas {
-			content, err := os.ReadFile(docsData.Filepath)
+	var wg sync.WaitGroup
+
+	for index, docsData := range *docsDatas {
+		wg.Add(1)
+		go func(index int, docsData models.Document) {
+			defer wg.Done()
+			docsPath := filepath.Join(global.AppConfig.Resource, docsData.MetaData.Filepath)
+			content, err := os.ReadFile(docsPath)
 			if err != nil {
 				log.Printf("%s", err)
-				continue
+				return
 			}
 			(*docsDatas)[index].Content = string(content)
-		}
-	}()
+		}(index, docsData)
+	}
+
+	wg.Wait()
 }
 
-func WriteMetaData(container FileContainer) {
-	var output MetaOutput
+func WriteLocalMetaData(metas []LocalMetaCache) {
+	var wg sync.WaitGroup
 
-	output.Documents = []models.MetaData{}
-	output.Categorys = []models.MetaData{}
+	for _, meta := range metas {
+		wg.Add(1)
 
-	for _, c := range container.Categorys {
-		output.Categorys = append(output.Categorys, c.MetaData)
+		go func(meta LocalMetaCache) {
+
+			defer wg.Done()
+
+			var output LocalMeta
+			output.Documents = []models.MetaData{}
+			output.Categorys = []models.MetaData{}
+
+			// for _, c := range meta.Categorys {
+			// 	output.Categorys = append(output.Categorys, c.MetaData)
+			// }
+			// for _, d := range meta.Documents {
+			// 	output.Documents = append(output.Documents, d.MetaData)
+			// }
+			data, _ := json.MarshalIndent(output, "", "    ")
+			outputPath := filepath.Join(meta.Folder, "meta.json")
+
+			os.WriteFile(outputPath, data, 0644)
+		}(meta)
 	}
-	for _, d := range container.Documents {
-		output.Documents = append(output.Documents, d.MetaData)
-	}
 
-	data, _ := json.MarshalIndent(output, "", "    ")
-	outputPath := filepath.Join(container.Folder, "meta.json")
-
-	os.WriteFile(outputPath, data, 0644)
+	wg.Wait()
 
 }

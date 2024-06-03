@@ -13,33 +13,33 @@ import (
 )
 
 type FileInfo struct {
-	Length   int
+	Depth    int
 	FileType string
 	Document models.Document
 	Category models.Category
 }
 
-type FileContainer struct {
-	Length    int               `json:"-"`
+type LocalMetaCache struct {
+	Depth     int               `json:"-"`
 	Folder    string            `json:"-"`
 	Documents []models.Document `json:"documents"`
 	Categorys []models.Category `json:"categorys"`
 }
 
-type MetaOutput struct {
+type LocalMeta struct {
 	Documents []models.MetaData `json:"documents"`
 	Categorys []models.MetaData `json:"categorys"`
 }
 
 type Stack struct {
-	elements []FileContainer
+	elements []LocalMetaCache
 }
 
 func newStack() *Stack {
-	return &Stack{elements: []FileContainer{}}
+	return &Stack{elements: []LocalMetaCache{}}
 }
 
-func (s *Stack) Push(element FileContainer) {
+func (s *Stack) Push(element LocalMetaCache) {
 	s.elements = append(s.elements, element)
 }
 
@@ -48,17 +48,17 @@ func (s *Stack) Add(element FileInfo) {
 		return
 	}
 
-	lastContainer := &s.elements[len(s.elements)-1]
+	lastLocalMetaCache := &s.elements[len(s.elements)-1]
 
 	if element.FileType == "category" {
-		lastContainer.Categorys = append(lastContainer.Categorys, element.Category)
+		lastLocalMetaCache.Categorys = append(lastLocalMetaCache.Categorys, element.Category)
 	} else if element.FileType == "document" {
-		lastContainer.Documents = append(lastContainer.Documents, element.Document)
+		lastLocalMetaCache.Documents = append(lastLocalMetaCache.Documents, element.Document)
 	}
 
 }
 
-func (s *Stack) Pop() *FileContainer {
+func (s *Stack) Pop() *LocalMetaCache {
 	if len(s.elements) == 0 {
 		return nil
 	}
@@ -68,41 +68,33 @@ func (s *Stack) Pop() *FileContainer {
 }
 
 /*
-初始化数据库: 仅在无数据库, 或者手动修改meta信息后重置数据库
-
-	@params:root
-		markdown文件存放位置
-	@params:Mode
-	1: init模式,第一次创建数据库, 会创建meta信息
-	2: update模式, 会按照目录下的meta.json读取设置
+初始化数据库
 */
 func DBInit(db *gorm.DB) error {
 	fmt.Println("初始化数据库准备中...")
 
-	counterMap := make(map[string]uint)
+	// 记录所有层级序号
+	orderMap := make(map[string]uint)
 	root := global.AppConfig.Resource
-	Mode := global.AppConfig.DBMode
-
-	if Mode == 0 {
-		println("注意!!!当前为初始化模式, 并且会修改文件内容")
-	} else if Mode <= 1 {
-		println("当前为初始化模式,只会生成meta.json")
-
-	} else if Mode == 2 {
-		println("当前为更新模式: 会基于本地meta信息修改")
-	}
 
 	start := time.Now()
 
-	// 写入管理员数据
-	CreateAdminAccount(db)
+	// 如果数据库没有用户 则写入管理员数据
 
-	// 存储各个类目总数据 用于写入数据库
+	var user models.User
+	db.Model(models.User{}).Where("username =?", global.AppConfig.Username).Find(&user)
+
+	if user.ID == 0 {
+		CreateAdminAccount(db)
+	}
+
+	// 存储各个类目总数据 用于批量写入数据库
 	cats := make([]models.Category, 0)
-
 	docs := make([]models.Document, 0)
+	localMetas := make([]LocalMetaCache, 0)
 
-	var lastLength int = -1
+	// 上一文件深度
+	var lastDepth int = -1
 	var catCount uint = 0
 
 	s := newStack()
@@ -116,39 +108,44 @@ func DBInit(db *gorm.DB) error {
 			return nil
 		}
 
-		if info.IsDir() && (info.Name() == ".git" || info.Name() == ".vscode" || info.Name() == "Ue") {
+		if info.IsDir() && (info.Name() == ".git" || info.Name() == ".vscode") {
 			return filepath.SkipDir
 		}
+
+		// if info.IsDir() && (info.Name() == "Ue") {
+		// 	return filepath.SkipDir
+		// }
 
 		if info.Name() == "meta.json" {
 			return nil
 		}
 
 		path = strings.ReplaceAll(path, root+"\\", "")
-		length := strings.Count(path, "\\")
-
-		fmt.Println(catCount, lastLength, length, info.Name(), path)
+		Depth := strings.Count(path, "\\")
 
 		metaData := models.MetaData{
 			Name:     info.Name(),
 			Title:    info.Name(),
+			Depth:    Depth,
+			Icon:     "",
+			Status:   1,
 			Filepath: path,
 		}
 
-		if value, exists := counterMap[filepath.Dir(path)]; exists {
-			counterMap[filepath.Dir(path)] = value + 1
+		if value, exists := orderMap[filepath.Dir(path)]; exists {
+			orderMap[filepath.Dir(path)] = value + 1
 			metaData.Order = value + 1
 		} else {
 			metaData.Order = 1
 		}
 
 		fileInfo := FileInfo{
-			Length: length,
+			Depth: Depth,
 		}
 
 		if info.IsDir() {
 			// 文件夹赋值初始顺序为1
-			counterMap[path] = 0
+			orderMap[path] = 0
 			fileInfo.FileType = "category"
 
 			catCount++
@@ -177,10 +174,10 @@ func DBInit(db *gorm.DB) error {
 			fileInfo.Document = doc
 		}
 
-		if length > lastLength {
-			fc := FileContainer{
+		if Depth > lastDepth {
+			fc := LocalMetaCache{
 				Folder:    filepath.Dir(root + "\\" + path),
-				Length:    length,
+				Depth:     Depth,
 				Documents: []models.Document{},
 				Categorys: []models.Category{},
 			}
@@ -188,18 +185,19 @@ func DBInit(db *gorm.DB) error {
 			s.Add(fileInfo)
 		}
 
-		if length == lastLength {
+		if Depth == lastDepth {
 			s.Add(fileInfo)
 		}
 		// 跳出层级
-		if length < lastLength {
+		if Depth < lastDepth {
 
 			for {
 
-				countainer := s.Pop()
+				LocalMetaCache := s.Pop()
 
-				WriteMetaData(*countainer)
-				if countainer.Length-1 == length {
+				localMetas = append(localMetas, *LocalMetaCache)
+
+				if LocalMetaCache.Depth-1 == Depth {
 					s.Add(fileInfo)
 					break
 				}
@@ -207,7 +205,7 @@ func DBInit(db *gorm.DB) error {
 			}
 
 		}
-		lastLength = length
+		lastDepth = Depth
 		return nil
 	})
 
@@ -217,40 +215,34 @@ func DBInit(db *gorm.DB) error {
 
 	// 把剩余的(根目录)的meta.json写出来
 	for {
-		container := s.Pop()
-		if container != nil {
-			WriteMetaData(*container)
+		LocalMetaCache := s.Pop()
+
+		if LocalMetaCache == nil {
+			break
 		}
-		break
+		localMetas = append(localMetas, *LocalMetaCache)
 	}
 
-	fmt.Println("正在写入数据库...")
+	fmt.Println("读取数据用时", time.Since(start))
 
-	WriteContentToDocsData(&docs)
+	start = time.Now()
+	WriteLocalMetaData(localMetas)
+	fmt.Println("写入meta数据用时", time.Since(start))
 
-	fmt.Println("保存数据中...")
-	err = WriteIntoDatabase(db,
-		interface{}(cats),
-		interface{}(docs))
-	if err != nil {
-		return err
-	}
+	// start = time.Now()
+	// WriteContentToDocsData(&docs)
+	// fmt.Println("读取内容用时", time.Since(start))
 
-	// fmt.Println("数据库生成成功")
-	fmt.Println("用时", time.Since(start))
+	// start = time.Now()
+	// err = WriteIntoDatabase(db,
+	// 	interface{}(cats),
+	// 	interface{}(docs))
+	// if err != nil {
+	// 	return err
+	// }
 
-	if Mode <= 1 {
-
-		global.AppConfig.DBMode = 2
-		err := global.WriteConfigToFile("DBMode")
-		if err != nil {
-			println(err)
-			fmt.Println("数据库模式切换失败,请手动切换")
-		} else {
-			fmt.Println("数据库生成模式已切换为更新模式")
-		}
-
-	}
+	// // fmt.Println("数据库生成成功")
+	// fmt.Println("保存数据库用时", time.Since(start))
 
 	return nil
 }

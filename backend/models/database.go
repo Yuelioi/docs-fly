@@ -23,7 +23,6 @@ type Document struct {
 	ModTime    time.Time
 	Locale     string
 	Content    string
-	Filepath   string
 	Hash       string
 	Size       uint
 	CategoryID uint

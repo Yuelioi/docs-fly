@@ -7,11 +7,5 @@ Database = "E:\\Scripting\\docs-v3\\main.db"
 # 端口
 Addr = "8088"
 
-# 数据库模式读写模式 
-# @0 ,谨慎! 初始化数据库, 会生成文件配置信息meta.json,并且会给所有文章(markdown文件)添加元属性!(display_name和order 用于显示文章名与排序)
-# @1 ,初始化数据库, 只会生成文件配置信息meta.json,不会更改markdown文章内容
-# @2 ,更新模式,根据@0@1生成的meta.json更新
-DBMode = 2
-
 Username = "admin"
 Password = "admin"
