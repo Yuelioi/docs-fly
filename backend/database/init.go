@@ -12,77 +12,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type FileInfo struct {
-	Depth    int
-	FileType string
-	Document models.Document
-	Category models.Category
-}
-
-type LocalMetaCache struct {
-	Depth     int               `json:"-"`
-	Folder    string            `json:"-"`
-	Size      int               `json:"-"`
-	Hash      string            `json:"-"`
-	Documents []models.Document `json:"documents"`
-	Categorys []models.Category `json:"categorys"`
-}
-
-type LocalMeta struct {
-	Documents []models.MetaData `json:"documents"`
-	Categorys []models.MetaData `json:"categorys"`
-}
-
-type Stack struct {
-	elements []LocalMetaCache
-}
-
-func newStack() *Stack {
-	return &Stack{elements: []LocalMetaCache{}}
-}
-
-func (s *Stack) Push(element LocalMetaCache) {
-	s.elements = append(s.elements, element)
-}
-
-func (s *Stack) Add(element FileInfo) {
-	if len(s.elements) == 0 {
-		return
-	}
-
-	lastLocalMetaCache := &s.elements[len(s.elements)-1]
-
-	if element.FileType == "category" {
-		lastLocalMetaCache.Categorys = append(lastLocalMetaCache.Categorys, element.Category)
-	} else if element.FileType == "document" {
-		lastLocalMetaCache.Documents = append(lastLocalMetaCache.Documents, element.Document)
-	}
-
-}
-
-func (s *Stack) Pop() *LocalMetaCache {
-	if len(s.elements) == 0 {
-		return nil
-	}
-	element := &s.elements[len(s.elements)-1]
-	s.elements = s.elements[:len(s.elements)-1]
-	return element
-}
-
 /*
 初始化数据库
 */
 func DBInit(db *gorm.DB) error {
 	fmt.Println("初始化数据库准备中...")
-
-	// 记录所有层级序号
-	orderMap := make(map[string]uint)
-	root := global.AppConfig.Resource
-
 	start := time.Now()
 
 	// 如果数据库没有用户 则写入管理员数据
-
 	var user models.User
 	db.Model(models.User{}).Where("username =?", global.AppConfig.Username).Find(&user)
 
@@ -90,17 +27,30 @@ func DBInit(db *gorm.DB) error {
 		CreateAdminAccount(db)
 	}
 
+	// 本地数据
+	localOrderMap := make(map[string]uint)
+
 	// 存储各个类目总数据 用于批量写入数据库
-	cats := make([]models.Category, 0)
-	docs := make([]models.Document, 0)
+	localCats := make([]models.Category, 0)
+	localDocs := make([]models.Document, 0)
 	localMetas := make([]LocalMetaCache, 0)
 	dbLocalMetas := make([]models.MetaDataLocal, 0)
+
+	var dbCats []models.Category
+	var dbDocs []models.Document
+	db.Find(&dbCats)
+	db.Find(&dbDocs)
+
+	// dbCatsMap := make(map[string]models.Category)
+	// dbDocsMap := make(map[string]models.Document)
 
 	// 上一文件深度
 	var lastDepth int = -1
 	var catCount uint = 0
 
 	s := newStack()
+
+	root := global.AppConfig.Resource
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -115,9 +65,9 @@ func DBInit(db *gorm.DB) error {
 			return filepath.SkipDir
 		}
 
-		if info.IsDir() && (info.Name() == "Ue") {
-			return filepath.SkipDir
-		}
+		// if info.IsDir() && (info.Name() == "Ue") {
+		// 	return filepath.SkipDir
+		// }
 
 		if info.Name() == "meta.json" {
 			return nil
@@ -135,8 +85,8 @@ func DBInit(db *gorm.DB) error {
 			Filepath: path,
 		}
 
-		if value, exists := orderMap[filepath.Dir(path)]; exists {
-			orderMap[filepath.Dir(path)] = value + 1
+		if value, exists := localOrderMap[filepath.Dir(path)]; exists {
+			localOrderMap[filepath.Dir(path)] = value + 1
 			metaData.Order = value + 1
 		} else {
 			metaData.Order = 1
@@ -148,7 +98,7 @@ func DBInit(db *gorm.DB) error {
 
 		if info.IsDir() {
 			// 文件夹赋值初始顺序为1
-			orderMap[path] = 0
+			localOrderMap[path] = 0
 			fileInfo.FileType = "category"
 
 			catCount++
@@ -158,7 +108,7 @@ func DBInit(db *gorm.DB) error {
 				ModTime:  info.ModTime(),
 				Display:  true,
 			}
-			cats = append(cats, cat)
+			localCats = append(localCats, cat)
 			fileInfo.Category = cat
 		} else {
 			fileInfo.FileType = "document"
@@ -173,7 +123,7 @@ func DBInit(db *gorm.DB) error {
 				CategoryID: catCount,
 			}
 
-			docs = append(docs, doc)
+			localDocs = append(localDocs, doc)
 			fileInfo.Document = doc
 		}
 
@@ -229,11 +179,11 @@ func DBInit(db *gorm.DB) error {
 	fmt.Println("读取数据用时", time.Since(start))
 
 	start = time.Now()
-	// WriteLocalMetaData(localMetas)
+	WriteLocalMetaData(localMetas)
 	fmt.Println("写入meta数据用时", time.Since(start))
 
 	start = time.Now()
-	// WriteContentToDocsData(&docs)
+	WriteContentToDocsData(&localDocs)
 	fmt.Println("读取内容用时", time.Since(start))
 
 	for _, meta := range localMetas {
@@ -246,12 +196,12 @@ func DBInit(db *gorm.DB) error {
 	}
 
 	start = time.Now()
-	// err = WriteIntoDatabase(db,
-	// 	interface{}(cats),
-	// 	interface{}(docs),
-	// 	interface{}(dbLocalMetas))
+	err = WriteIntoDatabase(db,
+		interface{}(localCats),
+		interface{}(localDocs),
+		interface{}(dbLocalMetas))
 
-	err = compareAndSync(db, cats, docs)
+	// err = compareAndSync(db, localCats, localDocs)
 
 	if err != nil {
 		fmt.Printf("err: %v\n", err)

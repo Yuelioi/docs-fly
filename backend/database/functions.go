@@ -102,9 +102,9 @@ func WriteLocalMetaData(metas []LocalMetaCache) {
 
 			defer wg.Done()
 
-			var output LocalMeta
-			output.Documents = []models.MetaData{}
-			output.Categorys = []models.MetaData{}
+			var output models.LocalMetaDatas
+			output.Documents = []models.LocalMetaData{}
+			output.Categorys = []models.LocalMetaData{}
 
 			for _, c := range meta.Categorys {
 				output.Categorys = append(output.Categorys, c.MetaData)
