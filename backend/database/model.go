@@ -2,14 +2,6 @@ package database
 
 import "docsfly/models"
 
-// 联合的文件/文件夹信息
-type FileInfo struct {
-	Depth    int
-	FileType string
-	Document models.Document
-	Category models.Category
-}
-
 type LocalMetaCache struct {
 	Depth     int               `json:"-"`
 	Folder    string            `json:"-"`
@@ -23,25 +15,23 @@ type Stack struct {
 	fileMetas []LocalMetaCache
 }
 
-func newStack() *Stack {
-	return &Stack{fileMetas: []LocalMetaCache{}}
-}
-
 func (s *Stack) Push(element LocalMetaCache) {
 	s.fileMetas = append(s.fileMetas, element)
 }
 
-func (s *Stack) Add(element FileInfo) {
+func (s *Stack) Add(element interface{}) {
 	if len(s.fileMetas) == 0 {
 		return
 	}
 
 	lastLocalMetaCache := &s.fileMetas[len(s.fileMetas)-1]
 
-	if element.FileType == "category" {
-		lastLocalMetaCache.Categorys = append(lastLocalMetaCache.Categorys, element.Category)
-	} else if element.FileType == "document" {
-		lastLocalMetaCache.Documents = append(lastLocalMetaCache.Documents, element.Document)
+	switch v := element.(type) {
+	case models.Category:
+		lastLocalMetaCache.Categorys = append(lastLocalMetaCache.Categorys, v)
+	case models.Document:
+		lastLocalMetaCache.Documents = append(lastLocalMetaCache.Documents, v)
+
 	}
 
 }

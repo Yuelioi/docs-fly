@@ -48,7 +48,7 @@ func DBInit(db *gorm.DB) error {
 	var lastDepth int = -1
 	var catCount uint = 0
 
-	s := newStack()
+	s := &Stack{fileMetas: []LocalMetaCache{}}
 
 	root := global.AppConfig.Resource
 
@@ -92,14 +92,11 @@ func DBInit(db *gorm.DB) error {
 			metaData.Order = 1
 		}
 
-		fileInfo := FileInfo{
-			Depth: Depth,
-		}
+		var fileInfo interface{}
 
 		if info.IsDir() {
 			// 文件夹赋值初始顺序为1
 			localOrderMap[path] = 0
-			fileInfo.FileType = "category"
 
 			catCount++
 
@@ -109,9 +106,8 @@ func DBInit(db *gorm.DB) error {
 				Display:  true,
 			}
 			localCats = append(localCats, cat)
-			fileInfo.Category = cat
+			fileInfo = cat
 		} else {
-			fileInfo.FileType = "document"
 
 			doc := models.Document{
 				MetaData:   metaData,
@@ -124,7 +120,7 @@ func DBInit(db *gorm.DB) error {
 			}
 
 			localDocs = append(localDocs, doc)
-			fileInfo.Document = doc
+			fileInfo = doc
 		}
 
 		if Depth > lastDepth {
