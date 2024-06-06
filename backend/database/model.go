@@ -2,45 +2,42 @@ package database
 
 import "docsfly/models"
 
-type LocalMetaCache struct {
-	Depth     int               `json:"-"`
-	Folder    string            `json:"-"`
-	Size      int               `json:"-"`
-	Hash      string            `json:"-"`
-	Documents []models.Document `json:"documents"`
-	Categorys []models.Category `json:"categorys"`
+type LocalMetaDatasCache struct {
+	ParentFolder string            `json:"-"`
+	Documents    []models.Document `json:"documents"`
+	Categorys    []models.Category `json:"categorys"`
 }
 
 type Stack struct {
-	fileMetas []LocalMetaCache
+	fileMetas []LocalMetaDatasCache
 }
 
-func (s *Stack) Push(element LocalMetaCache) {
-	s.fileMetas = append(s.fileMetas, element)
+func (s *Stack) Push(item LocalMetaDatasCache) {
+	s.fileMetas = append(s.fileMetas, item)
 }
 
-func (s *Stack) Add(element interface{}) {
+func (s *Stack) Add(item interface{}) {
 	if len(s.fileMetas) == 0 {
 		return
 	}
 
-	lastLocalMetaCache := &s.fileMetas[len(s.fileMetas)-1]
+	lastLocalMetaDatasCache := &s.fileMetas[len(s.fileMetas)-1]
 
-	switch v := element.(type) {
+	switch v := item.(type) {
 	case models.Category:
-		lastLocalMetaCache.Categorys = append(lastLocalMetaCache.Categorys, v)
+		lastLocalMetaDatasCache.Categorys = append(lastLocalMetaDatasCache.Categorys, v)
 	case models.Document:
-		lastLocalMetaCache.Documents = append(lastLocalMetaCache.Documents, v)
+		lastLocalMetaDatasCache.Documents = append(lastLocalMetaDatasCache.Documents, v)
 
 	}
 
 }
 
-func (s *Stack) Pop() *LocalMetaCache {
+func (s *Stack) Pop() *LocalMetaDatasCache {
 	if len(s.fileMetas) == 0 {
 		return nil
 	}
-	element := &s.fileMetas[len(s.fileMetas)-1]
+	item := &s.fileMetas[len(s.fileMetas)-1]
 	s.fileMetas = s.fileMetas[:len(s.fileMetas)-1]
-	return element
+	return item
 }

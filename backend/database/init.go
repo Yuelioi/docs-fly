@@ -12,6 +12,19 @@ import (
 	"gorm.io/gorm"
 )
 
+type DBDatas struct {
+	Cats struct {
+		Creates []models.Category
+		Updates []models.Category
+		Deletes []models.Category
+	}
+	Docs struct {
+		Creates []models.Document
+		Updates []models.Document
+		Deletes []models.Document
+	}
+}
+
 /*
 初始化数据库
 */
@@ -27,28 +40,31 @@ func DBInit(db *gorm.DB) error {
 		CreateAdminAccount(db)
 	}
 
-	// 本地数据
-	localOrderMap := make(map[string]uint)
-
 	// 存储各个类目总数据 用于批量写入数据库
-	localCats := make([]models.Category, 0)
-	localDocs := make([]models.Document, 0)
-	localMetas := make([]LocalMetaCache, 0)
-	dbLocalMetas := make([]models.MetaDataLocal, 0)
+	dbDatas := DBDatas{}
 
+	// 数据库映射表
 	var dbCats []models.Category
 	var dbDocs []models.Document
 	db.Find(&dbCats)
 	db.Find(&dbDocs)
 
-	// dbCatsMap := make(map[string]models.Category)
-	// dbDocsMap := make(map[string]models.Document)
+	dbCatsMap := make(map[string]models.Category)
+	dbDocsMap := make(map[string]models.Document)
+
+	for _, cat := range dbCats {
+		dbCatsMap[cat.Filepath] = cat
+	}
+
+	for _, doc := range dbDocs {
+		dbDocsMap[doc.Filepath] = doc
+	}
+
+	// 本地文件元数据映射表
+	localMetas := make(map[string]LocalMetaDatasCache)
 
 	// 上一文件深度
-	var lastDepth int = -1
 	var catCount uint = 0
-
-	s := &Stack{fileMetas: []LocalMetaCache{}}
 
 	root := global.AppConfig.Resource
 
@@ -65,9 +81,9 @@ func DBInit(db *gorm.DB) error {
 			return filepath.SkipDir
 		}
 
-		// if info.IsDir() && (info.Name() == "Ue") {
-		// 	return filepath.SkipDir
-		// }
+		if info.IsDir() && (info.Name() == "Ue") {
+			return filepath.SkipDir
+		}
 
 		if info.Name() == "meta.json" {
 			return nil
@@ -75,6 +91,7 @@ func DBInit(db *gorm.DB) error {
 
 		path = strings.ReplaceAll(path, root+"\\", "")
 		Depth := strings.Count(path, "\\")
+		parent := filepath.Dir(path)
 
 		metaData := models.MetaData{
 			Name:     info.Name(),
@@ -85,18 +102,7 @@ func DBInit(db *gorm.DB) error {
 			Filepath: path,
 		}
 
-		if value, exists := localOrderMap[filepath.Dir(path)]; exists {
-			localOrderMap[filepath.Dir(path)] = value + 1
-			metaData.Order = value + 1
-		} else {
-			metaData.Order = 1
-		}
-
-		var fileInfo interface{}
-
 		if info.IsDir() {
-			// 文件夹赋值初始顺序为1
-			localOrderMap[path] = 0
 
 			catCount++
 
@@ -105,8 +111,40 @@ func DBInit(db *gorm.DB) error {
 				ModTime:  info.ModTime(),
 				Display:  true,
 			}
-			localCats = append(localCats, cat)
-			fileInfo = cat
+
+			// 储存本地Meta数据
+			if value, exists := localMetas[parent]; exists {
+				value.Categorys = append(value.Categorys, cat)
+				cat.Order = uint(len(value.Categorys))
+				localMetas[parent] = value
+			} else {
+				cat.Order = 1
+				localMetas[parent] = LocalMetaDatasCache{
+					ParentFolder: parent,
+					Categorys:    []models.Category{cat},
+					Documents:    []models.Document{},
+				}
+			}
+
+			// 储存数据库数据
+			if value, exists := dbCatsMap[path]; exists {
+
+				if value.ModTime.Equal(info.ModTime()) {
+					// 如果数据库有 并且修改时间没变则跳过
+					return nil
+				} else {
+					// 如果数据库有 并且修改时间变化, 则更新
+					dbDatas.Cats.Updates = append(dbDatas.Cats.Updates, cat)
+				}
+
+				// 删除暂存数据
+				delete(dbCatsMap, path)
+
+			} else {
+				// 数据库没有 则追加
+				dbDatas.Cats.Creates = append(dbDatas.Cats.Creates, cat)
+			}
+
 		} else {
 
 			doc := models.Document{
@@ -114,47 +152,37 @@ func DBInit(db *gorm.DB) error {
 				ModTime:    info.ModTime(),
 				Locale:     "",
 				Content:    "",
-				Hash:       "",
-				Size:       uint(info.Size()),
 				CategoryID: catCount,
 			}
 
-			localDocs = append(localDocs, doc)
-			fileInfo = doc
-		}
-
-		if Depth > lastDepth {
-			fc := LocalMetaCache{
-				Folder:    filepath.Dir(root + "\\" + path),
-				Depth:     Depth,
-				Documents: []models.Document{},
-				Categorys: []models.Category{},
-			}
-			s.Push(fc)
-			s.Add(fileInfo)
-		}
-
-		if Depth == lastDepth {
-			s.Add(fileInfo)
-		}
-		// 跳出层级
-		if Depth < lastDepth {
-
-			for {
-
-				LocalMetaCache := s.Pop()
-
-				localMetas = append(localMetas, *LocalMetaCache)
-
-				if LocalMetaCache.Depth-1 == Depth {
-					s.Add(fileInfo)
-					break
+			if value, exists := localMetas[parent]; exists {
+				value.Documents = append(value.Documents, doc)
+				doc.Order = uint(len(value.Documents))
+				localMetas[parent] = value
+			} else {
+				doc.Order = 1
+				localMetas[parent] = LocalMetaDatasCache{
+					ParentFolder: parent,
+					Categorys:    []models.Category{},
+					Documents:    []models.Document{doc},
 				}
+			}
 
+			if value, exists := dbDocsMap[path]; exists {
+
+				if value.ModTime.Equal(info.ModTime()) {
+					return nil
+				} else {
+					dbDatas.Docs.Updates = append(dbDatas.Docs.Updates, doc)
+				}
+				delete(dbDocsMap, path)
+
+			} else {
+				dbDatas.Docs.Creates = append(dbDatas.Docs.Creates, doc)
 			}
 
 		}
-		lastDepth = Depth
+
 		return nil
 	})
 
@@ -162,49 +190,39 @@ func DBInit(db *gorm.DB) error {
 		return err
 	}
 
-	// 把剩余的(根目录)的meta.json写出来
-	for {
-		LocalMetaCache := s.Pop()
-
-		if LocalMetaCache == nil {
-			break
-		}
-		localMetas = append(localMetas, *LocalMetaCache)
-	}
-
 	fmt.Println("读取数据用时", time.Since(start))
 
 	start = time.Now()
-	WriteLocalMetaData(localMetas)
+	// WriteLocalMetaData(localMetas)
 	fmt.Println("写入meta数据用时", time.Since(start))
 
 	start = time.Now()
-	WriteContentToDocsData(&localDocs)
+	// WriteContentToDocsData(&localDocs)
 	fmt.Println("读取内容用时", time.Since(start))
 
-	for _, meta := range localMetas {
-		ml := models.MetaDataLocal{
-			Size:     meta.Size,
-			Hash:     meta.Hash,
-			Filepath: meta.Folder,
-		}
-		dbLocalMetas = append(dbLocalMetas, ml)
+	start = time.Now()
+
+	for _, cat := range dbCatsMap {
+		dbDatas.Cats.Deletes = append(dbDatas.Cats.Deletes, cat)
+	}
+	for _, doc := range dbDocsMap {
+		dbDatas.Docs.Deletes = append(dbDatas.Docs.Deletes, doc)
 	}
 
-	start = time.Now()
-	err = WriteIntoDatabase(db,
-		interface{}(localCats),
-		interface{}(localDocs),
-		interface{}(dbLocalMetas))
+	collections := Collections{
+		Creates: []interface{}{dbDatas.Cats.Creates, dbDatas.Docs.Creates},
+		Updates: []interface{}{dbDatas.Cats.Updates, dbDatas.Docs.Updates},
+		Deletes: []interface{}{dbDatas.Cats.Deletes, dbDatas.Docs.Deletes},
+		Models:  []interface{}{models.Category{}, models.Document{}},
+	}
 
-	// err = compareAndSync(db, localCats, localDocs)
+	err = DBUpdate(db, collections)
 
 	if err != nil {
 		fmt.Printf("err: %v\n", err)
 		return err
 	}
 
-	// fmt.Println("数据库生成成功")
 	fmt.Println("保存数据库用时", time.Since(start))
 
 	return nil

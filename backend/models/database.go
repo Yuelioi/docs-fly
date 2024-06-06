@@ -30,8 +30,6 @@ type Document struct {
 	ModTime    time.Time
 	Locale     string
 	Content    string
-	Hash       string
-	Size       uint
 	CategoryID uint
 	Category   Category
 	Status     string
