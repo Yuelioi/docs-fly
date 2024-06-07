@@ -1,11 +1,16 @@
 package database
 
-import "docsfly/models"
+import (
+	"docsfly/models"
+	"errors"
+)
+
+var ErrSkip = errors.New("skip")
 
 type LocalMetaDatasCache struct {
-	ParentFolder string            `json:"-"`
-	Documents    []models.Document `json:"documents"`
-	Categorys    []models.Category `json:"categorys"`
+	ParentFolder string                 `json:"-"`
+	Documents    []models.LocalMetaData `json:"documents"`
+	Categorys    []models.LocalMetaData `json:"categorys"`
 }
 
 type Stack struct {
@@ -25,9 +30,9 @@ func (s *Stack) Add(item interface{}) {
 
 	switch v := item.(type) {
 	case models.Category:
-		lastLocalMetaDatasCache.Categorys = append(lastLocalMetaDatasCache.Categorys, v)
+		lastLocalMetaDatasCache.Categorys = append(lastLocalMetaDatasCache.Categorys, convertMetaData(v.MetaData))
 	case models.Document:
-		lastLocalMetaDatasCache.Documents = append(lastLocalMetaDatasCache.Documents, v)
+		lastLocalMetaDatasCache.Documents = append(lastLocalMetaDatasCache.Documents, convertMetaData(v.MetaData))
 
 	}
 

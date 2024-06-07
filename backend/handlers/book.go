@@ -33,7 +33,9 @@ func GetBookMeta(c *gin.Context) {
 
 	//  TODO 直接读取即可, 不过需要
 	filepath := category + "/" + "meta.json"
-	data, err := utils.ReadJson(filepath)
+
+	var data interface{}
+	err := utils.ReadJson(filepath, data)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load data"})
@@ -107,7 +109,10 @@ func UpdateBookMeta(c *gin.Context) {
 
 	// 保存meta.json
 	filepath := catInfo.Filepath + "/" + "meta.json"
-	metas, err := utils.ReadJson(filepath)
+
+	var metas interface{}
+
+	err = utils.ReadJson(filepath, metas)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load data"})

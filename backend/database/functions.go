@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"sync"
 
 	"gorm.io/gorm"
@@ -103,7 +104,25 @@ func convertMetaData(meta models.MetaData) models.LocalMetaData {
 	}
 }
 
-func WriteLocalMetaData(metas []LocalMetaDatasCache) {
+func searchLocalMetaDatasCache(cache LocalMetaDatasCache, isCat bool, name string) *models.LocalMetaData {
+
+	if isCat {
+		for _, meta := range cache.Categorys {
+			if meta.Name == name {
+				return &meta
+			}
+		}
+	} else {
+		for _, meta := range cache.Documents {
+			if meta.Name == name {
+				return &meta
+			}
+		}
+	}
+	return nil
+}
+
+func WriteLocalMetaData(metas map[string]LocalMetaDatasCache) {
 	var wg sync.WaitGroup
 
 	for _, meta := range metas {
@@ -113,16 +132,11 @@ func WriteLocalMetaData(metas []LocalMetaDatasCache) {
 
 			defer wg.Done()
 
-			var output models.LocalMetaDatas
-			output.Documents = []models.LocalMetaData{}
-			output.Categorys = []models.LocalMetaData{}
+			output := models.LocalMetaDatas{
+				Categorys: meta.Categorys,
+				Documents: meta.Documents,
+			}
 
-			for _, c := range meta.Categorys {
-				output.Categorys = append(output.Categorys, convertMetaData(c.MetaData))
-			}
-			for _, d := range meta.Documents {
-				output.Documents = append(output.Documents, convertMetaData(d.MetaData))
-			}
 			data, _ := json.MarshalIndent(output, "", "    ")
 			outputPath := filepath.Join(meta.ParentFolder, "meta.json")
 
@@ -132,4 +146,36 @@ func WriteLocalMetaData(metas []LocalMetaDatasCache) {
 
 	wg.Wait()
 
+}
+
+func WalkSkip(root string, info os.FileInfo, path string, err error) error {
+
+	if path == root {
+		return ErrSkip
+	}
+
+	if info.IsDir() && strings.HasPrefix(info.Name(), ".") {
+		return filepath.SkipDir
+	}
+
+	if info.IsDir() && strings.HasPrefix(info.Name(), "_") {
+		return filepath.SkipDir
+	}
+
+	if info.IsDir() && strings.ToLower(info.Name()) == "ue" {
+		return filepath.SkipDir
+	}
+
+	if !info.IsDir() && strings.HasPrefix(info.Name(), "_") {
+		return ErrSkip
+	}
+
+	if info.Name() == "meta.json" {
+		return ErrSkip
+	}
+	if info.Name() == "main.db" {
+		return ErrSkip
+	}
+
+	return nil
 }
