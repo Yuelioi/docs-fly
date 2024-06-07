@@ -65,29 +65,31 @@ func WriteIntoDatabase(db *gorm.DB, datas ...interface{}) (err error) {
 }
 
 // 读写Markdown内容 保存回文档数据
-func WriteContentToDocsData(docsDatas *[]models.Document) {
+func WriteContentToDocsData(datas ...*[]models.Document) {
 
 	const maxGoroutines = 500
 	guard := make(chan struct{}, maxGoroutines)
 
 	var wg sync.WaitGroup
 
-	for index, docsData := range *docsDatas {
-		wg.Add(1)
-		guard <- struct{}{}
-		go func(index int, docsData models.Document) {
-			defer wg.Done()
+	for _, docsDatas := range datas {
+		for index, docsData := range *docsDatas {
+			wg.Add(1)
+			guard <- struct{}{}
+			go func(index int, docsData models.Document) {
+				defer wg.Done()
 
-			defer func() { <-guard }()
+				defer func() { <-guard }()
 
-			docsPath := filepath.Join(global.AppConfig.Resource, docsData.MetaData.Filepath)
-			content, err := os.ReadFile(docsPath)
-			if err != nil {
-				log.Printf("%s", err)
-				return
-			}
-			(*docsDatas)[index].Content = string(content)
-		}(index, docsData)
+				docsPath := filepath.Join(global.AppConfig.Resource, docsData.MetaData.Filepath)
+				content, err := os.ReadFile(docsPath)
+				if err != nil {
+					log.Printf("%s", err)
+					return
+				}
+				(*docsDatas)[index].Content = string(content)
+			}(index, docsData)
+		}
 	}
 
 	wg.Wait()

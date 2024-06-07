@@ -27,6 +27,15 @@ type DBDatas struct {
 	}
 }
 
+type MetaMaps struct {
+	DB struct {
+		Cats map[string]models.Category
+		Docs map[string]models.Document
+	}
+	Local struct {
+	}
+}
+
 /*
 初始化数据库
 */
@@ -51,6 +60,8 @@ func DBInit(db *gorm.DB) error {
 	db.Find(&dbCats)
 	db.Find(&dbDocs)
 
+	// metaMaps := MetaMaps{}
+
 	dbCatsMap := make(map[string]models.Category)
 	dbDocsMap := make(map[string]models.Document)
 
@@ -62,7 +73,7 @@ func DBInit(db *gorm.DB) error {
 		dbDocsMap[doc.Filepath] = doc
 	}
 
-	// 本地文件元数据映射表
+	// 本地文件真实元数据映射表
 	localMetas := make(map[string]LocalMetaDatasCache)
 
 	// 临时元数据映射表, 后续用于写入文件
@@ -102,63 +113,60 @@ func DBInit(db *gorm.DB) error {
 			Filepath: relative_path,
 		}
 
+		// 初始化 读取本地文件映射表
+		if _, exists := localMetas[relative_parent]; !exists {
+			var localMeta models.LocalMetaDatas
+			err := utils.ReadJson(parent, localMeta)
+			if err == nil {
+				localMetasCache[relative_parent] = LocalMetaDatasCache{
+					ParentFolder: parent,
+					Categorys:    localMeta.Categorys,
+					Documents:    localMeta.Documents,
+				}
+			}
+		}
+
+		// 读一下当前分组记录的元数据
+		metaCache, exists := localMetasCache[relative_parent]
+		if !exists {
+			// 不存在就初始化
+			metaCache = LocalMetaDatasCache{
+				ParentFolder: parent,
+				Categorys:    []models.LocalMetaData{},
+				Documents:    []models.LocalMetaData{},
+			}
+		}
+
 		if info.IsDir() {
-
 			catCount++
-
 			cat := models.Category{
 				MetaData: metaData,
 				ModTime:  info.ModTime(),
 				Display:  true,
 			}
 
-			// 初始化读取本地文件映射表
-			if _, exists := localMetas[relative_parent]; !exists {
-				var localMeta models.LocalMetaDatas
-				err := utils.ReadJson(parent, localMeta)
-				if err == nil {
-					localMetasCache[relative_parent] = LocalMetaDatasCache{
-						ParentFolder: parent,
-						Categorys:    localMeta.Categorys,
-						Documents:    localMeta.Documents,
-					}
-				}
-			}
-
 			localMeta := searchLocalMetaDatasCache(localMetasCache[relative_parent], true, info.Name())
-
-			cache, exists := localMetasCache[relative_parent]
-			if !exists {
-				cache = LocalMetaDatasCache{
-					ParentFolder: parent,
-					Categorys:    []models.LocalMetaData{},
-					Documents:    []models.LocalMetaData{},
-				}
-			}
 
 			// 使用本地Meta数据或新的Meta数据
 			if localMeta != nil {
 				// 本地有就用本地的
-				cache.Categorys = append(cache.Categorys, *localMeta)
+				metaCache.Categorys = append(metaCache.Categorys, *localMeta)
 			} else {
 				// 本地没有用新的
 				newMeta := convertMetaData(cat.MetaData)
-				cache.Categorys = append(cache.Categorys, newMeta)
-				cat.Order = uint(len(cache.Categorys))
+				metaCache.Categorys = append(metaCache.Categorys, newMeta)
+				cat.Order = uint(len(metaCache.Categorys))
 			}
 
 			// 更新缓存数据
-			localMetasCache[relative_parent] = cache
+			localMetasCache[relative_parent] = metaCache
 
 			// 储存数据库数据
 			if value, exists := dbCatsMap[relative_path]; exists {
-				// 删除暂存数据
+				// 删除数据库当前条目
 				delete(dbCatsMap, relative_path)
 
-				if value.ModTime.Equal(info.ModTime()) {
-					// 如果数据库有 并且修改时间没变则跳过
-					return nil
-				} else {
+				if !value.ModTime.Equal(info.ModTime()) {
 					// 如果数据库有 并且修改时间变化, 则更新
 					dbDatas.Cats.Updates = append(dbDatas.Cats.Updates, cat)
 				}
@@ -178,50 +186,22 @@ func DBInit(db *gorm.DB) error {
 				CategoryID: catCount,
 			}
 
-			if value, exists := localMetasCache[relative_parent]; exists {
-				value.Documents = append(value.Documents, convertMetaData(doc.MetaData))
-				doc.Order = uint(len(value.Documents))
-				localMetasCache[relative_parent] = value
-			} else {
-				doc.Order = 1
-				localMetasCache[relative_parent] = LocalMetaDatasCache{
-					ParentFolder: parent,
-					Categorys:    []models.LocalMetaData{},
-					Documents:    []models.LocalMetaData{convertMetaData(doc.MetaData)},
-				}
-			}
-
-			//
 			localMeta := searchLocalMetaDatasCache(localMetasCache[relative_parent], false, info.Name())
-
-			cache, exists := localMetasCache[relative_parent]
-			if !exists {
-				cache = LocalMetaDatasCache{
-					ParentFolder: parent,
-					Categorys:    []models.LocalMetaData{},
-					Documents:    []models.LocalMetaData{},
-				}
-			}
 
 			// 使用本地Meta数据或新的Meta数据
 			if localMeta != nil {
 				// 本地有就用本地的
-				cache.Documents = append(cache.Documents, *localMeta)
+				metaCache.Documents = append(metaCache.Documents, *localMeta)
 			} else {
 				// 本地没有用新的
 				newMeta := convertMetaData(doc.MetaData)
-				cache.Documents = append(cache.Documents, newMeta)
-				doc.Order = uint(len(cache.Documents))
+				metaCache.Documents = append(metaCache.Documents, newMeta)
+				doc.Order = uint(len(metaCache.Documents))
 			}
-
-			// 更新缓存数据
-			localMetasCache[relative_parent] = cache
 
 			if value, exists := dbDocsMap[relative_path]; exists {
 				delete(dbDocsMap, relative_path)
-				if value.ModTime.Equal(info.ModTime()) {
-					return nil
-				} else {
+				if !value.ModTime.Equal(info.ModTime()) {
 					dbDatas.Docs.Updates = append(dbDatas.Docs.Updates, doc)
 				}
 
@@ -230,6 +210,9 @@ func DBInit(db *gorm.DB) error {
 			}
 
 		}
+
+		// 更新缓存数据
+		localMetasCache[relative_parent] = metaCache
 
 		return nil
 	})
@@ -245,7 +228,7 @@ func DBInit(db *gorm.DB) error {
 	fmt.Println("写入meta数据用时", time.Since(start))
 
 	start = time.Now()
-	// WriteContentToDocsData(&localDocs)
+	WriteContentToDocsData(&dbDatas.Docs.Creates, &dbDatas.Docs.Updates)
 	fmt.Println("读取内容用时", time.Since(start))
 
 	start = time.Now()
