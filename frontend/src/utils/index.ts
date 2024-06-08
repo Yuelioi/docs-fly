@@ -1,4 +1,3 @@
-import { DocumentLinkMeta } from '@/models'
 import type { RouteParams } from 'vue-router'
 
 // 补零
@@ -12,14 +11,7 @@ export function addZero(num: number, length: number) {
 
 // 创建链接数据 用于router link to
 export function createLinkMeta(params: RouteParams) {
-    return new DocumentLinkMeta(
-        params['category'] as string,
-        params['book'] as string,
-        params['locale'] as string,
-        params['chapter'] as string,
-        params['section'] as string,
-        params['document'] as string
-    )
+    return params['category'] as string
 }
 
 // 生成key 用于router link to 以及 star删除

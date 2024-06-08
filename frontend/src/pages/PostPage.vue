@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ChapterInfo, Toc } from '@/models'
+import type { LocalMetaDatas, Toc } from '@/models'
 import type { RouteLocationNormalizedLoaded, RouteParams } from 'vue-router'
 
 import { Message } from '@/plugins/message'
@@ -46,7 +46,7 @@ const postContent = ref('')
 const postHtml = ref('')
 const toc = ref<Toc[]>([])
 
-const chapters = ref<ChapterInfo[]>([])
+const chapters = ref<LocalMetaDatas[]>([])
 
 const route = useRoute()
 

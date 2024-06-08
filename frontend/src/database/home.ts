@@ -3,7 +3,7 @@
  * @route /
  * */
 
-import type { SearchOption, NavData } from '@/models'
+import type { SearchOption, LocalMetaDatas } from '@/models'
 import type { DBData } from './model'
 import { StoreConf } from './model'
 
@@ -37,6 +37,6 @@ export async function getNav() {
     }
 }
 
-export async function addNav(datas: NavData[]) {
+export async function addNav(datas: LocalMetaDatas[]) {
     await dbManager.addData(storeConf, `nav`, JSON.parse(JSON.stringify(datas)))
 }

@@ -3,7 +3,7 @@
  * @route /book
  * */
 
-import type { BookData } from '@/models'
+import type { LocalMetaDatas } from '@/models'
 import type { DBData } from './model'
 import type { RouteParams } from 'vue-router'
 
@@ -15,7 +15,7 @@ const storeConf = new StoreConf(storeName)
 dbManager.dbStores.push(storeConf)
 dbManager.dbVersion += 1
 
-export async function getBookData(params: RouteParams) {
+export async function getDBBookData(params: RouteParams) {
     const result = (await dbManager.getDataByKey(
         storeName,
         `book__${params['category']}_${params['book']}`
@@ -28,7 +28,7 @@ export async function getBookData(params: RouteParams) {
     }
 }
 
-export async function addBookData(params: RouteParams, chapters: BookData) {
+export async function addDBBookData(params: RouteParams, chapters: LocalMetaDatas) {
     await dbManager.addData(
         storeConf,
         `book__${params['category']}_${params['book']}`,

@@ -22,20 +22,20 @@ export class SearchResult {
 export class SearchData {
     locale: string = ''
 
-    category_identity: string = ''
-    category_display_name: string = ''
+    category_name: string = ''
+    category_title: string = ''
 
-    book_identity: string = ''
-    book_display_name: string = ''
+    book_name: string = ''
+    book_title: string = ''
 
-    chapter_identity: string = ''
-    chapter_display_name: string = ''
+    chapter_name: string = ''
+    chapter_title: string = ''
 
-    section_identity = ''
-    section_display_name = ''
+    section_name = ''
+    section_title = ''
 
-    document_identity: string = ''
-    document_display_name: string = ''
+    document_name: string = ''
+    document_title: string = ''
 
     content: string = ''
 }

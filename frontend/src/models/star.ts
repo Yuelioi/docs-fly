@@ -1,5 +1,3 @@
-import { DocumentLinkMeta } from './base'
-
 /**
  * 收藏文章
  */
@@ -9,5 +7,5 @@ export class PostStar {
     link: string = ''
     createdTime: Date = new Date() // 收藏时间
     mark: string = '' // 批注
-    params: DocumentLinkMeta = new DocumentLinkMeta()
+    params: string = ''
 }

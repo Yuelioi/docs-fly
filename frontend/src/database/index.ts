@@ -1,6 +1,6 @@
 import { getPostChapterData, addPostChapterData } from './post'
 import { getSearchOption, getNav, addSearchOption, addNav } from './home'
-import { getBookData, addBookData } from './book'
+import { getDBBookData, addDBBookData } from './book'
 
 export {
     getPostChapterData,
@@ -9,6 +9,6 @@ export {
     getNav,
     addSearchOption,
     addNav,
-    getBookData,
-    addBookData
+    getDBBookData,
+    addDBBookData
 }

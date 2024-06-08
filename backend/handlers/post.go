@@ -225,27 +225,9 @@ func GetChapter(c *gin.Context) {
 
 	var catInfo models.Category
 
+	result := ""
+
 	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-
-	var result []models.ChapterInfo
-
-	// 情况2.有章节
-
-	// 情况2.1 章节目录层级也有文章, 即父级chapter为0的文章
-	var chapterDocs []models.Document
-
-	id := uint(1)
-	for _, document := range chapterDocs {
-
-		result = append(result, models.ChapterInfo{
-			Category: catInfo.MetaData,
-			Document: document.MetaData,
-			ID:       id},
-		)
-		id += 1
-	}
-
-	// 情况2.2 获取章节
 
 	c.JSON(http.StatusOK, result)
 }

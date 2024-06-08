@@ -7,7 +7,7 @@
             <div class="flex flex-col px-6 select-none">
                 <div class="py-3 border-b">
                     <BIconBook class="inline-block"></BIconBook>
-                    <span class="pl-2">书籍名称: {{ bookDatas.book.display_name }}</span>
+                    <span class="pl-2">书籍名称: {{ route.params['category'] }}</span>
                 </div>
                 <div class="py-3 border-b">
                     <BIconGraphUpArrow class="inline-block"></BIconGraphUpArrow
@@ -67,27 +67,22 @@
             <div class="mt-4">
                 <div class="tab-item" v-if="tabId == 1">
                     <div class="flex flex-col">
-                        <div class="" v-if="bookDatas.children.length == 0">
+                        <div class="" v-if="bookDatas.categorys.length == 0">
                             本书尚未有{{ translate('locale') }}版本
                         </div>
                         <router-link
                             v-else
-                            v-for="(chapter, index) in bookDatas.children"
+                            v-for="(chapter, index) in bookDatas.categorys"
                             :key="index"
                             class="py-2 px-4 border-b hover:bg-theme-card border-dashed rounded-md flex items-center"
                             :to="{
                                 name: 'post',
                                 params: {
-                                    category: bookDatas.category.identity,
-                                    book: bookDatas.book.identity,
-                                    locale: locale,
-                                    chapter: chapter.chapter,
-                                    section: chapter.section,
-                                    document: chapter.document
+                                    chapter: chapter.filepath
                                 }
                             }">
                             <span class="pl-2">{{
-                                addZero(chapter.order, 3) + '. ' + chapter.display_name
+                                addZero(chapter.order, 3) + '. ' + chapter.title
                             }}</span></router-link
                         >
                     </div>
@@ -130,23 +125,19 @@
                                     <th class="border px-4 py-2">ID</th>
                                     <th class="border px-4 py-2">{{ translate('displayName') }}</th>
                                     <th class="border px-4 py-2">{{ translate('order') }}</th>
-                                    <th class="border px-4 py-2">{{ translate('hidden') }}</th>
+                                    <th class="border px-4 py-2">{{ translate('status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="meta in metas" :key="meta.identity">
+                                <tr v-for="meta in metas" :key="meta.name">
                                     <td class="px-4 py-2">
-                                        <input
-                                            type="text"
-                                            class=""
-                                            disabled
-                                            v-model="meta.identity" />
+                                        <input type="text" class="" disabled v-model="meta.name" />
                                     </td>
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
                                             class="p-2 border rounded-sm w-full"
-                                            v-model="meta.display_name" />
+                                            v-model="meta.title" />
                                     </td>
                                     <td class="px-4 py-2">
                                         <input
@@ -158,7 +149,7 @@
                                         <input
                                             type="checkbox"
                                             id="checkbox"
-                                            v-model="meta.hidden"
+                                            v-model="meta.status"
                                             :true-value="false"
                                             :false-value="true" />
                                     </td>
@@ -191,7 +182,7 @@ import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
 
 import { addZero } from '@/utils'
 
-import { BookData, MetaData } from '@/models'
+import { LocalMetaDatas, MetaData } from '@/models'
 import { Message } from '@/plugins/message'
 import {
     fetchBook,
@@ -204,7 +195,7 @@ import {
     getRandPoem
 } from '@/handlers/index'
 
-import { getBookData, addBookData } from '@/database'
+import { getDBBookData, addDBBookData } from '@/database'
 
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -227,7 +218,7 @@ const bookChapterCount = ref(0)
 const bookDocumentCount = ref(0)
 const poem = ref('')
 
-const bookDatas = ref<BookData>(new BookData())
+const bookDatas = ref<LocalMetaDatas>(new LocalMetaDatas())
 
 async function saveMeta() {
     await saveBookMeta(
@@ -247,7 +238,7 @@ async function updateMeta() {
 async function refreshBook(params: RouteParams) {
     // /book/Ae/basic
 
-    const db_data = await getBookData(params)
+    const db_data = await getDBBookData(params)
     if (db_data) {
         bookDatas.value = db_data.data
     } else {
@@ -259,7 +250,7 @@ async function refreshBook(params: RouteParams) {
 
         if (ok) {
             bookDatas.value = data
-            await addBookData(params, data)
+            await addDBBookData(params, data)
         } else {
             Message('未找到书籍数据', 'warn')
         }

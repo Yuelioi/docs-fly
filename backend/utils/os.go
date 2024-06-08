@@ -9,12 +9,12 @@ import (
 func ReadJson(filepath string, element interface{}) (err error) {
 	bytes, err := os.ReadFile(filepath)
 	if err != nil {
-		return
+		return err
 	}
 
 	err = json.Unmarshal(bytes, &element)
 	if err != nil {
-		return
+		return err
 	}
 	return
 }

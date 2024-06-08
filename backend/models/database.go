@@ -19,7 +19,6 @@ type Category struct {
 	gorm.Model
 	MetaData
 	ModTime   time.Time
-	Display   bool // 是否显示
 	Documents []Document
 }
 

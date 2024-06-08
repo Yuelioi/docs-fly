@@ -17,24 +17,24 @@
                         class="relative group items-center flex rounded-lg h-full p-1 pl-4 pr-4"
                         v-for="(nav, index_nav) in navs"
                         :key="index_nav">
-                        <span class="font-bold cursor-default">{{ nav.display_name }}</span>
+                        <span class="font-bold cursor-default">{{ nav }}</span>
 
                         <ul
                             class="absolute top-16 rounded-lg bg-theme-card scale-0 group-hover:scale-100 ease-in-out duration-300 origin-top-left z-50">
                             <router-link
                                 class="px-6 py-3 flex items-center last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover w-full whitespace-nowrap"
-                                v-for="(child, index_item) in nav.children"
+                                v-for="(child, index_item) in nav.categorys"
                                 :key="index_item"
                                 :to="{
                                     name: 'book',
                                     params: {
-                                        category: nav.identity,
-                                        book: child.identity,
+                                        category: nav.categorys[0].name,
+
                                         locale: locale
                                     }
                                 }"
                                 ><i class="pi pi-book"></i
-                                ><span class="pl-2">{{ child.display_name }}</span></router-link
+                                ><span class="pl-2">{{ child.title }}</span></router-link
                             >
                         </ul>
                     </div>
@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { NavData } from '@/models'
+import { LocalMetaDatas, MetaData } from '@/models'
 import { ref, onMounted } from 'vue'
 import { fetchNav } from '@/handlers/index'
 import { getNav, addNav } from '@/database'
@@ -115,7 +115,7 @@ const basic = basicStore()
 const { locale, token, isAdmin } = storeToRefs(basic)
 const { translate } = basic
 
-const navs = ref<NavData[]>([])
+const navs = ref<LocalMetaDatas[]>([])
 
 const showLoginWindow = ref(false)
 const showSearchDialog = ref(false)
@@ -153,10 +153,10 @@ onMounted(async () => {
     } else {
         const [ok, data] = await fetchNav()
         if (ok) {
-            navs.value = data.sort((pre: NavData, next: NavData) => pre.order - next.order)
+            navs.value = data.sort((pre: MetaData, next: MetaData) => pre.order - next.order)
             await addNav(navs.value)
         } else {
-            navs.value = [new NavData()]
+            navs.value = [new LocalMetaDatas()]
         }
     }
 })

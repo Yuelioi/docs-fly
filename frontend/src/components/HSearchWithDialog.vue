@@ -17,12 +17,12 @@
                                 class="h-10 flex relative justify-center items-center text-center text-nowrap w-32 bg-transparent text-sm font-semibold">
                                 <i class="pi pi-book pr-2"></i>
                                 <span class="group" @mouseleave="showSearchDropdown = false">{{
-                                    currentOption.identity ? currentOption.identity : '全站搜索'
+                                    currentOption.name ? currentOption.name : '全站搜索'
                                 }}</span>
                                 <i
-                                    v-show="currentOption.identity.length > 0"
+                                    v-show="currentOption.name.length > 0"
                                     class="pi pi-times pl-2 text-sm/[12px]"
-                                    @click="currentOption.identity = ''"></i>
+                                    @click="currentOption.name = ''"></i>
                                 <div
                                     v-if="showSearchDropdown"
                                     class="absolute z-[100] top-[3rem] rounded h-32">
@@ -34,7 +34,7 @@
                                             class="px-6 py-3 last:pb-4 hover:bg-theme-primary-hover hover:rounded-lg w-full whitespace-normal"
                                             :key="index"
                                             @click="select(option)">
-                                            <span>{{ option.display_name }}</span>
+                                            <span>{{ option.title }}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -82,7 +82,7 @@
                             class="h-full w-full overflow-scroll p-6 first:pt-2">
                             <div
                                 v-for="(data, index) in searchResult.result"
-                                :key="data.document_identity">
+                                :key="data.document_name">
                                 <div class="p-2">
                                     <div
                                         class="hover:bg-theme-primary-hover relative border-b rounded-lg hover:rounded-lg p-4">
@@ -94,15 +94,15 @@
                                                 <div class="text-lg">
                                                     <span class="font-bold"
                                                         >{{ index + 1 + '.' }}
-                                                        {{ data.document_display_name }}</span
+                                                        {{ data.document_title }}</span
                                                     >
                                                     <div class="absolute right-4 top-0">
                                                         <i class="pi pi-book pr-2"></i>
                                                         <span class="">
                                                             {{
-                                                                data.category_display_name +
+                                                                data.category_title +
                                                                 '/' +
-                                                                data.book_display_name
+                                                                data.book_title
                                                             }}</span
                                                         >
                                                     </div>
@@ -181,12 +181,12 @@ function jumpToDocument(link: string) {
 
 const conventLink = function (data: SearchData) {
     const linkList = [
-        data.category_identity,
-        data.book_identity,
+        data.category_name,
+        data.book_name,
         data.locale,
-        data.chapter_identity,
-        data.section_identity,
-        data.document_identity
+        data.chapter_name,
+        data.section_name,
+        data.document_name
     ]
     const filteredLink = linkList.filter(function (item: string) {
         return item != ''
@@ -199,8 +199,8 @@ const options = computed(() => {
     const res: MetaData[] = []
 
     const all = new MetaData()
-    all.identity = ''
-    all.display_name = '全部'
+    all.name = ''
+    all.title = '全部'
 
     res.push(all)
     for (let cat of searchOptions.value) {
@@ -208,8 +208,8 @@ const options = computed(() => {
             const data = new MetaData()
             data.hidden = book.hidden
             data.icon = book.icon
-            data.identity = cat.identity + '/' + book.identity
-            data.display_name = cat.display_name + '/' + book.display_name
+            data.name = cat.name + '/' + book.name
+            data.title = cat.title + '/' + book.title
             res.push(data)
         }
     }
@@ -223,10 +223,10 @@ async function handleSearch() {
     }
 
     let option_list
-    if (currentOption.value.identity == '') {
+    if (currentOption.value.name == '') {
         option_list = ['', '']
     } else {
-        option_list = currentOption.value.identity.split('/')
+        option_list = currentOption.value.name.split('/')
     }
 
     const [ok, data] = await fetchKeyword(option_list[0], option_list[1], search.value)

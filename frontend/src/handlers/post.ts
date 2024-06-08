@@ -1,5 +1,4 @@
 import { fetchContent, fetchContentAdmin } from './utils'
-import { DocumentLinkMeta } from '@/models'
 
 // PostPage
 
@@ -50,16 +49,12 @@ export const fetchPostHtml = async (content: string) => {
  * @param content
  * @returns
  */
-export const savePost = async (docsLinkParams: DocumentLinkMeta, content: string) => {
+export const savePost = async (category: string, content: string) => {
     return fetchContentAdmin(
         '/post',
         {
-            category: docsLinkParams.category,
-            book: docsLinkParams.book,
-            locale: docsLinkParams.locale,
-            chapter: docsLinkParams.chapter,
-            section: docsLinkParams.section,
-            document: docsLinkParams.document,
+            category: category,
+
             content: content
         },
         'post'

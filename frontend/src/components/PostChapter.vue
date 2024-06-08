@@ -25,18 +25,18 @@
                             :to="{
                                 name: 'post',
                                 params: {
-                                    category: chapter.category.identity,
-                                    chapter: chapter.chapter.identity,
+                                    category: chapter.category.name,
+                                    chapter: chapter.chapter.name,
                                     locale: locale,
-                                    document: chapter.document.identity
+                                    document: chapter.document.name
                                 }
                             }"
                             :data-index="chapter.id"
-                            :key="chapter.document.identity"
+                            :key="chapter.document.name"
                             class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-400 hover:rounded dark:hover:bg-slate-800">
                             <h5
                                 class="select-none text-lg font-bold mb-4 lg:mb-3 text-slate-900 dark:text-slate-200">
-                                {{ chapter.document.display_name }}
+                                {{ chapter.document.title }}
                             </h5></router-link
                         >
                     </div>
@@ -46,14 +46,14 @@
                     <div v-else class="">
                         <h5
                             class="select-none text-lg font-bold mb-4 lg:mb-3 text-slate-900 dark:text-slate-200">
-                            {{ chapter.id + 1 + '. ' + chapter.chapter.display_name }}
+                            {{ chapter.id + 1 + '. ' + chapter.chapter.title }}
                         </h5>
                         <Transition name="list">
                             <li v-show="!chapter.collapsed">
                                 <div
                                     v-for="(section, section_id) in chapter.sections"
                                     :key="section_id">
-                                    {{ '小节' + section.display_name }}
+                                    {{ '小节' + section.title }}
                                 </div>
 
                                 <div
@@ -67,17 +67,15 @@
                                                 category: category,
                                                 book: book,
                                                 locale: locale,
-                                                chapter: chapter.chapter.identity,
-                                                document: document.identity
+                                                chapter: chapter.chapter.name,
+                                                document: document.name
                                             }
                                         }"
                                         :key="chapter_index + document_index"
                                         class="pl-4 -ml-px hover:pl-3.5 hover:pr-4 hover:border-theme-primary hover:border-l-4"
                                         @click.stop
                                         ><span>{{
-                                            addZero(document_index + 1, 2) +
-                                            '. ' +
-                                            document.display_name
+                                            addZero(document_index + 1, 2) + '. ' + document.title
                                         }}</span></router-link
                                     >
                                 </div>

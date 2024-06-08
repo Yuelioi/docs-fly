@@ -95,18 +95,7 @@ func WriteContentToDocsData(datas ...*[]models.Document) {
 	wg.Wait()
 }
 
-// 将完整数据转为本地要保存的数据
-func convertMetaData(meta models.MetaData) models.LocalMetaData {
-	return models.LocalMetaData{
-		Name:   meta.Name,
-		Title:  meta.Title,
-		Order:  meta.Order,
-		Icon:   meta.Icon,
-		Status: meta.Status,
-	}
-}
-
-func searchLocalMetaDatasCache(cache LocalMetaDatasCache, isCat bool, name string) *models.LocalMetaData {
+func searchMetaDatasCache(cache MetaDatasCache, isCat bool, name string) *models.MetaData {
 
 	if isCat {
 		for _, meta := range cache.Categorys {
@@ -124,17 +113,28 @@ func searchLocalMetaDatasCache(cache LocalMetaDatasCache, isCat bool, name strin
 	return nil
 }
 
-func WriteLocalMetaData(metas map[string]LocalMetaDatasCache) {
-	var wg sync.WaitGroup
+func WriteMetaData(
+	metas map[string]MetaDatasCache,
+) {
+
+	update_metas := make([]MetaDatasCache, 0)
 
 	for _, meta := range metas {
+		if meta.NeedWrite {
+			update_metas = append(update_metas, meta)
+		}
+	}
+
+	var wg sync.WaitGroup
+
+	for _, meta := range update_metas {
 		wg.Add(1)
 
-		go func(meta LocalMetaDatasCache) {
+		go func(meta MetaDatasCache) {
 
 			defer wg.Done()
 
-			output := models.LocalMetaDatas{
+			output := models.MetaDatas{
 				Categorys: meta.Categorys,
 				Documents: meta.Documents,
 			}
@@ -143,6 +143,7 @@ func WriteLocalMetaData(metas map[string]LocalMetaDatasCache) {
 			outputPath := filepath.Join(meta.ParentFolder, "meta.json")
 
 			os.WriteFile(outputPath, data, 0644)
+
 		}(meta)
 	}
 
