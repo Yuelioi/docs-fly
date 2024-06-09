@@ -19,12 +19,10 @@ func registerPlugins(engine *gin.Engine) {
 // 其他值（例如 value2）将保持原样。
 func DecodeQueryParams() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		for key, value := range c.Request.URL.Query() {
-
-			decodedValue, err := url.QueryUnescape(value[0])
-			if err == nil {
-				c.Request.URL.Query()[key] = []string{decodedValue}
-			}
+		query := c.Request.URL.RawQuery
+		decodedQuery, err := url.QueryUnescape(query)
+		if err == nil {
+			c.Request.URL.RawQuery = decodedQuery
 		}
 		c.Next()
 	}

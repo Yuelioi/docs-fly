@@ -14,24 +14,63 @@ import (
 
 // 获取当前书籍章节信息,没有章节则直接获取文档信息
 func GetBook(c *gin.Context) {
-	category := c.Query("category")
+	slug := c.Query("slug")
+	locale := c.Query("locale")
 
 	db, err := database.DbManager.Connect()
 
-	db.Model(models.Category{}).Where("filepath like ?", "%"+category+"%")
+	var cats []models.Category
+	db.Model(models.Category{}).Preload("Documents").Where("filepath like ?", slug+"/"+locale+"%").Where("depth = ?", 3).Find(&cats)
+
+	var docs []models.Document
+	db.Model(models.Document{}).Where("filepath like ?", slug+"/"+locale+"%").Where("depth = ?", 3).Find(&docs)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
 		return
 	}
 
-	c.JSON(http.StatusOK, "")
+	var bookDatas []models.BookData
+
+	// 1.分类数据
+	for _, cat := range cats {
+
+		var minOrderDocument models.Document
+
+		minOrderDocument.Order = 9999
+
+		// TODO 如果是UE 也许没有第一篇文章
+		for _, doc := range cat.Documents {
+			if doc.Order < minOrderDocument.Order {
+				minOrderDocument = doc
+			}
+		}
+
+		chapter := models.BookData{
+			Url:         minOrderDocument.Filepath,
+			ChapterType: "category",
+			MetaData:    cat.MetaData,
+		}
+		bookDatas = append(bookDatas, chapter)
+	}
+
+	// 2.文章数据
+	for _, doc := range docs {
+
+		chapter := models.BookData{
+			Url:         doc.Filepath,
+			ChapterType: "document",
+			MetaData:    doc.MetaData,
+		}
+		bookDatas = append(bookDatas, chapter)
+	}
+
+	c.JSON(http.StatusOK, bookDatas)
 }
 
 func GetBookMeta(c *gin.Context) {
 	category := c.Query("category")
 
-	//  TODO 直接读取即可, 不过需要
 	filepath := category + "/" + "meta.json"
 
 	var data interface{}

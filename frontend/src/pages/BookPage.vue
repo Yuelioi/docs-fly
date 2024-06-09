@@ -64,25 +64,27 @@
                     </ul>
                 </div>
             </div>
+
             <div class="mt-4">
                 <div class="tab-item" v-if="tabId == 1">
                     <div class="flex flex-col">
-                        <div class="" v-if="bookDatas.categorys.length == 0">
+                        <div class="" v-if="bookDatas.length == 0">
                             本书尚未有{{ translate('locale') }}版本
                         </div>
                         <router-link
                             v-else
-                            v-for="(chapter, index) in bookDatas.categorys"
+                            v-for="(chapter, index) in bookDatas"
                             :key="index"
                             class="py-2 px-4 border-b hover:bg-theme-card border-dashed rounded-md flex items-center"
                             :to="{
                                 name: 'post',
                                 params: {
-                                    chapter: chapter.filepath
+                                    slug: 'x48qwr'
                                 }
                             }">
+                            {{ chapter.url.split('/') }}
                             <span class="pl-2">{{
-                                addZero(chapter.order, 3) + '. ' + chapter.title
+                                addZero(chapter.metadata.order, 3) + '. ' + chapter.metadata.title
                             }}</span></router-link
                         >
                     </div>
@@ -182,10 +184,10 @@ import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
 
 import { addZero } from '@/utils'
 
-import { LocalMetaDatas, MetaData } from '@/models'
+import { BookData, MetaData } from '@/models'
 import { Message } from '@/plugins/message'
 import {
-    fetchBook,
+    getBookData,
     fetchBookMeta,
     fetchStatisticBook,
     saveBookMeta,
@@ -218,7 +220,7 @@ const bookChapterCount = ref(0)
 const bookDocumentCount = ref(0)
 const poem = ref('')
 
-const bookDatas = ref<LocalMetaDatas>(new LocalMetaDatas())
+const bookDatas = ref<BookData[]>([])
 
 async function saveMeta() {
     await saveBookMeta(
@@ -238,45 +240,43 @@ async function updateMeta() {
 async function refreshBook(params: RouteParams) {
     // /book/Ae/basic
 
-    const db_data = await getDBBookData(params)
+    // const db_data = await getDBBookData(params)
+    const db_data = undefined
     if (db_data) {
-        bookDatas.value = db_data.data
+        // bookDatas.value = db_data.data
     } else {
-        const [ok, data] = await fetchBook(
-            params['category'] as string,
-            params['book'] as string,
-            locale.value
-        )
+        const [ok, data] = await getBookData((params['slug'] as string[]).join('/'), locale.value)
 
         if (ok) {
             bookDatas.value = data
-            await addDBBookData(params, data)
+
+            // await addDBBookData(params, data)
         } else {
             Message('未找到书籍数据', 'warn')
         }
     }
 
-    const [ok2, statisticData] = await fetchStatisticBook(
-        route.params['category'] as string,
-        route.params['book'] as string
-    )
+    // const [ok2, statisticData] = await fetchStatisticBook(
+    //     route.params['slug'] as string,
+    //     route.params['book'] as string
+    // )
 
-    if (ok2) {
-        bookReadCount.value = statisticData['read_count']
-        bookChapterCount.value = statisticData['chapter_count']
-        bookDocumentCount.value = statisticData['document_count']
-    }
+    // if (ok2) {
+    //     bookReadCount.value = statisticData['read_count']
+    //     bookChapterCount.value = statisticData['chapter_count']
+    //     bookDocumentCount.value = statisticData['document_count']
+    // }
 
-    let ok3
-    ;[ok3, metas.value] = await fetchBookMeta(
-        params['category'] as string,
-        params['book'] as string,
-        locale.value
-    )
+    // let ok3
+    // ;[ok3, metas.value] = await fetchBookMeta(
+    //     params['category'] as string,
+    //     params['book'] as string,
+    //     locale.value
+    // )
 
-    if (ok3) {
-        console.log(metas.value)
-    }
+    // if (ok3) {
+    //     console.log(metas.value)
+    // }
 }
 
 watch(route, async (val: RouteLocationNormalizedLoaded) => {

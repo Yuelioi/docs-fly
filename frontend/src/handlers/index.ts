@@ -1,7 +1,7 @@
 // package handlers: 用于管理api接口
 
-import { fetchBook, fetchBookMeta, saveBookMeta, updateBookMeta } from './book'
-import { fetchNav, fetchKeyword, fetchSearchOptions } from './home'
+import { getBookData, fetchBookMeta, saveBookMeta, updateBookMeta } from './book'
+import { getNav, fetchKeyword, fetchSearchOptions } from './home'
 import { fetchChapter, fetchPost, fetchPostHtml, savePost } from './post'
 import { AddVisitorLog } from './visitor'
 import { fetchStatisticHome, fetchStatisticBook } from './statistic'
@@ -13,13 +13,13 @@ import { postBookComment } from './comment'
 import { getRandNickname, getRandPoem } from './others'
 
 export {
-    fetchBook,
+    getBookData,
     fetchBookMeta,
     saveBookMeta,
     updateBookMeta,
     fetchStatisticHome,
     fetchStatisticBook,
-    fetchNav,
+    getNav,
     fetchKeyword,
     fetchChapter,
     postBookComment,

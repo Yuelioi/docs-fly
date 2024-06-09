@@ -17,6 +17,11 @@ func StringsInside(arr []string, query string) bool {
 	return false
 }
 
+// 反斜杠改为正斜杠
+func ReplaceSlash(input string) string {
+	return strings.ReplaceAll(input, "\\", "/")
+}
+
 // 类型转换, 如果失败就用零值
 func Transform[T any](data any) T {
 

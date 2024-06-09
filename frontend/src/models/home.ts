@@ -20,22 +20,15 @@ export class SearchResult {
 
 // 主页搜索显示数据
 export class SearchData {
+    url: string = ''
     locale: string = ''
-
-    category_name: string = ''
     category_title: string = ''
-
-    book_name: string = ''
     book_title: string = ''
-
-    chapter_name: string = ''
-    chapter_title: string = ''
-
-    section_name = ''
-    section_title = ''
-
-    document_name: string = ''
     document_title: string = ''
-
     content: string = ''
+}
+
+export class Nav {
+    metadata: MetaData = new MetaData()
+    children: MetaData[] = []
 }

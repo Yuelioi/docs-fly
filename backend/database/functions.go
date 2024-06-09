@@ -96,7 +96,6 @@ func WriteContentToDocsData(datas ...*[]models.Document) {
 }
 
 func searchMetaDatasCache(cache MetaDatasCache, isCat bool, name string) *models.MetaData {
-
 	if isCat {
 		for _, meta := range cache.Categorys {
 			if meta.Name == name {
@@ -113,16 +112,45 @@ func searchMetaDatasCache(cache MetaDatasCache, isCat bool, name string) *models
 	return nil
 }
 
+func searchDBCatMetaDatas(cache []models.Category, path string) *models.MetaData {
+	for _, item := range cache {
+		if item.Filepath == path {
+			return &item.MetaData
+		}
+	}
+	return nil
+}
+
+func searchDBDocMetaDatas(cache []models.Document, path string) *models.MetaData {
+	for _, item := range cache {
+		if item.Filepath == path {
+			return &item.MetaData
+		}
+	}
+	return nil
+}
+
+func compare(localMeta *models.MetaData, dbMeta *models.MetaData) bool {
+	if localMeta == nil || dbMeta == nil {
+		return false
+	}
+	return *localMeta == *dbMeta
+}
+
+// 写入本地meta.json
+// @param: rebuild false:只写入修改的 true:全部重写
 func WriteMetaData(
 	metas map[string]MetaDatasCache,
+	rebuild bool,
 ) {
 
 	update_metas := make([]MetaDatasCache, 0)
 
 	for _, meta := range metas {
-		if meta.NeedWrite {
+		if meta.NeedWrite || rebuild {
 			update_metas = append(update_metas, meta)
 		}
+
 	}
 
 	var wg sync.WaitGroup

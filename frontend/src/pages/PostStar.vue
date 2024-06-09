@@ -14,12 +14,7 @@
                 :to="{
                     name: 'post',
                     params: {
-                        category: star.params.category,
-                        book: star.params.book,
-                        locale: star.params.locale,
-                        chapter: star.params.chapter,
-                        section: star.params.section,
-                        document: star.params.document
+                        category: star.params
                     }
                 }">
                 <div class="flex min-w-0 gap-x-8">
@@ -27,17 +22,17 @@
                         <div class="flex items-center">
                             <p
                                 class="text-sm font-semibold leading-6 text-gray-900 dark:text-slate-200">
-                                {{ index + 1 + '. ' + star.params.document }}
+                                {{ index + 1 + '. ' + star.params }}
                             </p>
                             <i class="pi pi-book pl-4 pr-2"></i>
                             <span class="text-sm leading-6">
-                                {{ star.params.category + ' / ' + star.params.book }}
+                                {{ star.params + ' / ' + star.params }}
                             </span>
                         </div>
 
                         <p
                             class="mt-1 truncate text-xs leading-5 text-gray-500 dark:text-slate-400">
-                            这里放文章概述{{ star.params.document }}
+                            这里放文章概述{{ star.params }}
                         </p>
                     </div>
                 </div>

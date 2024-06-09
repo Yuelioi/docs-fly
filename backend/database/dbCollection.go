@@ -2,6 +2,7 @@ package database
 
 import (
 	"reflect"
+	"sync"
 
 	"gorm.io/gorm"
 )
@@ -75,23 +76,44 @@ func DBUpdate(db *gorm.DB, collection Collections) (err error) {
 			}
 
 		}
-
 		if len(collection.Updates) > 0 {
-			for _, item := range collection.Updates {
-				itemVal := reflect.ValueOf(item)
-				itemType := itemVal.Type()
+			var wg sync.WaitGroup
+			errCh := make(chan error, len(collection.Updates))
+			for _, update := range collection.Updates {
+				wg.Add(1)
+				// 筛选出 Cats 和 Docs
+				go func(update interface{}) {
+					defer wg.Done()
+					updateVal := reflect.ValueOf(update)
+					switch updateVal.Kind() {
+					case reflect.Slice:
+						for i := 0; i < updateVal.Len(); i++ {
+							item := updateVal.Index(i)
+							for _, model := range collection.Models {
+								modelVal := reflect.ValueOf(model)
+								modelType := modelVal.Type()
+								itemType := item.Type()
+								filepathValue := item.FieldByName("Filepath").Interface()
+								updateFields := item.Interface()
 
-				for _, model := range collection.Models {
-					modelVal := reflect.ValueOf(model)
-					modelType := modelVal.Type()
+								// 基于路径进行更新
 
-					if itemType == modelType {
-						if err := tx.Model(model).Where("id = ?", itemVal.FieldByName("ID").Interface()).Updates(item).Error; err != nil {
-							return err
+								if itemType == modelType {
+									if err := tx.Model(model).Where("filepath = ?", filepathValue).Updates(updateFields).Error; err != nil {
+										errCh <- err
+										return
+									}
+									break
+								}
+							}
 						}
-						break
 					}
-				}
+				}(update)
+			}
+			wg.Wait()
+			close(errCh)
+			if err := <-errCh; err != nil {
+				return err
 			}
 		}
 		if len(collection.Deletes) > 0 {

@@ -7,45 +7,46 @@ import (
 	"docsfly/models"
 	"docsfly/utils"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetSearchOptions(c *gin.Context) {
+// 获取顶部导航栏信息
+func GetNav(c *gin.Context) {
 
+	navs := []models.Nav{}
 	db, err := database.DbManager.Connect()
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
 		return
 	}
-
 	var cats []models.Category
+	var books []models.Category
+	db.Model(models.Category{}).Where("depth = ?", 0).Find(&cats)
+	db.Model(models.Category{}).Where("depth = ?", 1).Find(&books)
 
-	var options []models.SearchOption
-
-	db.Model(&models.Category{}).Preload("Books").Find(&cats)
-
-	// 遍历分类
 	for _, cat := range cats {
 
-		option := models.SearchOption{}
-		option.MetaData = cat.MetaData
+		nav := models.Nav{}
+		nav.MetaData = cat.MetaData
 
-		// 遍历书籍
+		for _, book := range books {
 
-		options = append(options, option)
+			if strings.HasPrefix(book.Filepath, cat.Filepath) {
+				nav.Children = append(nav.Children, book.MetaData)
+			}
+		}
+		navs = append(navs, nav)
 	}
 
-	c.JSON(http.StatusOK, options)
+	c.JSON(http.StatusOK, navs)
 
 }
 
 func Query(c *gin.Context) {
-	category := c.Query("category")
-	book := c.Query("book")
-
+	slug := c.Query("slug")
 	keyword := c.Query("keyword")
 
 	start := time.Now()
@@ -63,16 +64,13 @@ func Query(c *gin.Context) {
 	// 内容截取长度
 	count := 30
 
-	var catInfo models.Category
 	var documentInfo models.Document
-
 	var documents []models.Document
 
-	if category != "" && book != "" {
-		db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
+	if slug != "" {
+		db.Model(&documentInfo).Preload("Category").Where("filepath LIKE ?", slug+"%").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
 	} else {
-		db.Model(&documentInfo).Preload("Category").Preload("Book").Preload("Chapter").Preload("Section").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
-
+		db.Model(&documentInfo).Preload("Category").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
 	}
 
 	if len(documents) == 0 {
@@ -111,25 +109,27 @@ func Query(c *gin.Context) {
 
 		nearbyText := string(runeText)
 
-		dsData := models.SearchData{
-			Locale:        document.Locale,
-			DocumentName:  document.Name,
-			DocumentTitle: document.Title,
-			Content:       nearbyText,
+		cat, book, locale, ok := utils.Filepath2Params(document.Filepath)
+
+		if ok {
+
+			var catTitle string
+			var bookTitle string
+			db.Model(&models.Category{}).Where("filepath = ?", cat).Select("title").Scan(&catTitle)
+			db.Model(&models.Category{}).Where("filepath = ?", cat+"/"+book).Select("title").Scan(&bookTitle)
+
+			// TODO 使用标题而不是路径
+			dsData := models.SearchData{
+				Url:           document.Filepath,
+				CategoryTitle: catTitle,
+				BookTitle:     bookTitle,
+				Locale:        locale,
+				DocumentTitle: strings.Replace(document.Title, ".md", "", 1),
+				Content:       nearbyText,
+			}
+			searchResult.Result = append(searchResult.Result, dsData)
 		}
 
-		// 添加额外条件
-		if category != "" && book != "" {
-			dsData.CategoryName = catInfo.Name
-			dsData.CategoryTitle = catInfo.Title
-
-		} else {
-			dsData.CategoryName = document.Category.Name
-			dsData.CategoryTitle = document.Category.Title
-
-		}
-
-		searchResult.Result = append(searchResult.Result, dsData)
 	}
 
 	searchResult.SearchTime = utils.DurationToString(time.Since(start))

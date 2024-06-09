@@ -8,7 +8,7 @@ export const fetchKeyword = async (category: string, book: string, keyword: stri
 }
 
 // 获取顶部导航栏
-export const fetchNav = async () => {
+export const getNav = async () => {
     return await fetchContent('/nav', {})
 }
 // 获取顶部导航栏

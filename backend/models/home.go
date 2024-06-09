@@ -8,11 +8,6 @@ type Statistic struct {
 	TodayVisitorCount      int64 `json:"today_visitor_count"`
 }
 
-type SearchOption struct {
-	MetaData
-	Children []MetaData `json:"children"`
-}
-
 type SearchResult struct {
 	SearchTime string       `json:"search_time"`
 	Result     []SearchData `json:"result"`
@@ -20,22 +15,15 @@ type SearchResult struct {
 
 // 主页搜索显示数据
 type SearchData struct {
-	Locale string `json:"locale"`
+	Url           string `json:"url"`
+	Locale        string `json:"locale"`
+	CategoryTitle string `json:"category_title"`
+	BookTitle     string `json:"book_title"`
+	DocumentTitle string `json:"document_title"`
+	Content       string `json:"content"`
+}
 
-	CategoryName  string `json:"category_identity"`
-	CategoryTitle string `json:"category_display_name"`
-
-	BookName  string `json:"book_identity"`
-	BookTitle string `json:"book_display_name"`
-
-	ChapterName  string `json:"chapter_identity"`
-	ChapterTitle string `json:"chapter_display_name"`
-
-	SectionName  string `json:"section_identity"`
-	SectionTitle string `json:"section_display_name"`
-
-	DocumentName  string `json:"document_identity"`
-	DocumentTitle string `json:"document_display_name"`
-
-	Content string `json:"content"`
+type Nav struct {
+	MetaData `json:"metadata"`
+	Children []MetaData `json:"children"`
 }

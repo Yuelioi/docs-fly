@@ -80,9 +80,7 @@
                         <div
                             v-if="searchResult.result.length"
                             class="h-full w-full overflow-scroll p-6 first:pt-2">
-                            <div
-                                v-for="(data, index) in searchResult.result"
-                                :key="data.document_name">
+                            <div v-for="(data, index) in searchResult.result" :key="data.url">
                                 <div class="p-2">
                                     <div
                                         class="hover:bg-theme-primary-hover relative border-b rounded-lg hover:rounded-lg p-4">
@@ -133,10 +131,8 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 import { useRouter } from 'vue-router'
 
-import { fetchKeyword, fetchSearchOptions } from '@/handlers'
-import { MetaData, SearchData, SearchOption, SearchResult } from '@/models'
-
-import { getSearchOption, addSearchOption } from '@/database'
+import { fetchKeyword } from '@/handlers'
+import { MetaData, SearchData, SearchResult, Nav } from '@/models'
 
 // 默认不pin
 const pinSearchResult = ref(false)
@@ -149,11 +145,14 @@ const searchResult = ref<SearchResult>(new SearchResult())
 const searchDialogRef = ref(null)
 const route = useRouter()
 
-const searchOptions = ref<SearchOption[]>([])
-
 const showSearchDropdown = ref(false)
 const showSearchDialog = defineModel('showSearchDialog', {
     type: Boolean,
+    required: true
+})
+
+const navs = defineModel('navs', {
+    type: Array as () => Nav[],
     required: true
 })
 
@@ -180,14 +179,7 @@ function jumpToDocument(link: string) {
 }
 
 const conventLink = function (data: SearchData) {
-    const linkList = [
-        data.category_name,
-        data.book_name,
-        data.locale,
-        data.chapter_name,
-        data.section_name,
-        data.document_name
-    ]
+    const linkList = [data.url]
     const filteredLink = linkList.filter(function (item: string) {
         return item != ''
     })
@@ -203,13 +195,13 @@ const options = computed(() => {
     all.title = '全部'
 
     res.push(all)
-    for (let cat of searchOptions.value) {
-        for (const book of cat.children) {
+    for (let nav of navs.value) {
+        for (const book of nav.children) {
             const data = new MetaData()
-            data.hidden = book.hidden
+            data.status = book.status
             data.icon = book.icon
-            data.name = cat.name + '/' + book.name
-            data.title = cat.title + '/' + book.title
+            data.name = nav.metadata.name + '/' + book.name
+            data.title = nav.metadata.title + '/' + book.title
             res.push(data)
         }
     }
@@ -245,19 +237,6 @@ function select(option: MetaData) {
 }
 
 onMounted(async () => {
-    const search_option = await getSearchOption()
-    if (search_option) {
-        searchOptions.value = search_option.data
-    } else {
-        const [ok, data] = await fetchSearchOptions()
-        if (ok) {
-            searchOptions.value = data
-            await addSearchOption(searchOptions.value)
-        } else {
-            searchOptions.value = []
-        }
-    }
-
     window.addEventListener('keydown', closeDialog)
     document.addEventListener('click', closeDialog)
 })

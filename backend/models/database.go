@@ -31,7 +31,6 @@ type Document struct {
 	Content    string
 	CategoryID uint
 	Category   Category
-	Status     string
 }
 
 // 访客记录

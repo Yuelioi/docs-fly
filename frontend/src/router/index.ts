@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteLocationNormalized } from 'vue-router'
 import Home from '@/pages/HomePage.vue'
 import Post from '@/pages/PostPage.vue'
 import Book from '@/pages/BookPage.vue'
@@ -13,7 +13,7 @@ const routes = [
     },
 
     {
-        path: '/book/:category/:book/:locale',
+        path: '/book/:slug+',
         name: 'book',
         component: Book
     },
@@ -23,7 +23,7 @@ const routes = [
         component: PostStar
     },
     {
-        path: '/post/:category/:book/:locale/:chapter?/:section?/:document(.+md)',
+        path: '/post/:slug+',
         name: 'post',
         component: Post
     },

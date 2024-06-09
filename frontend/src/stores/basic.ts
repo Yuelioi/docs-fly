@@ -18,7 +18,7 @@ export const basicStore = defineStore('basic', () => {
     /**
      * 语言
      */
-    const locale = ref('')
+    const locale = ref('zh')
 
     const nickname = ref('')
 

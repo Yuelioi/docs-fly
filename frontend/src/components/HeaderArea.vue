@@ -17,24 +17,23 @@
                         class="relative group items-center flex rounded-lg h-full p-1 pl-4 pr-4"
                         v-for="(nav, index_nav) in navs"
                         :key="index_nav">
-                        <span class="font-bold cursor-default">{{ nav }}</span>
+                        <span class="font-bold cursor-default">{{ nav.metadata.title }}</span>
 
                         <ul
                             class="absolute top-16 rounded-lg bg-theme-card scale-0 group-hover:scale-100 ease-in-out duration-300 origin-top-left z-50">
                             <router-link
                                 class="px-6 py-3 flex items-center last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover w-full whitespace-nowrap"
-                                v-for="(child, index_item) in nav.categorys"
+                                v-for="(child, index_item) in sortMeta(nav.children)"
                                 :key="index_item"
                                 :to="{
                                     name: 'book',
                                     params: {
-                                        category: nav.categorys[0].name,
-
-                                        locale: locale
+                                        slug: child.filepath.split('/')
                                     }
                                 }"
-                                ><i class="pi pi-book"></i
-                                ><span class="pl-2">{{ child.title }}</span></router-link
+                                ><i class="pi pi-book"></i>
+
+                                <span class="pl-2">{{ child.title }}</span></router-link
                             >
                         </ul>
                     </div>
@@ -84,14 +83,15 @@
             </div>
         </div>
     </div>
-    <HSearchWithDialog v-model:showSearchDialog="showSearchDialog"> </HSearchWithDialog>
+    <HSearchWithDialog v-model:showSearchDialog="showSearchDialog" v-model:navs="navs">
+    </HSearchWithDialog>
 </template>
 
 <script setup lang="ts">
-import { LocalMetaDatas, MetaData } from '@/models'
+import { Nav, MetaData } from '@/models'
 import { ref, onMounted } from 'vue'
-import { fetchNav } from '@/handlers/index'
-import { getNav, addNav } from '@/database'
+import { getNav } from '@/handlers/index'
+import { getDBNav, addDBNav } from '@/database'
 
 import LoginWindow from '@/components/LoginWindow.vue'
 import HSearch from '@/components/HSearch.vue'
@@ -115,7 +115,7 @@ const basic = basicStore()
 const { locale, token, isAdmin } = storeToRefs(basic)
 const { translate } = basic
 
-const navs = ref<LocalMetaDatas[]>([])
+const navs = ref<Nav[]>([])
 
 const showLoginWindow = ref(false)
 const showSearchDialog = ref(false)
@@ -145,18 +145,26 @@ function logout() {
     Message('已成功登出', 'success')
 }
 
-onMounted(async () => {
-    const nav_data = await getNav()
+function sortMeta(data: MetaData[]) {
+    return data.sort((pre: MetaData, next: MetaData) => {
+        return pre.order - next.order
+    })
+}
 
+onMounted(async () => {
+    const nav_data = await getDBNav()
+    // 验证Nav数据库信息并排序
     if (nav_data) {
         navs.value = nav_data.data
     } else {
-        const [ok, data] = await fetchNav()
+        const [ok, data] = await getNav()
         if (ok) {
-            navs.value = data.sort((pre: MetaData, next: MetaData) => pre.order - next.order)
-            await addNav(navs.value)
+            navs.value = data.sort(
+                (pre: Nav, next: Nav) => pre.metadata.order - next.metadata.order
+            )
+            await addDBNav(navs.value)
         } else {
-            navs.value = [new LocalMetaDatas()]
+            navs.value = [new Nav()]
         }
     }
 })

@@ -70,9 +70,9 @@ class IndexDBManager {
 
             let dataObj
             if (storeConf.unique) {
-                dataObj = new DBData(key, 24 * 30, data)
+                dataObj = new DBData(key, 24, data)
             } else {
-                dataObj = new DBData(data['key'], 24 * 30, data)
+                dataObj = new DBData(data['key'], 24, data)
             }
 
             const request = objectStore.put(dataObj)

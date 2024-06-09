@@ -23,7 +23,7 @@ export class DBData {
     data: any
     constructor(key: string, expiration: number, data: any) {
         this.key = key
-        this.expiration = this.createdTime + expiration * (3600 * 1000)
+        this.expiration = this.createdTime + expiration * (60 * 60 * 1000)
         this.data = data
     }
 }
