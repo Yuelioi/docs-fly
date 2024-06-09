@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Resource string
 	Database string
+	MetaFile string
 
 	Addr   string
 	DBMode int

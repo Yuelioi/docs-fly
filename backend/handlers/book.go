@@ -4,6 +4,7 @@ package handlers
 
 import (
 	"docsfly/database"
+	"docsfly/global"
 	"docsfly/models"
 	"docsfly/utils"
 	"encoding/json"
@@ -71,7 +72,7 @@ func GetBook(c *gin.Context) {
 func GetBookMeta(c *gin.Context) {
 	category := c.Query("category")
 
-	filepath := category + "/" + "meta.json"
+	filepath := category + "/" + global.AppConfig.MetaFile
 
 	var data interface{}
 	err := utils.ReadJson(filepath, data)
@@ -114,7 +115,7 @@ func SaveBookMeta(c *gin.Context) {
 	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
 
 	// 保存meta.json
-	filepath := catInfo.Filepath + "/" + "meta.json"
+	filepath := catInfo.Filepath + "/" + global.AppConfig.MetaFile
 	err = utils.WriteJson(filepath, metas)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Save Data"})
@@ -147,7 +148,7 @@ func UpdateBookMeta(c *gin.Context) {
 	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
 
 	// 保存meta.json
-	filepath := catInfo.Filepath + "/" + "meta.json"
+	filepath := catInfo.Filepath + "/" + global.AppConfig.MetaFile
 
 	var metas interface{}
 

@@ -168,7 +168,7 @@ func WriteMetaData(
 			}
 
 			data, _ := json.MarshalIndent(output, "", "    ")
-			outputPath := filepath.Join(meta.ParentFolder, "meta.json")
+			outputPath := filepath.Join(meta.ParentFolder, global.AppConfig.MetaFile)
 
 			os.WriteFile(outputPath, data, 0644)
 
@@ -201,7 +201,7 @@ func WalkSkip(root string, info os.FileInfo, path string, err error) error {
 		return ErrSkip
 	}
 
-	if info.Name() == "meta.json" {
+	if info.Name() == global.AppConfig.MetaFile {
 		return ErrSkip
 	}
 	if info.Name() == "main.db" {

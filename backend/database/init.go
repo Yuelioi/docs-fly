@@ -126,7 +126,7 @@ func DBInit(db *gorm.DB) error {
 				Documents: make([]models.MetaData, 0), // 初始化为空切片
 			}
 
-			err = utils.ReadJson(filepath.Join(parent, "meta.json"), &localMeta)
+			err = utils.ReadJson(filepath.Join(parent, global.AppConfig.MetaFile), &localMeta)
 
 			if err == nil {
 
