@@ -59,8 +59,8 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
 
     // 更新章节
     if (reload) {
-        const result: any = await getPostChapterData((params['slug'] as string[]).join('/'))
-
+        const path = (params['slug'] as string[]).slice(0, 3).join('/')
+        const result: any = await getPostChapterData(path)
         if (result) {
             chapters.value = result['data']
         } else {

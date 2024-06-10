@@ -202,14 +202,14 @@ func buildFolderTree(folder *models.Chapter, categories []models.Category, docum
 
 	// 添加文件到当前文件夹
 	for _, doc := range documents {
-		if strings.HasPrefix(doc.Filepath, folder.Filepath) && doc.Depth == folder.Depth+1 {
+		if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == folder.Depth+1 {
 			folder.Documents = append(folder.Documents, doc.MetaData)
 		}
 	}
 
 	// 添加子文件夹到当前文件夹
 	for _, cat := range categories {
-		if strings.HasPrefix(cat.Filepath, folder.Filepath) && cat.Depth == folder.Depth+1 {
+		if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == folder.Depth+1 {
 			childFolder := models.Chapter{
 				MetaData: cat.MetaData,
 			}

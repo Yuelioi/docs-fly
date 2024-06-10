@@ -14,7 +14,9 @@ export function getCat(filepath: string): string[] {
 
 export function getDocument(filepath: string): string {
     const pathSegments = filepath.split('/') // 按斜杠分割路径
-    return pathSegments.filter((segment) => segment.endsWith('.md')).join('')
+
+    const filteredDocument = pathSegments.filter((segment) => segment.endsWith('.md')).join('')
+    return filteredDocument ? filteredDocument : 'xxxxx'
 }
 
 /**

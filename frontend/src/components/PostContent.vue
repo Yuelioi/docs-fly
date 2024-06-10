@@ -107,7 +107,7 @@ async function starPost() {
     postStar.key = route.fullPath
     postStar.document = route.params['document'] as string
     postStar.slug = route.params['slug'] as string[]
-    postStar.params = (route.params['slug'] as string[]).slice(0, 2).join('/')
+    postStar.params = (route.params['slug'] as string[]).slice(0, 3).join('/')
 
     await addPostStarData(postStar)
     Message('收藏成功')

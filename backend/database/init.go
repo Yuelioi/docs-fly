@@ -174,6 +174,13 @@ func DBInit(db *gorm.DB) error {
 
 		if info.IsDir() {
 
+			// 修改时间不变 直接跳过
+			if value, exists := metaMaps.DB.CatsSummary[relative_path]; exists {
+				if value.ModTime.Equal(info.ModTime()) {
+					return filepath.SkipDir
+				}
+			}
+
 			cat := models.Category{
 				MetaData: metaData,
 				ModTime:  info.ModTime(),
@@ -234,6 +241,12 @@ func DBInit(db *gorm.DB) error {
 			}
 
 		} else {
+
+			if value, exists := metaMaps.DB.DocsSummary[relative_path]; exists {
+				if value.ModTime.Equal(info.ModTime()) {
+					return nil
+				}
+			}
 
 			doc := models.Document{
 				MetaData: metaData,

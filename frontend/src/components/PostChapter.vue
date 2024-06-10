@@ -20,7 +20,7 @@
                     :data-index="chapter.id"
                     @click.prevent="chapter.collapsed = !chapter.collapsed">
                     <!-- 情况1. 没有章节 speedTree -->
-                    <div v-if="chapter.documents.length == 0">
+                    <div v-if="chapter.documents.length == 0 && chapters.children.length == 0">
                         <router-link
                             :to="{
                                 name: 'post',
@@ -62,8 +62,8 @@
                                         :to="{
                                             name: 'post',
                                             params: {
-                                                slug: getCat($route.fullPath),
-                                                document: getDocument($route.fullPath)
+                                                slug: getCat(document.filepath),
+                                                document: getDocument(document.filepath)
                                             }
                                         }"
                                         :key="chapter_index + document_index"
@@ -113,6 +113,8 @@ const chaptersData = ref<ChapterData[]>([])
 const containerHeigh = computed(() =>
     scrollContainerRef.value ? scrollContainerRef.value.clientHeight : 800
 )
+
+// TODO 如果滑动过多会丢失
 
 /**
  * 填充体高度
@@ -276,9 +278,6 @@ function init() {
 }
 
 onMounted(async () => {
-    const route = useRoute()
-    console.log(route.fullPath)
-
     init()
 })
 </script>
