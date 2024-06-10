@@ -16,27 +16,25 @@
                     v-for="(chapter, chapter_index) in filteredChapters"
                     :key="chapter.id"
                     class="scroll-item lg:mt-4 overflow-hidden"
-                    :class="chapter.chapter.hidden ? 'hidden' : ''"
+                    :class="chapter.metadata.status ? '' : 'hidden'"
                     :data-index="chapter.id"
                     @click.prevent="chapter.collapsed = !chapter.collapsed">
                     <!-- 情况1. 没有章节 speedTree -->
-                    <div v-if="chapter.document.order">
+                    <div v-if="chapter.documents.length == 0">
                         <router-link
                             :to="{
                                 name: 'post',
                                 params: {
-                                    category: chapter.category.name,
-                                    chapter: chapter.chapter.name,
-                                    locale: locale,
-                                    document: chapter.document.name
+                                    slug: getCat(chapter.metadata.filepath),
+                                    document: getDocument(chapter.metadata.filepath)
                                 }
                             }"
                             :data-index="chapter.id"
-                            :key="chapter.document.name"
-                            class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-400 hover:rounded dark:hover:bg-slate-800">
+                            :key="chapter.metadata.filepath"
+                            class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-theme-text-base hover:rounded dark:hover:bg-slate-800">
                             <h5
-                                class="select-none text-lg font-bold mb-4 lg:mb-3 text-slate-900 dark:text-slate-200">
-                                {{ chapter.document.title }}
+                                class="select-none text-lg font-bold mb-4 lg:mb-3 text-theme-text-base">
+                                {{ chapter.metadata.title }}
                             </h5></router-link
                         >
                     </div>
@@ -44,35 +42,32 @@
                     <!-- 情况2 有章节 -->
 
                     <div v-else class="">
-                        <h5
-                            class="select-none text-lg font-bold mb-4 lg:mb-3 text-slate-900 dark:text-slate-200">
-                            {{ chapter.id + 1 + '. ' + chapter.chapter.title }}
+                        <h5 class="select-none text-lg font-bold mb-4 lg:mb-3 text-theme-text-base">
+                            {{ chapter.id + 1 + '. ' + chapter.metadata.title }}
                         </h5>
+
                         <Transition name="list">
                             <li v-show="!chapter.collapsed">
                                 <div
-                                    v-for="(section, section_id) in chapter.sections"
+                                    v-for="(section, section_id) in chapter.children"
                                     :key="section_id">
-                                    {{ '小节' + section.title }}
+                                    <span> {{ section.metadata.title }}</span>
                                 </div>
 
                                 <div
                                     v-for="(document, document_index) in chapter.documents"
-                                    :key="chapter_index + document_index"
-                                    class="flex">
+                                    :key="document.filepath"
+                                    class="flex border-l border-l-slate-400">
                                     <router-link
                                         :to="{
                                             name: 'post',
                                             params: {
-                                                category: category,
-                                                book: book,
-                                                locale: locale,
-                                                chapter: chapter.chapter.name,
-                                                document: document.name
+                                                slug: getCat($route.fullPath),
+                                                document: getDocument($route.fullPath)
                                             }
                                         }"
                                         :key="chapter_index + document_index"
-                                        class="pl-4 -ml-px hover:pl-3.5 hover:pr-4 hover:border-theme-primary hover:border-l-4"
+                                        class="pl-4 -ml-px hover:bg-theme-card hover:pl-3.5 hover:pr-4 hover:border-theme-primary hover:border-l-4"
                                         @click.stop
                                         ><span>{{
                                             addZero(document_index + 1, 2) + '. ' + document.title
@@ -90,23 +85,15 @@
 </template>
 
 <script setup lang="ts">
-import { ChapterData, ChapterInfo } from '@/models'
+import { ChapterData, Chapter, MetaData } from '@/models'
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 
+import { addZero, getCat, getDocument } from '@/utils'
 import { useRoute } from 'vue-router'
-const route = useRoute()
 
-const category = route.params['category']
-const book = route.params['book']
-
-import { addZero } from '@/utils'
-import { basicStore } from '@/stores'
-const basic = basicStore()
-
-const chapters = defineModel('chapters', { type: Array as () => ChapterInfo[], required: true })
+const chapters = defineModel('chapters', { type: Chapter, required: true })
 
 const isNavCollapsed = ref(false)
-const locale = computed(() => basic.locale)
 
 const scrollContainerRef = ref<HTMLElement>()
 const listRef = ref<HTMLElement>()
@@ -262,10 +249,23 @@ function updateDefaultChapterHeight() {
 function init() {
     const cacheChaptersData: ChapterData[] = []
 
-    chapters.value.forEach((chapter: ChapterInfo, index: number) => {
+    chapters.value.documents.forEach((doc: MetaData, index: number) => {
+        const chapterData = {
+            metadata: doc,
+            documents: [],
+            children: [],
+            ref: document.createElement('div'),
+            collapsed: chapters.value.children.length > virtual_limit_length,
+            id: index
+        } as ChapterData
+
+        cacheChaptersData.push(chapterData)
+    })
+
+    chapters.value.children.forEach((chapter: Chapter, index: number) => {
         const chapterData = {
             ...chapter,
-            collapsed: chapters.value.length > virtual_limit_length,
+            collapsed: chapters.value.children.length > virtual_limit_length,
             id: index
         } as ChapterData
 
@@ -276,6 +276,9 @@ function init() {
 }
 
 onMounted(async () => {
+    const route = useRoute()
+    console.log(route.fullPath)
+
     init()
 })
 </script>

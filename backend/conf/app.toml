@@ -12,3 +12,6 @@ Addr = "8088"
 
 Username = "admin"
 Password = "admin"
+
+# 日志等级 silent/error/warn/info
+LogLevel = "silent"

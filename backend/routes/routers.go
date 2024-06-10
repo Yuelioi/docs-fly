@@ -16,17 +16,16 @@ func registerRoutes(engine *gin.Engine) {
 	engine.POST("/auth/login", handlers.LoginAuth)  // √
 	engine.GET("/auth/token", handlers.TokenVerify) // √
 
-	engine.GET("/book", handlers.GetBook)
+	engine.GET("/book", handlers.GetBook) // √
 
-	engine.GET("/book/meta", handlers.GetBookMeta)
-	engine.PUT("/book/meta", handlers.SaveBookMeta)
-	engine.POST("/book/meta", handlers.SaveBookMeta)
+	engine.GET("/book/meta", handlers.GetBookMeta)   // √
+	engine.POST("/book/meta", handlers.SaveBookMeta) // √
 
-	engine.GET("/post", handlers.GetPost)
-	engine.GET("/post/html", handlers.GetPostHtml)
+	engine.GET("/post", handlers.GetPost)          // √
+	engine.GET("/post/html", handlers.GetPostHtml) // √
 	engine.POST("/post", handlers.SavePost)
 
-	engine.GET("/chapter", handlers.GetChapter)
+	engine.GET("/post/chapter", handlers.GetChapter)
 
 	engine.GET("/nav", handlers.GetNav) // √
 

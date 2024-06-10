@@ -4,7 +4,7 @@ import { fetchContent, fetchContentAdmin } from './utils'
 
 /**
  * @description 获取文章markdown内容/html内容/toc
- * @param category 分类名
+ * @param slug 分类名
  * @param book 书籍名
  * @param chapter 章节名(可为空)
  * @param document 文档名(.md后缀)
@@ -14,18 +14,9 @@ import { fetchContent, fetchContentAdmin } from './utils'
  *      toc"
  * }
  */
-export const fetchPost = async (
-    category: string,
-    book: string,
-    locale: string,
-    chapter: string,
-    document: string
-) => {
+export const getPost = async (slug: string, document: string) => {
     return fetchContent('/post', {
-        category: category,
-        book: book,
-        locale: locale,
-        chapter: chapter,
+        slug: slug,
         document: document
     })
 }
@@ -42,29 +33,26 @@ export const fetchPostHtml = async (content: string) => {
 
 /**
  * @description 保存文章
- * @param category
- * @param book
- * @param chapter
+ * @param slug
  * @param document
  * @param content
  * @returns
  */
-export const savePost = async (category: string, content: string) => {
+export const savePost = async (slug: string, document: string, content: string) => {
     return fetchContentAdmin(
         '/post',
         {
-            category: category,
-
+            slug: slug,
+            document: document,
             content: content
         },
         'post'
     )
 }
 
-export const fetchChapter = async (category: string, book: string, locale: string) => {
-    return await fetchContent('/chapter', {
-        category: category,
-        book: book,
-        locale: locale
+export const fetchChapter = async (slug: string, document: string) => {
+    return await fetchContent('/post/chapter', {
+        slug: slug,
+        document: document
     })
 }

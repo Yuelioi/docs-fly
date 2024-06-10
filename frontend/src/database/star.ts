@@ -14,7 +14,7 @@ const storeConf = new StoreConf(storeName, false)
 dbManager.dbStores.push(storeConf)
 dbManager.dbVersion += 1
 
-export async function getPostStarData() {
+export async function getPostStarsData() {
     const result = (await dbManager.getAllData(storeName)) as DBData[]
     const stars: PostStar[] = []
 
@@ -28,6 +28,11 @@ export async function getPostStarData() {
 export async function addPostStarData(postStar: PostStar) {
     return await dbManager.addData(storeConf, ``, JSON.parse(JSON.stringify(postStar)))
 }
+
+export async function getPostStarData(key: string) {
+    return await dbManager.getDataByKey(storeConf.storeName, key)
+}
+
 export async function deletePostStarData(key: string) {
     await dbManager.deleteData(storeConf.storeName, key)
 }

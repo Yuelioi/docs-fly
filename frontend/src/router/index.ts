@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory, type RouteLocationNormalized } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '@/pages/HomePage.vue'
 import Post from '@/pages/PostPage.vue'
 import Book from '@/pages/BookPage.vue'
@@ -23,7 +23,7 @@ const routes = [
         component: PostStar
     },
     {
-        path: '/post/:slug+',
+        path: '/post/:slug+/:document(.+md)',
         name: 'post',
         component: Post
     },

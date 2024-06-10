@@ -25,6 +25,7 @@ func GetStatisticHome(c *gin.Context) {
 		TodayVisitorCount      int64
 	)
 
+	db.Model(models.Category{}).Where("depth = ?", 1).Count(&BooksCount)
 	db.Model(models.Document{}).Count(&DocumentsCount)
 
 	db.Model(models.Visitor{}).Count(&HistoricalVisitorCount)
@@ -44,8 +45,8 @@ func GetStatisticHome(c *gin.Context) {
 }
 func GetStatisticBook(c *gin.Context) {
 
-	category := c.Query("category")
-	book := c.Query("book")
+	slug := c.Query("slug")
+	locale := c.Query("locale")
 
 	db, err := database.DbManager.Connect()
 
@@ -54,22 +55,18 @@ func GetStatisticBook(c *gin.Context) {
 		return
 	}
 
-	// 如果有查询参数, 则查询对应书籍
-	if len(category) == 0 || len(book) == 0 {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Require Params 'category' and 'book'"})
-		return
-	}
-
-	var catInfo models.Category
 	var bookReadCount int64
 	var chapterCount int64
 	var documentCount int64
 
 	//	 获取阅读量
-	db.Model(models.Visitor{}).Where("category = ?", category).Where("book = ?", book).Count(&bookReadCount)
+	// db.Model(models.Visitor{}).Where("category = ?", category).Where("book = ?", book).Count(&bookReadCount)
+
+	// 获取章节数量
+	db.Model(models.Category{}).Where("filepath Like ?", slug+"/"+locale+"%").Count(&chapterCount)
 
 	// 获取书籍数量
-	db.Model(models.Category{}).Where("identity= ?", category).First(&catInfo)
+	db.Model(models.Document{}).Where("filepath Like ?", slug+"/"+locale+"%").Count(&documentCount)
 
 	type bookCount struct {
 		ReadCount     int64 `json:"read_count"`

@@ -8,6 +8,7 @@ import (
 	"docsfly/models"
 	"docsfly/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -52,7 +53,12 @@ func GetBook(c *gin.Context) {
 			ChapterType: "category",
 			MetaData:    cat.MetaData,
 		}
-		bookDatas = append(bookDatas, chapter)
+		// TODO 这里找不到应该log 个 warning
+		if chapter.Url != "" {
+			bookDatas = append(bookDatas, chapter)
+		} else {
+			fmt.Printf("chapter: %v\n", chapter)
+		}
 	}
 
 	// 2.文章数据
@@ -63,19 +69,24 @@ func GetBook(c *gin.Context) {
 			ChapterType: "document",
 			MetaData:    doc.MetaData,
 		}
-		bookDatas = append(bookDatas, chapter)
+		if chapter.Url != "" {
+			bookDatas = append(bookDatas, chapter)
+		} else {
+			fmt.Printf("chapter: %v\n", chapter)
+		}
 	}
 
 	c.JSON(http.StatusOK, bookDatas)
 }
 
 func GetBookMeta(c *gin.Context) {
-	category := c.Query("category")
+	slug := c.Query("slug")
+	locale := c.Query("locale")
 
-	filepath := category + "/" + global.AppConfig.MetaFile
+	filepath := global.AppConfig.Resource + "/" + slug + "/" + locale + "/" + global.AppConfig.MetaFile
 
-	var data interface{}
-	err := utils.ReadJson(filepath, data)
+	var data map[string]interface{}
+	err := utils.ReadJson(filepath, &data)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load data"})
@@ -86,7 +97,8 @@ func GetBookMeta(c *gin.Context) {
 }
 
 func SaveBookMeta(c *gin.Context) {
-	category := c.Query("category")
+	slug := c.Query("slug")
+	locale := c.Query("locale")
 
 	metas_data := c.Query("metas")
 
@@ -96,11 +108,11 @@ func SaveBookMeta(c *gin.Context) {
 	}
 
 	// 解析meta数据
-	var metas []models.MetaData
+	var metas models.MetaDatas
 
 	if err := json.Unmarshal([]byte(metas_data), &metas); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-
+		return
 	}
 
 	db, err := database.DbManager.Connect()
@@ -110,12 +122,8 @@ func SaveBookMeta(c *gin.Context) {
 		return
 	}
 
-	var catInfo models.Category
-
-	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-
 	// 保存meta.json
-	filepath := catInfo.Filepath + "/" + global.AppConfig.MetaFile
+	filepath := global.AppConfig.Resource + "/" + slug + "/" + locale + "/" + global.AppConfig.MetaFile
 	err = utils.WriteJson(filepath, metas)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Save Data"})
@@ -123,11 +131,12 @@ func SaveBookMeta(c *gin.Context) {
 	}
 
 	// 更新数据库
+	for _, meta := range metas.Categorys {
+		db.Model(&models.Category{}).Where("filepath = ?", meta.Filepath).Updates(meta)
+	}
 
-	// 使用一个map来快速查找meta数据
-	metaMap := make(map[string]models.MetaData)
-	for _, meta := range metas {
-		metaMap[meta.Name] = meta
+	for _, meta := range metas.Documents {
+		db.Model(&models.Document{}).Where("filepath = ?", meta.Filepath).Updates(meta)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Data saved successfully"})

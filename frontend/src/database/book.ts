@@ -18,7 +18,7 @@ dbManager.dbVersion += 1
 export async function getDBBookData(params: RouteParams) {
     const result = (await dbManager.getDataByKey(
         storeName,
-        `book__${params['category']}_${params['book']}`
+        `book__${(params['slug'] as string[]).join('_')}`
     )) as DBData
 
     if (result != undefined && Date.now() < result.expiration) {
@@ -31,7 +31,7 @@ export async function getDBBookData(params: RouteParams) {
 export async function addDBBookData(params: RouteParams, chapters: LocalMetaDatas) {
     await dbManager.addData(
         storeConf,
-        `book__${params['category']}_${params['book']}`,
+        `book__${(params['slug'] as string[]).join('_')}`,
         JSON.parse(JSON.stringify(chapters))
     )
 }

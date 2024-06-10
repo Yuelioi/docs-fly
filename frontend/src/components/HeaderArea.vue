@@ -99,7 +99,7 @@ import HSearchWithDialog from '@/components/HSearchWithDialog.vue'
 
 import { storeToRefs } from 'pinia'
 
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, type RouteParams } from 'vue-router'
 
 import { useDark, useToggle } from '@vueuse/core'
 
@@ -122,6 +122,8 @@ const showSearchDialog = ref(false)
 
 // 更改语言设置
 function changeLocale() {
+    const lastLocale = locale.value
+
     if (locale.value == 'en') {
         locale.value = 'zh'
     } else {
@@ -131,7 +133,22 @@ function changeLocale() {
     Message(`已切换为${translate('locale')}`)
     localStorage.setItem('locale', locale.value)
 
-    const newParams = { ...route.params, locale: locale.value } // 替换 'newLocaleValue' 为你想要设置的新的参数值
+    const routeParams = route.params
+    const updatedParams: RouteParams = {}
+
+    Object.keys(routeParams).forEach((key) => {
+        if (Array.isArray(routeParams[key])) {
+            const paramArray = routeParams[key]
+            const newParamArray: string[] = paramArray.map((ele: string) =>
+                ele === lastLocale ? locale.value : ele
+            )
+            updatedParams[key] = newParamArray
+        } else {
+            updatedParams[key] = routeParams[key] === lastLocale ? locale.value : routeParams[key]
+        }
+    })
+
+    const newParams = { ...updatedParams } // 替换 'newLocaleValue' 为你想要设置的新的参数值
     const newRoute = { ...route, params: newParams }
 
     router.replace(newRoute)

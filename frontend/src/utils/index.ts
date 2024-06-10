@@ -1,5 +1,3 @@
-import type { RouteParams } from 'vue-router'
-
 // 补零
 export function addZero(num: number, length: number) {
     let str = num.toString()
@@ -9,22 +7,22 @@ export function addZero(num: number, length: number) {
     return str
 }
 
-// 创建链接数据 用于router link to
-export function createLinkMeta(params: RouteParams) {
-    return params['category'] as string
+export function getCat(filepath: string): string[] {
+    const pathSegments = filepath.split('/') // 按斜杠分割路径
+    return pathSegments.filter((segment) => !segment.endsWith('.md'))
 }
 
-// 生成key 用于router link to 以及 star删除
-export function generateKey(params: RouteParams) {
-    const linkParams = createLinkMeta(params)
-    const keyList = []
-    for (const values of Object.entries(linkParams)) {
-        keyList.push(values[1])
-    }
-    return keyList.join('')
+export function getDocument(filepath: string): string {
+    const pathSegments = filepath.split('/') // 按斜杠分割路径
+    return pathSegments.filter((segment) => segment.endsWith('.md')).join('')
 }
 
-export function formatDate(date_string: Date) {
+/**
+ *  日期转字符串
+ * @param date_string
+ * @returns
+ */
+export function formatDate(date_string: Date): string {
     const date = new Date(date_string)
 
     const year = date.getFullYear()

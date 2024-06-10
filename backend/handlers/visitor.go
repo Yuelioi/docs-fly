@@ -4,6 +4,7 @@ import (
 	"docsfly/database"
 	"docsfly/models"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -25,9 +26,19 @@ func VisitorInsertLog(c *gin.Context) {
 	// 获取客户端的 IP 地址
 	clientIP := c.ClientIP()
 
-	category := c.Query("category")
-	book := c.Query("book")
 	url := c.Query("url")
+
+	urlList := strings.Split(url, "/")
+
+	var category, book, locale string
+
+	if len(urlList) > 2 {
+		category = urlList[0]
+		book = urlList[1]
+		locale = urlList[2]
+	} else {
+		return
+	}
 
 	db, err := database.DbManager.Connect()
 
@@ -44,6 +55,7 @@ func VisitorInsertLog(c *gin.Context) {
 		Time:     today,
 		Category: category,
 		Book:     book,
+		Locale:   locale,
 	}
 
 	db.Model(&models.Visitor{}).Create(&vs)

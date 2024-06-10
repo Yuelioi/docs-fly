@@ -69,7 +69,7 @@
                 <div class="tab-item" v-if="tabId == 1">
                     <div class="flex flex-col">
                         <div class="" v-if="bookDatas.length == 0">
-                            本书尚未有{{ translate('locale') }}版本
+                            <!-- 本书尚未有{{ translate('locale') }}版本 -->
                         </div>
                         <router-link
                             v-else
@@ -79,10 +79,10 @@
                             :to="{
                                 name: 'post',
                                 params: {
-                                    slug: 'x48qwr'
+                                    slug: getCat(chapter.url),
+                                    document: getDocument(chapter.url)
                                 }
                             }">
-                            {{ chapter.url.split('/') }}
                             <span class="pl-2">{{
                                 addZero(chapter.metadata.order, 3) + '. ' + chapter.metadata.title
                             }}</span></router-link
@@ -116,12 +116,15 @@
                             @click="updateMeta">
                             更新
                         </button>
-                        <button type="button" class="btn success ml-3 px-3 py-1" @click="saveMeta">
+                        <button
+                            type="button"
+                            class="btn bg-theme-primary-base hover:bg-theme-primary-hover ml-3 px-3 py-1"
+                            @click="saveMeta">
                             保存
                         </button>
                     </div>
                     <div>
-                        <table v-if="metas.length" class="table-auto w-full border-collapse">
+                        <table class="table-auto w-full border-collapse">
                             <thead>
                                 <tr>
                                     <th class="border px-4 py-2">ID</th>
@@ -131,7 +134,35 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="meta in metas" :key="meta.name">
+                                <tr v-for="meta in metas.categorys" :key="meta.filepath">
+                                    <td class="px-4 py-2">
+                                        <input type="text" class="" disabled v-model="meta.name" />
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <input
+                                            type="text"
+                                            class="p-2 border rounded-sm w-full"
+                                            v-model="meta.title" />
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <input
+                                            type="text"
+                                            class="p-2 border rounded-sm w-full"
+                                            v-model.number="meta.order" />
+                                    </td>
+                                    <td class="px-4 py-2 text-center">
+                                        <input
+                                            type="checkbox"
+                                            id="checkbox"
+                                            v-model="meta.status"
+                                            :true-value="false"
+                                            :false-value="true" />
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                            <tbody>
+                                <tr v-for="meta in metas.documents" :key="meta.filepath">
                                     <td class="px-4 py-2">
                                         <input type="text" class="" disabled v-model="meta.name" />
                                     </td>
@@ -184,11 +215,11 @@ import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
 
 import { addZero } from '@/utils'
 
-import { BookData, MetaData } from '@/models'
+import { BookData, LocalMetaDatas } from '@/models'
 import { Message } from '@/plugins/message'
 import {
     getBookData,
-    fetchBookMeta,
+    getBookMeta,
     fetchStatisticBook,
     saveBookMeta,
     updateBookMeta,
@@ -199,6 +230,8 @@ import {
 
 import { getDBBookData, addDBBookData } from '@/database'
 
+import { getCat, getDocument } from '@/utils'
+
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { basicStore } from '@/stores/index'
@@ -208,7 +241,7 @@ const locale = computed(() => basic.locale)
 const isAdmin = computed(() => basic.isAdmin)
 const nickname = computed(() => basic.nickname)
 
-const metas = ref<MetaData[]>([])
+const metas = ref<LocalMetaDatas>(new LocalMetaDatas())
 
 const translate = basic.translate
 
@@ -222,13 +255,21 @@ const poem = ref('')
 
 const bookDatas = ref<BookData[]>([])
 
+watch(tabId, async (newVal: number, old: number) => {
+    if (newVal == 3) {
+        let [ok, data] = await getBookMeta(
+            (route.params['slug'] as string[]).join('/'),
+            locale.value
+        )
+
+        if (ok) {
+            metas.value = data
+        }
+    }
+})
+
 async function saveMeta() {
-    await saveBookMeta(
-        route.params['category'] as string,
-        route.params['book'] as string,
-        locale.value,
-        metas.value
-    )
+    await saveBookMeta((route.params['slug'] as string[]).join('/'), locale.value, metas.value)
 }
 
 async function postNewComment() {}
@@ -240,43 +281,32 @@ async function updateMeta() {
 async function refreshBook(params: RouteParams) {
     // /book/Ae/basic
 
-    // const db_data = await getDBBookData(params)
-    const db_data = undefined
+    const db_data = await getDBBookData(params)
+
     if (db_data) {
-        // bookDatas.value = db_data.data
+        bookDatas.value = db_data.data
+        console.log(bookDatas.value)
     } else {
         const [ok, data] = await getBookData((params['slug'] as string[]).join('/'), locale.value)
 
         if (ok) {
             bookDatas.value = data
-
-            // await addDBBookData(params, data)
+            await addDBBookData(params, data)
         } else {
             Message('未找到书籍数据', 'warn')
         }
     }
 
-    // const [ok2, statisticData] = await fetchStatisticBook(
-    //     route.params['slug'] as string,
-    //     route.params['book'] as string
-    // )
+    const [ok2, statisticData] = await fetchStatisticBook(
+        (route.params['slug'] as string[]).join('/'),
+        locale.value
+    )
 
-    // if (ok2) {
-    //     bookReadCount.value = statisticData['read_count']
-    //     bookChapterCount.value = statisticData['chapter_count']
-    //     bookDocumentCount.value = statisticData['document_count']
-    // }
-
-    // let ok3
-    // ;[ok3, metas.value] = await fetchBookMeta(
-    //     params['category'] as string,
-    //     params['book'] as string,
-    //     locale.value
-    // )
-
-    // if (ok3) {
-    //     console.log(metas.value)
-    // }
+    if (ok2) {
+        bookReadCount.value = statisticData['read_count']
+        bookChapterCount.value = statisticData['chapter_count']
+        bookDocumentCount.value = statisticData['document_count']
+    }
 }
 
 watch(route, async (val: RouteLocationNormalizedLoaded) => {

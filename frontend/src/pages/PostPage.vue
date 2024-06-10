@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LocalMetaDatas, Toc } from '@/models'
+import { Chapter, type Toc } from '@/models'
 import type { RouteLocationNormalizedLoaded, RouteParams } from 'vue-router'
 
 import { Message } from '@/plugins/message'
@@ -35,7 +35,7 @@ import PostContent from '@/components/PostContent.vue'
 import PostToc from '@/components/PostToc.vue'
 
 import { getPostChapterData, addPostChapterData } from '@/database/index'
-import { fetchPost, fetchChapter } from '@/handlers/index'
+import { getPost, fetchChapter } from '@/handlers/index'
 import { AddVisitorLog } from '@/handlers/index'
 
 const basic = basicStore()
@@ -46,7 +46,7 @@ const postContent = ref('')
 const postHtml = ref('')
 const toc = ref<Toc[]>([])
 
-const chapters = ref<LocalMetaDatas[]>([])
+const chapters = ref<Chapter>(new Chapter())
 
 const route = useRoute()
 
@@ -55,36 +55,35 @@ const route = useRoute()
  * @param reload :是否更新章节信息
  */
 async function refreshBookContent(params: RouteParams, reload: boolean = true) {
-    const result: any = await getPostChapterData(params)
-
     // 已有数据存入数据库
 
     // 更新章节
     if (reload) {
+        const result: any = await getPostChapterData((params['slug'] as string[]).join('/'))
+
         if (result) {
             chapters.value = result['data']
         } else {
             const [ok, data] = await fetchChapter(
-                params['category'] as string,
-                params['book'] as string,
-                locale.value
+                (params['slug'] as string[]).join('/'),
+                params['document'] as string
             )
 
             if (ok) {
                 chapters.value = data
-                await addPostChapterData(params, JSON.parse(JSON.stringify(chapters.value)))
+                await addPostChapterData(
+                    chapters.value.metadata.filepath,
+                    JSON.parse(JSON.stringify(chapters.value))
+                )
             } else {
-                chapters.value = []
+                chapters.value = new Chapter()
             }
         }
     }
 
     // 更新文章
-    const [ok, data] = await fetchPost(
-        params['category'] as string,
-        params['book'] as string,
-        params['locale'] as string,
-        params['chapter'] as string,
+    const [ok, data] = await getPost(
+        (params['slug'] as string[]).join('/'),
         params['document'] as string
     )
 
@@ -102,11 +101,7 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
 
 watch(route, async (val: RouteLocationNormalizedLoaded, oldVal: RouteLocationNormalizedLoaded) => {
     let reload = true
-    if (
-        oldVal.params['category'] == val.params['category'] &&
-        oldVal.params['book'] == val.params['book'] &&
-        oldVal.params['locale'] == val.params['locale']
-    ) {
+    if (oldVal.params['slug'] == val.params['slug']) {
         reload = false
     }
 

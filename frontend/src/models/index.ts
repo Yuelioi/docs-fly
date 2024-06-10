@@ -3,7 +3,7 @@ import { MetaData, LocalMetaDatas } from './base'
 import { Nav, HomeStatistic, SearchOption, SearchData, SearchResult } from './home'
 import { BookData } from './book'
 
-import { Toc } from './post'
+import { Toc, Chapter, ChapterData } from './post'
 import { PostStar } from './star'
 
 export {
@@ -15,6 +15,8 @@ export {
     SearchData,
     SearchResult,
     BookData,
+    Chapter,
+    ChapterData,
     Toc,
     PostStar
 }

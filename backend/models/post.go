@@ -6,3 +6,10 @@ type Toc struct {
 	Depth uint   `json:"depth"`
 	Title string `json:"title"`
 }
+
+// 一个章节的信息
+type Chapter struct {
+	MetaData  `json:"metadata"`
+	Documents []MetaData `json:"documents"`
+	Children  []Chapter  `json:"children"`
+}

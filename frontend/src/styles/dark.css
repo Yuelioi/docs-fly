@@ -17,10 +17,16 @@
 .dark body::before {
     opacity: 0;
 }
-
-.dark .main code {
-    background: #1e293b;
+.dark .chroma tr {
+    background: #1b1b1b;
 }
+.dark .main code {
+    background: #1b1b1b;
+}
+.dark .copy-button {
+    background: #5d5d5d;
+}
+
 .main table {
     border-color: #1e293b;
     padding: 1rem;
@@ -30,7 +36,7 @@
 }
 
 .dark table tbody tr:nth-child(2n) {
-    background-color: #0f172a;
+    background-color: #060708;
 }
 
 .dark .vditor-reset {

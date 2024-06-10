@@ -10,9 +10,7 @@ import (
 func main() {
 
 	engine := gin.Default()
-
 	routes.SetupRouter(engine)
-
 	engine.Run(":" + global.AppConfig.Addr)
 
 }

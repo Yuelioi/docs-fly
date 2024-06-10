@@ -38,7 +38,7 @@ export const basicStore = defineStore('basic', () => {
             en: 'Order',
             zh: '序号'
         },
-        hidden: {
+        status: {
             en: 'Hidden',
             zh: '隐藏'
         }
@@ -48,7 +48,7 @@ export const basicStore = defineStore('basic', () => {
      * 翻译函数
      */
     const translate = function (source: string) {
-        console.log(source)
+        console.log(locale.value)
 
         return i18n[source as keyof typeof i18n][locale.value as 'en' | 'zh']
     }

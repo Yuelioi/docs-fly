@@ -118,7 +118,6 @@ func Query(c *gin.Context) {
 			db.Model(&models.Category{}).Where("filepath = ?", cat).Select("title").Scan(&catTitle)
 			db.Model(&models.Category{}).Where("filepath = ?", cat+"/"+book).Select("title").Scan(&bookTitle)
 
-			// TODO 使用标题而不是路径
 			dsData := models.SearchData{
 				Url:           document.Filepath,
 				CategoryTitle: catTitle,

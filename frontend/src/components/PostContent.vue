@@ -40,7 +40,6 @@ import { basicStore, keyStore } from '@/stores/index'
 import { watch, ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { createLinkMeta, generateKey } from '@/utils'
 import { useFullscreen } from '@vueuse/core'
 const { isFullscreen, enter, exit } = useFullscreen()
 
@@ -48,7 +47,7 @@ import Vditor from 'vditor'
 
 import { Message } from '@/plugins/message'
 
-import { addPostStarData, deletePostStarData } from '@/database/star'
+import { addPostStarData, deletePostStarData, getPostStarData } from '@/database/star'
 import { PostStar } from '@/models'
 
 const route = useRoute()
@@ -84,7 +83,11 @@ async function save() {
     const mdContent = contentEditor.value?.getValue()
 
     if (mdContent) {
-        const [ok, data] = await savePost(createLinkMeta(params), mdContent)
+        const [ok, data] = await savePost(
+            (params['slug'] as string[]).join('/'),
+            params['document'] as string,
+            mdContent
+        )
 
         if (ok) {
             Message('已保存', 'success')
@@ -98,23 +101,38 @@ async function save() {
 
 async function starPost() {
     isStared.value = !isStared.value
-    const params = route.params
+
     const postStar = new PostStar()
 
-    postStar.key = generateKey(params)
-    postStar.params = createLinkMeta(params)
+    postStar.key = route.fullPath
+    postStar.document = route.params['document'] as string
+    postStar.slug = route.params['slug'] as string[]
+    postStar.params = (route.params['slug'] as string[]).slice(0, 2).join('/')
 
     await addPostStarData(postStar)
     Message('收藏成功')
 }
 async function unStarPost() {
     isStared.value = !isStared.value
-    const params = route.params
-    const key = generateKey(params)
+    const key = route.fullPath
 
     await deletePostStarData(key)
     Message('已取消收藏', 'contrast')
 }
+
+async function refreshStarStatus() {
+    const data = await getPostStarData(route.fullPath)
+
+    if (data) {
+        isStared.value = true
+    } else {
+        isStared.value = false
+    }
+}
+
+watch(route, async () => {
+    await refreshStarStatus()
+})
 
 watch(postContent, async () => {
     contentEditor.value?.setValue(postContent.value)
@@ -228,7 +246,7 @@ function clipboardListener() {
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
     document.addEventListener('fullscreenchange', handleFullscreenChange)
 
     document.addEventListener('keydown', function (event: KeyboardEvent) {
@@ -249,6 +267,8 @@ onMounted(() => {
             }
         }
     })
+
+    await refreshStarStatus()
 })
 </script>
 <style scoped>

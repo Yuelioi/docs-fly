@@ -14,7 +14,8 @@
                 :to="{
                     name: 'post',
                     params: {
-                        category: star.params
+                        slug: star.slug,
+                        document: star.document
                     }
                 }">
                 <div class="flex min-w-0 gap-x-8">
@@ -54,7 +55,7 @@ import { ref, onMounted } from 'vue'
 
 import { Message } from '@/plugins/message'
 
-import { getPostStarData, deletePostStarData } from '@/database/star'
+import { getPostStarsData, deletePostStarData } from '@/database/star'
 import { PostStar } from '@/models'
 
 import { formatDate } from '@/utils'
@@ -67,7 +68,7 @@ async function deleteData(key: string) {
     refresh()
 }
 async function refresh() {
-    const data = await getPostStarData()
+    const data = await getPostStarsData()
     if (data) {
         stars.value = data
     }

@@ -86,14 +86,8 @@ type PostResponseData struct {
 
 // 文章页面获取文章markdown
 func GetPost(c *gin.Context) {
-
-	category := c.Query("category")
-	book := c.Query("book")
-	locale := c.Query("locale")
-	chapter := c.Query("chapter")
-	section := c.Query("section")
+	slug := c.Query("slug")
 	document := c.Query("document")
-
 	db, err := database.DbManager.Connect()
 
 	if err != nil {
@@ -101,7 +95,7 @@ func GetPost(c *gin.Context) {
 		return
 	}
 
-	documentInfo := getPostData(db, category, book, locale, chapter, section, document)
+	documentInfo := getPostData(db, slug, document)
 
 	htmlContent := string(utils.MarkdownToHTML([]byte(documentInfo.Content)))
 
@@ -142,26 +136,16 @@ func GetPostHtml(c *gin.Context) {
 
 }
 
-func getPostData(db *gorm.DB, category, book, locale, chapter, section, document string) *models.Document {
-	var catInfo models.Category
-
+func getPostData(db *gorm.DB, slug, document string) *models.Document {
 	var documentInfo models.Document
-
-	db.Model(&catInfo).Select("id").Where("identity = ?", category).First(&catInfo)
-
+	db.Model(&models.Document{}).Where("filepath = ?", slug+"/"+document).First(&documentInfo)
 	return &documentInfo
-
 }
 
 // 保存文章 数据库+本地
 func SavePost(c *gin.Context) {
-	category := c.Query("category")
-	book := c.Query("book")
-	locale := c.Query("locale")
-	chapter := c.Query("chapter")
-	section := c.Query("section")
+	slug := c.Query("slug")
 	document := c.Query("document")
-
 	content := c.Query("content")
 
 	ok, err := TokenVerifyMiddleware(c)
@@ -178,10 +162,10 @@ func SavePost(c *gin.Context) {
 		return
 	}
 
-	documentInfo = getPostData(db, category, book, locale, chapter, section, document)
+	documentInfo = getPostData(db, slug, document)
 
 	// 写入本地文件
-	err_write := os.WriteFile(category+book+locale+chapter+section+document, []byte(content), 0644)
+	err_write := os.WriteFile(document, []byte(content), 0644)
 	if err_write != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err_write.Error()})
 		return
@@ -211,23 +195,69 @@ func SavePost(c *gin.Context) {
 	c.JSON(http.StatusOK, &responseData)
 
 }
+func buildFolderTree(folder *models.Chapter, categories []models.Category, documents []models.Document) {
+	folder.Documents = make([]models.MetaData, 0)
+	folder.Children = make([]models.Chapter, 0)
+	// TODO 可以优化 添加后删除该文件夹
+
+	// 添加文件到当前文件夹
+	for _, doc := range documents {
+		if strings.HasPrefix(doc.Filepath, folder.Filepath) && doc.Depth == folder.Depth+1 {
+			folder.Documents = append(folder.Documents, doc.MetaData)
+		}
+	}
+
+	// 添加子文件夹到当前文件夹
+	for _, cat := range categories {
+		if strings.HasPrefix(cat.Filepath, folder.Filepath) && cat.Depth == folder.Depth+1 {
+			childFolder := models.Chapter{
+				MetaData: cat.MetaData,
+			}
+			buildFolderTree(&childFolder, categories, documents)
+			folder.Children = append(folder.Children, childFolder)
+		}
+	}
+}
 
 // 获取当前书籍章节信息,没有章节则直接获取文档信息
 func GetChapter(c *gin.Context) {
-	category := c.Query("category")
+	slug := c.Query("slug")
+
+	parts := strings.Split(slug, "/")
+	var book string
+
+	// 检查是否有足够的部分
+	if len(parts) >= 3 {
+		book = strings.Join(parts[:3], "/")
+	} else {
+		return
+	}
 
 	db, err := database.DbManager.Connect()
+
+	var categories []models.Category
+	var documents []models.Document
+
+	db.Where("filepath LIKE ?", book+"%").Find(&categories)
+	db.Where("filepath LIKE ?", book+"%").Find(&documents)
+
+	// 创建根文件夹
+	var rootCategory models.Category
+	db.Where("filepath = ? AND depth = ?", book, 2).First(&rootCategory)
+
+	rootFolder := models.Chapter{
+		MetaData:  rootCategory.MetaData,
+		Documents: make([]models.MetaData, 0),
+		Children:  make([]models.Chapter, 0),
+	}
+
+	// 构建文件夹树
+	buildFolderTree(&rootFolder, categories, documents)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
 		return
 	}
 
-	var catInfo models.Category
-
-	result := ""
-
-	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, rootFolder)
 }

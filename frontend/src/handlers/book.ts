@@ -1,4 +1,4 @@
-import type { MetaData } from '@/models'
+import type { LocalMetaDatas } from '@/models'
 import { fetchContent, fetchContentAdmin } from './utils'
 
 // BookPage
@@ -12,25 +12,18 @@ export const getBookData = async (slug: string, locale: string) => {
 }
 
 // 获取书籍元信息
-export const fetchBookMeta = async (category: string, book: string, locale: string) => {
+export const getBookMeta = async (slug: string, locale: string) => {
     return await fetchContent('/book/meta', {
-        category: category,
-        book: book,
+        slug: slug,
         locale: locale
     })
 }
 
-export const saveBookMeta = async (
-    category: string,
-    book: string,
-    locale: string,
-    metas: MetaData[]
-) => {
+export const saveBookMeta = async (slug: string, locale: string, metas: LocalMetaDatas) => {
     return await fetchContent(
         '/book/meta',
         {
-            category: category,
-            book: book,
+            slug: slug,
             locale: locale,
             metas: JSON.stringify(metas)
         },

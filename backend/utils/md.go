@@ -3,8 +3,6 @@ package utils
 import (
 	"bytes"
 	"docsfly/models"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
 	"os"
@@ -37,37 +35,6 @@ func ReadMd(filepath string) ([]byte, error) {
 	}
 
 	return mdBytes, nil
-}
-
-// 读取文件的Meta信息
-func ReadMetas(path string, info os.FileInfo) (*[]models.MetaData, error) {
-
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, errors.New("文件不存在")
-	}
-
-	content, err := os.ReadFile(path)
-	if err != nil {
-		fmt.Println("Error reading Meta:", err)
-		return nil, err
-	}
-	metadatas := make([]models.MetaData, 0)
-	err = json.Unmarshal(content, &metadatas)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &metadatas, nil
-}
-
-func SearchMeta(datas *[]models.MetaData, info os.FileInfo, order uint) *models.MetaData {
-	for _, data := range *datas {
-		if data.Name == info.Name() {
-			return &data
-		}
-	}
-	return CreateMeta(info, order)
 }
 
 // 读取Markdown文件的Meta信息
