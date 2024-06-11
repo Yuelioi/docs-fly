@@ -119,7 +119,7 @@ func Query(c *gin.Context) {
 			db.Model(&models.Category{}).Where("filepath = ?", cat+"/"+book).Select("title").Scan(&bookTitle)
 
 			dsData := models.SearchData{
-				Url:           document.Filepath,
+				Url:           document.WebPath,
 				CategoryTitle: catTitle,
 				BookTitle:     bookTitle,
 				Locale:        locale,

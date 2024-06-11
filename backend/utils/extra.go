@@ -3,9 +3,25 @@ package utils
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 )
+
+// 将文件路径转换为适合在网站上使用的路径
+func ConvertFilepathToWebPath(filepath string) string {
+	// 去除空格
+	cleanedPath := strings.ReplaceAll(filepath, " ", "")
+
+	// 定义要替换的特殊字符
+	specialChars := regexp.MustCompile(`[!@#$%^&*()+=\[\]{};:'"\\|,<>?]+`)
+	cleanedPath = specialChars.ReplaceAllString(cleanedPath, "")
+
+	// 替换连续的多个斜杠为单个斜杠
+	cleanedPath = strings.ReplaceAll(cleanedPath, "//", "/")
+
+	return cleanedPath
+}
 
 // 查询字符串列表是否在字符串内
 func StringsInside(arr []string, query string) bool {

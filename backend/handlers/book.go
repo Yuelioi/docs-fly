@@ -22,10 +22,10 @@ func GetBook(c *gin.Context) {
 	db, err := database.DbManager.Connect()
 
 	var cats []models.Category
-	db.Model(models.Category{}).Preload("Documents").Where("filepath like ?", slug+"/"+locale+"%").Where("depth = ?", 3).Find(&cats)
+	db.Model(models.Category{}).Preload("Documents").Where("webpath like ?", slug+"/"+locale+"%").Where("depth = ?", 3).Find(&cats)
 
 	var docs []models.Document
-	db.Model(models.Document{}).Where("filepath like ?", slug+"/"+locale+"%").Where("depth = ?", 3).Find(&docs)
+	db.Model(models.Document{}).Where("webpath like ?", slug+"/"+locale+"%").Where("depth = ?", 3).Find(&docs)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
@@ -49,7 +49,7 @@ func GetBook(c *gin.Context) {
 		}
 
 		chapter := models.BookData{
-			Url:         minOrderDocument.Filepath,
+			Url:         minOrderDocument.WebPath,
 			ChapterType: "category",
 			MetaData:    cat.MetaData,
 		}
@@ -65,7 +65,7 @@ func GetBook(c *gin.Context) {
 	for _, doc := range docs {
 
 		chapter := models.BookData{
-			Url:         doc.Filepath,
+			Url:         doc.WebPath,
 			ChapterType: "document",
 			MetaData:    doc.MetaData,
 		}
@@ -83,10 +83,23 @@ func GetBookMeta(c *gin.Context) {
 	slug := c.Query("slug")
 	locale := c.Query("locale")
 
-	filepath := global.AppConfig.Resource + "/" + slug + "/" + locale + "/" + global.AppConfig.MetaFile
+	db, err := database.DbManager.Connect()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
+		return
+	}
+
+	filepath := GetFilepathByWebpath(db, "category", slug+"/"+locale)
+
+	if filepath == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Find Target Category"})
+		return
+	}
+
+	metapath := global.AppConfig.Resource + "/" + filepath + "/" + global.AppConfig.MetaFile
 
 	var data map[string]interface{}
-	err := utils.ReadJson(filepath, &data)
+	err = utils.ReadJson(metapath, &data)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load data"})
@@ -122,9 +135,11 @@ func SaveBookMeta(c *gin.Context) {
 		return
 	}
 
+	filepath := GetFilepathByWebpath(db, "category", slug+"/"+locale)
+
 	// 保存meta.json
-	filepath := global.AppConfig.Resource + "/" + slug + "/" + locale + "/" + global.AppConfig.MetaFile
-	err = utils.WriteJson(filepath, metas)
+	metapath := global.AppConfig.Resource + "/" + filepath + "/" + global.AppConfig.MetaFile
+	err = utils.WriteJson(metapath, metas)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Save Data"})
 		return

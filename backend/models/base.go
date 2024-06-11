@@ -8,7 +8,9 @@ type MetaData struct {
 	Order    uint   `json:"order"`    // 所在父级顺序
 	Icon     string `json:"icon"`     // 图标
 	Status   uint   `json:"status"`   // 状态 0=草稿 1=发布 2=垃圾桶?
-	Filepath string `json:"filepath"` // 所在父级顺序
+	Filepath string `json:"filepath"` // 文件真实路径
+	WebPath  string `json:"web_path"` // 文件网站路径
+
 }
 
 // 本地显示信息

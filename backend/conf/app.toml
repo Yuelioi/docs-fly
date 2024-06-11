@@ -5,11 +5,12 @@ Resource = "E:\\Scripting\\docs-v3 - Copy"
 Database = "E:\\Scripting\\docs-v3 - Copy\\main.db"
 
 # 本地储存排序等信息
-MetaFile=".meta.json"
+MetaFile="meta.json"
 
 # 端口
 Addr = "8088"
 
+# 初始管理员用户名与密码
 Username = "admin"
 Password = "admin"
 

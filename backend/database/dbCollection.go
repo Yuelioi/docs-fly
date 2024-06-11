@@ -8,14 +8,28 @@ import (
 )
 
 // 数据库数据管理
-
 type Collections struct {
+	// 需要更新的数据集合
 	Updates []interface{}
+
+	// 需要创建的数据集合
 	Creates []interface{}
+
+	// 需要删除的数据集合
 	Deletes []interface{}
-	Models  []interface{}
+
+	// 数据模型, 用于更新数据集合
+	Models []interface{}
 }
 
+// Batch 批量处理Creates与Deletes
+//
+// 参数:
+//
+//	tx       *gorm.DB  - 数据库事务对象
+//	datas    []interface{}  - 需要批量处理的数据
+//	batchSize int      - 每批次处理的数据大小
+//	method   string    - 操作方法"Create" / "Delete"
 func Batch(tx *gorm.DB, datas []interface{}, batchSize int, method string) (err error) {
 	for _, groups := range datas {
 		group := reflect.ValueOf(groups)
@@ -50,6 +64,16 @@ func Batch(tx *gorm.DB, datas []interface{}, batchSize int, method string) (err 
 	return
 }
 
+// DBUpdate 处理数据库的批量创建、更新和删除操作
+//
+// 参数:
+//
+//	db         *gorm.DB        - 数据库连接对象
+//	collection Collections     - 包含要批量创建、更新和删除的数据集合
+//
+// 返回:
+//
+//	err        error           - 如果操作过程中出现错误，则返回错误，否则返回nil
 func DBUpdate(db *gorm.DB, collection Collections) (err error) {
 
 	tx := db.Begin()

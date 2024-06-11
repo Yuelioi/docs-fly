@@ -39,7 +39,45 @@ func (m *SQLiteManager) Init(db *gorm.DB) error {
 	return DBInit(db)
 }
 
-// 连接数据库
+// Connect 连接 SQLite 数据库并返回 *gorm.DB 对象
+//
+// 该函数首先检查是否已经存在数据库连接，如果存在则返回现有连接。
+// 否则，根据配置的日志级别创建自定义日志记录器，并尝试连接到指定的 SQLite 数据库文件。
+// 成功连接后，会执行数据库的自动迁移操作。
+//
+// 返回:
+//
+//	*gorm.DB - 成功连接的数据库对象
+//	error    - 连接过程中遇到的错误
+//
+// 日志级别:
+//
+//	根据 global.AppConfig.LogLevel 配置决定日志级别:
+//	  - "silent": logger.Silent
+//	  - "error": logger.Error
+//	  - "warn": logger.Warn
+//	  - "info": logger.Info (默认)
+//
+// 自定义日志记录器配置:
+//   - 慢速 SQL 阈值为 3 秒
+//   - 忽略 ErrRecordNotFound 错误
+//   - SQL 日志中不包含参数
+//   - 启用彩色日志输出
+//
+// 数据库连接配置:
+//   - 表名前缀为 "db_"
+//   - 使用复数表名
+//   - 字段名不转换为小写
+//
+// 自动迁移:
+//   - 迁移的模型包括: User, Category, Document, Visitor, Comment
+//
+// 使用示例:
+//
+//	db, err := m.Connect()
+//	if err != nil {
+//	  log.Fatalf("数据库连接失败: %v", err)
+//	}
 func (m *SQLiteManager) Connect() (*gorm.DB, error) {
 	fmt.Println("正在连接数据库...")
 

@@ -1,7 +1,7 @@
 <template>
     <div id="toc">
         <div
-            class="toc-item text-sm border-l-2 hover:bg-theme-card border-theme-base hover:border-theme-primary hover:px-6 p-1 pl-4 select-none cursor-pointer"
+            class="toc-item text-sm border-l-2 hover:bg-theme-card border-theme-base hover:border-theme-primary hover:text-theme-primary hover:px-6 p-1 pl-4 select-none cursor-pointer"
             v-for="(item, i) in toc"
             :key="i">
             <div v-if="item.depth > 1" @click="jump">{{ item.title }}</div>

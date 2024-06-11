@@ -42,35 +42,16 @@ type MetaMaps struct {
 	}
 }
 
-/*
-初始化数据库
-*/
-func DBInit(db *gorm.DB) error {
-	fmt.Println("初始化数据库准备中...")
-	start := time.Now()
-
-	// 如果数据库没有用户 则写入管理员数据
+func initAdminAccount(db *gorm.DB) {
 	var user models.User
 	db.Model(models.User{}).Where("username =?", global.AppConfig.Username).Find(&user)
 
 	if user.ID == 0 {
 		CreateAdminAccount(db)
 	}
+}
 
-	// 存储各个类目总数据 用于批量写入数据库
-	dbDatas := DBDatas{}
-
-	// 最新cat的Id
-	var lastCatId uint
-
-	// 数据库映射表
-	var dbCats []models.Category
-	var dbDocs []models.Document
-	db.Find(&dbCats)
-	db.Find(&dbDocs)
-
-	db.Model(&models.Category{}).Select("id").Order("id DESC").Limit(1).Scan(&lastCatId)
-
+func initMetaMaps(dbCats []models.Category, dbDocs []models.Document) *MetaMaps {
 	metaMaps := MetaMaps{}
 
 	metaMaps.DB.Cats = make(map[string]models.Category)
@@ -94,6 +75,109 @@ func DBInit(db *gorm.DB) error {
 	// 临时元数据映射表, 后续用于写入文件
 	metaMaps.Local.Summary = make(map[string]MetaDatasCache)
 
+	return &metaMaps
+}
+
+func populateMetaMaps(metaMaps MetaMaps, relative_parent string, parent string) {
+	if _, exists := metaMaps.Local.Metas[relative_parent]; !exists {
+
+		localMeta := models.MetaDatas{
+			Categorys: make([]models.MetaData, 0), // 初始化为空切片
+			Documents: make([]models.MetaData, 0), // 初始化为空切片
+		}
+
+		err := utils.ReadJson(filepath.Join(parent, global.AppConfig.MetaFile), &localMeta)
+
+		if err == nil {
+
+			if localMeta.Categorys == nil {
+				localMeta.Categorys = make([]models.MetaData, 0)
+			}
+			if localMeta.Documents == nil {
+				localMeta.Documents = make([]models.MetaData, 0)
+			}
+			metaMaps.Local.Metas[relative_parent] = MetaDatasCache{
+				ParentFolder: parent,
+				Categorys:    localMeta.Categorys,
+				Documents:    localMeta.Documents,
+			}
+		}
+	}
+}
+
+func initMetaData(info os.FileInfo, relative_path, relative_parent string) models.MetaData {
+	Depth := strings.Count(relative_path, "/")
+
+	return models.MetaData{
+		Name:     info.Name(),
+		Title:    info.Name(),
+		Depth:    Depth,
+		Icon:     "",
+		Status:   1,
+		Filepath: relative_path,
+		WebPath:  utils.ConvertFilepathToWebPath(relative_parent),
+	}
+}
+
+func initLocalMetaCache(metaMaps *MetaMaps, localMetaCache *MetaDatasCache, relative_parent, parent string) {
+	// 初始化Summary
+	if value, exists := metaMaps.Local.Summary[relative_parent]; !exists {
+		// 本地不存在就初始化
+		*localMetaCache = MetaDatasCache{
+			ParentFolder: parent,
+			NeedWrite:    false,
+			Categorys:    make([]models.MetaData, 0),
+			Documents:    make([]models.MetaData, 0),
+		}
+		metaMaps.Local.Summary[relative_parent] = *localMetaCache
+	} else {
+		*localMetaCache = value
+	}
+}
+
+func initItemMeta(metadata *models.MetaData, localMeta *models.MetaData, dbMeta *models.MetaData, defaultOrder uint) {
+	if localMeta != nil {
+		metadata.Order = localMeta.Order
+		metadata.Icon = localMeta.Icon
+		metadata.Status = localMeta.Status
+		metadata.Title = localMeta.Title
+	} else if dbMeta != nil {
+		metadata.Order = dbMeta.Order
+		metadata.Icon = dbMeta.Icon
+		metadata.Status = dbMeta.Status
+		metadata.Title = dbMeta.Title
+	} else {
+		metadata.Order = defaultOrder
+	}
+}
+
+/*
+初始化数据库
+*/
+func DBInit(db *gorm.DB) error {
+	fmt.Println("初始化数据库准备中...")
+	start := time.Now()
+
+	// 如果数据库没有用户 则写入管理员数据
+	initAdminAccount(db)
+
+	// 存储各个类目总数据 用于批量写入数据库
+	dbDatas := DBDatas{}
+
+	// 最新cat的Id
+	var lastCatId uint
+
+	// 数据库映射表
+	var dbCats []models.Category
+	var dbDocs []models.Document
+	db.Find(&dbCats)
+	db.Find(&dbDocs)
+
+	db.Model(&models.Category{}).Select("id").Order("id DESC").Limit(1).Scan(&lastCatId)
+
+	// meta映射
+	metaMaps := initMetaMaps(dbCats, dbDocs)
+
 	// 上一文件深度
 
 	root := utils.ReplaceSlash(global.AppConfig.Resource)
@@ -112,65 +196,22 @@ func DBInit(db *gorm.DB) error {
 			return err
 		}
 
+		// 初始化一些路径
 		path = utils.ReplaceSlash(path)
 		relative_path := utils.ReplaceSlash(strings.ReplaceAll(path, root+"/", ""))
-		Depth := strings.Count(relative_path, "/")
 
 		parent := utils.ReplaceSlash(filepath.Dir(path))
 		relative_parent := utils.ReplaceSlash(filepath.Dir(relative_path))
 
-		metaData := models.MetaData{
-			Name:     info.Name(),
-			Title:    info.Name(),
-			Depth:    Depth,
-			Icon:     "",
-			Status:   1,
-			Filepath: relative_path,
-		}
-
 		// 初始化 读取本地文件映射表
-		if _, exists := metaMaps.Local.Metas[relative_parent]; !exists {
-
-			localMeta := models.MetaDatas{
-				Categorys: make([]models.MetaData, 0), // 初始化为空切片
-				Documents: make([]models.MetaData, 0), // 初始化为空切片
-			}
-
-			err = utils.ReadJson(filepath.Join(parent, global.AppConfig.MetaFile), &localMeta)
-
-			if err == nil {
-
-				if localMeta.Categorys == nil {
-					localMeta.Categorys = make([]models.MetaData, 0)
-				}
-				if localMeta.Documents == nil {
-					localMeta.Documents = make([]models.MetaData, 0)
-				}
-				metaMaps.Local.Metas[relative_parent] = MetaDatasCache{
-					ParentFolder: parent,
-					Categorys:    localMeta.Categorys,
-					Documents:    localMeta.Documents,
-				}
-			}
-
-		}
+		populateMetaMaps(*metaMaps, relative_parent, parent)
 
 		// 本地元数据缓存
 		var localMetaCache MetaDatasCache
 
-		// 初始化Summary
-		if value, exists := metaMaps.Local.Summary[relative_parent]; !exists {
-			// 本地不存在就初始化
-			localMetaCache = MetaDatasCache{
-				ParentFolder: parent,
-				NeedWrite:    false,
-				Categorys:    make([]models.MetaData, 0),
-				Documents:    make([]models.MetaData, 0),
-			}
-			metaMaps.Local.Summary[relative_parent] = localMetaCache
-		} else {
-			localMetaCache = value
-		}
+		initLocalMetaCache(metaMaps, &localMetaCache, relative_parent, parent)
+
+		metaData := initMetaData(info, relative_path, relative_parent)
 
 		if info.IsDir() {
 
@@ -181,35 +222,23 @@ func DBInit(db *gorm.DB) error {
 				}
 			}
 
+			// 查找本地数据与数据库数据
+			localMeta := searchMetaDatasCache(metaMaps.Local.Metas[relative_parent], true, info.Name())
+			dbMeta := searchDBCatMetaDatas(dbCats, relative_path)
+
+			// 基于本地数据与数据库数据 更新MetaData值 优先使用本地数据 其次是数据库数据
+			initItemMeta(&metaData, localMeta, dbMeta, uint(len(metaMaps.Local.Summary[relative_parent].Categorys))+1)
+
 			cat := models.Category{
 				MetaData: metaData,
 				ModTime:  info.ModTime(),
 			}
-
-			// 查找本地数据与数据库数据
-			localMeta := searchMetaDatasCache(metaMaps.Local.Metas[relative_parent], true, info.Name())
-			dbMeta := searchDBCatMetaDatas(dbCats, relative_path)
 
 			// 检查数据库与本地是否一致
 			refresh := !compare(localMeta, dbMeta)
 
 			if refresh {
 				localMetaCache.NeedWrite = true
-			}
-
-			// 优先使用本地数据 其次是数据库数据
-			if localMeta != nil {
-				cat.Order = localMeta.Order
-				cat.Icon = localMeta.Icon
-				cat.Status = localMeta.Status
-				cat.Title = localMeta.Title
-			} else if dbMeta != nil {
-				cat.Order = dbMeta.Order
-				cat.Icon = dbMeta.Icon
-				cat.Status = dbMeta.Status
-				cat.Title = dbMeta.Title
-			} else {
-				cat.Order = uint(len(metaMaps.Local.Summary[relative_parent].Categorys)) + 1
 			}
 
 			// 使用本地Meta数据或新的Meta数据
@@ -248,6 +277,11 @@ func DBInit(db *gorm.DB) error {
 				}
 			}
 
+			localMeta := searchMetaDatasCache(metaMaps.Local.Metas[relative_parent], false, info.Name())
+			dbMeta := searchDBDocMetaDatas(dbDocs, relative_path)
+
+			initItemMeta(&metaData, localMeta, dbMeta, uint(len(metaMaps.Local.Summary[relative_parent].Documents))+1)
+
 			doc := models.Document{
 				MetaData: metaData,
 				ModTime:  info.ModTime(),
@@ -255,28 +289,11 @@ func DBInit(db *gorm.DB) error {
 				Content:  "",
 			}
 
-			localMeta := searchMetaDatasCache(metaMaps.Local.Metas[relative_parent], false, info.Name())
-			dbMeta := searchDBDocMetaDatas(dbDocs, relative_path)
-
 			// 判断数据库与本地是否一致
 			refresh := !compare(localMeta, dbMeta)
 
 			if refresh {
 				localMetaCache.NeedWrite = true
-			}
-
-			if localMeta != nil {
-				doc.Order = localMeta.Order
-				doc.Icon = localMeta.Icon
-				doc.Status = localMeta.Status
-				doc.Title = localMeta.Title
-			} else if dbMeta != nil {
-				doc.Order = dbMeta.Order
-				doc.Icon = dbMeta.Icon
-				doc.Status = dbMeta.Status
-				doc.Title = dbMeta.Title
-			} else {
-				doc.Order = uint(len(metaMaps.Local.Summary[relative_parent].Documents)) + 1
 			}
 
 			// 使用本地Meta数据或新的Meta数据

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"docsfly/models"
 	"math/rand"
 	"reflect"
 	"regexp"
@@ -8,6 +9,7 @@ import (
 	"sync"
 
 	extractor "github.com/huantt/plaintext-extractor"
+	"gorm.io/gorm"
 )
 
 func GetFieldValue(obj interface{}, fieldName string) interface{} {
@@ -29,6 +31,17 @@ func GetFieldValue(obj interface{}, fieldName string) interface{} {
 
 	// 返回字段的值
 	return fieldVal.Interface()
+}
+
+func GetFilepathByWebpath(db *gorm.DB, typeName string, webpath string) string {
+
+	var filepath string
+	if typeName == "category" {
+		db.Model(models.Category{}).Where("webpath = ?", webpath).Select("filepath").Scan(&filepath)
+	} else {
+		db.Model(models.Document{}).Where("webpath = ?", webpath).Select("filepath").Scan(&filepath)
+	}
+	return filepath
 }
 
 // 根据关键词获取对应索引
