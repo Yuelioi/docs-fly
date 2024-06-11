@@ -1,17 +1,69 @@
 <template>
     <div id="nav" class="my-3 lg:text-sm lg:leading-6 h-full">
-        <div class="absolute right-4 top-6 z-50" @click="handleCollapse">
-            <i class="pi" :class="isNavCollapsed ? 'pi-align-right' : 'pi-align-justify'"></i>
+        <div v-if="chaptersData.length > virtual_limit_length">
+            <nav
+                class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                aria-label="Pagination">
+                <a
+                    @click.prevent="(currentPage -= 1), (isNavCollapsed = true)"
+                    class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                    <span class="sr-only">Previous</span>
+                    <div class="text-[1.25rem]"><BIconCaretLeft></BIconCaretLeft></div>
+                </a>
+                <a
+                    @click="(currentPage = 1), (isNavCollapsed = true)"
+                    :class="
+                        currentPage == 1 ? 'bg-theme-primary-hover text-theme-text-inverse' : ''
+                    "
+                    class="relative select-none inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                    >1</a
+                >
+                <a
+                    :class="
+                        currentPage != 1 &&
+                        currentPage != Math.ceil(chaptersData.length / virtual_limit_length)
+                            ? 'bg-theme-primary-hover text-theme-text-inverse'
+                            : ''
+                    "
+                    class="relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 ring-1 ring-inset ring-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >{{
+                        Math.min(
+                            Math.max(currentPage, 2),
+                            Math.ceil(chaptersData.length / virtual_limit_length) - 1
+                        )
+                    }}</a
+                >
+                <a
+                    :class="
+                        currentPage == Math.ceil(chaptersData.length / virtual_limit_length)
+                            ? 'bg-theme-primary-hover text-theme-text-inverse'
+                            : ''
+                    "
+                    @click="
+                        (currentPage = Math.ceil(chaptersData.length / virtual_limit_length)),
+                            (isNavCollapsed = true)
+                    "
+                    class="relative select-none inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                    >{{ Math.ceil(chaptersData.length / virtual_limit_length) }}</a
+                >
+                <a
+                    @click.prevent="(currentPage += 1), (isNavCollapsed = true)"
+                    class="relative inline-flex items-center px-2 py-2 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                    <span class="sr-only">Next</span>
+                    <div class="text-[1.25rem]"><BIconCaretRight></BIconCaretRight></div>
+                </a>
+                <div
+                    @click="handleCollapse"
+                    class="inline-flex items-center justify-center ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                    <i
+                        class="pi rounded-r-md px-2 py-2"
+                        :class="isNavCollapsed ? 'pi-align-right' : 'pi-align-justify'"></i>
+                </div>
+            </nav>
         </div>
 
-        <div
-            ref="scrollContainerRef"
-            class="relative h-full overflow-y-scroll"
-            @scroll="handleScroll">
-            <div
-                class="list mb-3 absolute py-3 pb-12 pl-1 w-full text-ellipsis text-nowrap"
-                ref="listRef"
-                :style="{ top: listTop + 'px' }">
+        <div ref="scrollContainerRef" class="relative h-full overflow-y-scroll">
+            <div class="list mb-3 absolute py-3 pb-12 pl-1 w-full text-ellipsis text-nowrap">
                 <ul
                     v-for="(chapter, chapter_index) in filteredChapters"
                     :key="chapter.id"
@@ -47,11 +99,33 @@
                         </h5>
 
                         <Transition name="list">
-                            <li v-show="!chapter.collapsed">
+                            <li v-if="!chapter.collapsed">
                                 <div
                                     v-for="(section, section_id) in chapter.children"
                                     :key="section_id">
                                     <span> {{ section.metadata.title }}</span>
+                                    <div
+                                        v-for="(document, document_index) in section.documents"
+                                        :key="document.filepath"
+                                        class="flex border-l border-l-slate-400">
+                                        <router-link
+                                            :to="{
+                                                name: 'post',
+                                                params: {
+                                                    slug: getCat(document.filepath),
+                                                    document: getDocument(document.filepath)
+                                                }
+                                            }"
+                                            :key="chapter_index + document_index"
+                                            class="pl-4 -ml-px hover:bg-theme-card hover:pl-3.5 hover:pr-4 hover:border-theme-primary hover:border-l-4"
+                                            @click.stop
+                                            ><span>{{
+                                                addZero(document_index + 1, 2) +
+                                                '. ' +
+                                                document.title
+                                            }}</span></router-link
+                                        >
+                                    </div>
                                 </div>
 
                                 <div
@@ -79,56 +153,26 @@
                     </div>
                 </ul>
             </div>
-            <div class="fill" :style="{ height: fillHeigh + 'px' }"></div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ChapterData, Chapter, MetaData } from '@/models'
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 
 import { addZero, getCat, getDocument } from '@/utils'
-import { useRoute } from 'vue-router'
 
 const chapters = defineModel('chapters', { type: Chapter, required: true })
 
 const isNavCollapsed = ref(false)
 
-const scrollContainerRef = ref<HTMLElement>()
-const listRef = ref<HTMLElement>()
-
-// 处理大数据
-const listTop = ref(0)
-const chapter_collapsed_height = ref(40) // 折叠后的章节高度(默认显示就是40)
-
-const start = ref(0)
-const end = ref(100)
-const lastScrollTop = ref(0)
-
-const virtual_limit_length = 50 // 多少个数据使用虚拟列表
+const virtual_limit_length = 50 // 多少个数据使用分页
 
 const chaptersData = ref<ChapterData[]>([])
-
-const containerHeigh = computed(() =>
-    scrollContainerRef.value ? scrollContainerRef.value.clientHeight : 800
-)
+const currentPage = ref(1)
 
 // TODO 如果滑动过多会丢失
-
-/**
- * 填充体高度
- * 填充体: 用来撑开整个元素, 撑开滚动条
- * */
-const fillHeigh = computed(() => {
-    if (chaptersData.value.length < virtual_limit_length) {
-        return 0
-    }
-    return Math.max(
-        chaptersData.value.length * chapter_collapsed_height.value,
-        containerHeigh.value
-    )
-})
 
 /**
  * 计算后的数据
@@ -138,80 +182,11 @@ const filteredChapters = computed(() => {
         return chaptersData.value
     } else {
         return chaptersData.value.slice(
-            Math.max(start.value, 0),
-            Math.min(end.value, chaptersData.value.length - 1)
+            Math.max((currentPage.value - 1) * 50, 0),
+            Math.min(currentPage.value * 50, chaptersData.value.length - 1)
         ) as ChapterData[]
     }
 })
-
-/**
- * 获取可视区第一个与最后一个元素的id
- */
-function getVisibleFirstLastElementId(container: HTMLElement) {
-    const ul = listRef.value
-    let container_start = 0
-    let container_end = 0
-    if (ul) {
-        const containerRect = container.getBoundingClientRect() // 获取父级元素的范围
-        const elements = ul.querySelectorAll('ul') as NodeListOf<HTMLUListElement>
-        let firstVisible: HTMLUListElement | null = null
-        let lastVisible: HTMLUListElement | null = null
-
-        for (let i = 0; i < elements.length - 1; i++) {
-            const el = elements[i]
-            const rect = el.getBoundingClientRect()
-            if (rect.top >= containerRect.top && rect.bottom <= containerRect.bottom) {
-                if (!firstVisible) {
-                    firstVisible = el
-                }
-
-                lastVisible = el
-            }
-        }
-
-        if (firstVisible && firstVisible.dataset.index) {
-            container_start = parseInt(firstVisible.dataset.index) // @ts-ignore
-        }
-
-        if (lastVisible && lastVisible.dataset.index) {
-            container_end = parseInt(lastVisible.dataset.index)
-        }
-    }
-    return { container_start, container_end }
-}
-
-/**
- * 处理滚动条
- **/
-function handleScroll() {
-    // 小数据直接渲染 不处理
-    if (chaptersData.value.length < virtual_limit_length) {
-        return
-    }
-
-    const container = scrollContainerRef.value
-
-    if (!container) {
-        return
-    }
-
-    let { container_start, container_end } = getVisibleFirstLastElementId(container)
-    const currentScrollTop = container.scrollTop
-
-    // 向上滚动
-    if (currentScrollTop - lastScrollTop.value < 0 && container_start - start.value < 5) {
-        start.value = container_start - 85
-        end.value = container_end + 15
-        lastScrollTop.value = currentScrollTop
-    }
-
-    // 向下滚动
-    if (currentScrollTop - lastScrollTop.value > 0 && container_end > end.value - 5) {
-        start.value = container_start - 15
-        end.value = container_end + 85
-        lastScrollTop.value = currentScrollTop
-    }
-}
 
 function handleCollapse() {
     isNavCollapsed.value = !isNavCollapsed.value
@@ -222,31 +197,7 @@ function handleCollapse() {
 
 watch(chapters, () => {
     init()
-    nextTick(() => {
-        updateDefaultChapterHeight()
-    })
 })
-
-function calculateHeight(ele: Element) {
-    const style = window.getComputedStyle(ele)
-    var marginTop = parseInt(style.marginTop)
-    var marginBottom = parseInt(style.marginBottom)
-    var totalHeight = ele.getBoundingClientRect().height + marginTop + marginBottom
-    return totalHeight
-}
-
-// 更新一下章节高度真实值
-function updateDefaultChapterHeight() {
-    for (let i = 0; i < filteredChapters.value.length; i++) {
-        const chapter = filteredChapters.value[i]
-        if (chapter.ref) {
-            if (chapter.collapsed) {
-                chapter_collapsed_height.value = calculateHeight(chapter.ref)
-                return
-            }
-        }
-    }
-}
 
 function init() {
     const cacheChaptersData: ChapterData[] = []

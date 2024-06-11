@@ -6,7 +6,9 @@ import {
     BIconFiletypeDoc,
     BIconArrowsFullscreen,
     BIconFullscreenExit,
-    BIconQuestionCircle
+    BIconQuestionCircle,
+    BIconCaretRight,
+    BIconCaretLeft
 } from 'bootstrap-icons-vue'
 
 import type { Plugin, App } from 'vue'
@@ -30,5 +32,7 @@ export const IconPlugin: Plugin = {
         app.component('BIconArrowsFullscreen', BIconArrowsFullscreen)
         app.component('BIconFullscreenExit', BIconFullscreenExit)
         app.component('BIconQuestionCircle', BIconQuestionCircle)
+        app.component('BIconCaretLeft', BIconCaretLeft)
+        app.component('BIconCaretRight', BIconCaretRight)
     }
 }
