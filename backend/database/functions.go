@@ -145,6 +145,47 @@ func WriteMetaData(
 
 }
 
+// 检查是否有README 并且README是否变动
+// 返回是否需要更新
+func checkReadme(metaMaps MetaMaps, IsDir bool, relative_path string) bool {
+
+	// 不是文件夹直接跳过
+	if !IsDir {
+		return false
+	}
+
+	relative_READMEPath := relative_path + "/" + "README.md"
+
+	realPath := filepath.Join(global.AppConfig.Resource, relative_READMEPath)
+
+	// 检查文件是否存在
+	fileInfo, err := os.Stat(realPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// README不存在 直接跳过
+			return false
+		}
+
+	}
+
+	// 获取README当前文件的修改时间
+	fileModTime := fileInfo.ModTime()
+	// 检查数据库是否存在
+	if value, exists := metaMaps.DB.Store[relative_READMEPath]; exists {
+
+		// 比较数据库与当前修改时间, 不相同就修改
+		if value.ModTime.Equal(fileModTime) {
+			return false
+		} else {
+			return true
+
+		}
+	}
+	// 数据库没有,说明是刚创建的,需要修改
+	return true
+
+}
+
 // WalkSkip 自定义文件遍历规则
 // 如跳过以 "." 和 "_" 开头的目录和文件。
 //

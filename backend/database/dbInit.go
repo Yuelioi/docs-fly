@@ -264,24 +264,9 @@ func DBInit(db *gorm.DB) error {
 		parent := utils.ReplaceSlash(filepath.Dir(path))
 		relative_parent := utils.ReplaceSlash(filepath.Dir(relative_path))
 
-		// 跳过数据库已经存在的文件文件夹
-		if info.IsDir() {
-			// 父级文件夹修改时间不变 直接跳过
-			if value, exists := metaMaps.DB.Store[relative_path]; exists {
-				if value.ModTime.Equal(info.ModTime()) {
-
-					for key, entry := range metaMaps.DB.Remain {
-						if strings.HasPrefix(entry.Filepath, relative_parent+"/") {
-							fmt.Printf("key: %v\n", key)
-							delete(metaMaps.DB.Remain, key)
-						}
-					}
-
-					return filepath.SkipDir
-				}
-			}
-		} else {
-			// 父级文件夹修改时间不变 直接跳过
+		// 跳过数据库已经存在的文件夹, 文件夹无法跳过,因为子文件修改, 并不会改变文件夹修改时间
+		if !info.IsDir() {
+			// 文件修改时间不变 直接跳过
 			if value, exists := metaMaps.DB.Store[relative_parent]; exists {
 				if value.ModTime.Equal(info.ModTime()) {
 					return nil
@@ -346,10 +331,14 @@ func DBInit(db *gorm.DB) error {
 		// 数据库有则先删除 如果修改 = 更新, 数据库没有说明要新增
 		if value, exists := metaMaps.DB.Store[relative_path]; exists {
 			delete(metaMaps.DB.Remain, relative_path)
-			if !value.ModTime.Equal(info.ModTime()) && dbNeedUpdate {
+
+			// 文件变动或者数据变动 => 更新
+			// 文件夹数据变动 或者文件夹下的README变动(注意文件夹下文件内容变化,并不会使文件夹修改时间变化)
+			if !value.ModTime.Equal(info.ModTime()) || dbNeedUpdate || checkReadme(*metaMaps, info.IsDir(), relative_path) {
 				entry.ModTime = info.ModTime()
 				dbDatas.Updates = append(dbDatas.Updates, entry)
 			}
+
 		} else {
 			dbDatas.Creates = append(dbDatas.Creates, entry)
 		}
@@ -385,10 +374,9 @@ func DBInit(db *gorm.DB) error {
 	start = time.Now()
 
 	collections := DBCollections{
-		Creates: []interface{}{dbDatas.Creates},
-		Updates: []interface{}{dbDatas.Updates},
-		Deletes: []interface{}{dbDatas.Deletes},
-		Models:  []interface{}{models.Entry{}},
+		Creates: dbDatas.Creates,
+		Updates: dbDatas.Updates,
+		Deletes: dbDatas.Deletes,
 	}
 
 	err = DBUpdate(db, collections)
