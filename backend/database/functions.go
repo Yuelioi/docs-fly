@@ -74,24 +74,6 @@ func WriteContentToDocsData(datas ...*[]models.Entry) {
 	wg.Wait()
 }
 
-// 查找
-func searchMetaDatasCache(cache MetaDatasCache, info os.FileInfo, localMeta *models.MetaData) {
-	if info.IsDir() {
-		for _, meta := range cache.Categorys {
-			if meta.Name == info.Name() {
-				*localMeta = meta
-			}
-		}
-	} else {
-		for _, meta := range cache.Documents {
-			if meta.Name == info.Name() {
-				*localMeta = meta
-			}
-		}
-	}
-
-}
-
 // 在数据库Map中搜索元数据
 func searchDBMetaDatas(cache map[string]models.Entry, relative_path string, dbMeta *models.MetaData) {
 	if value, exists := cache[relative_path]; exists {
@@ -100,33 +82,28 @@ func searchDBMetaDatas(cache map[string]models.Entry, relative_path string, dbMe
 }
 
 // compare 比较本地元数据和数据库元数据
-// 该函数比较本地元数据和数据库元数据，判断它们是否相等。
-//
-// 参数:
-// localMeta *models.MetaData - 本地元数据
-// dbMeta *models.MetaData - 数据库元数据
-//
-// 返回:
-// bool - 如果两个元数据相等则返回 true，否则返回 false
+// 不相等或者有nil 返回false  相等返回false
 func compare(localMeta *models.MetaData, dbMeta *models.MetaData) bool {
-	if localMeta == nil || dbMeta == nil {
-		return false
+	zero := models.MetaData{}
+
+	if localMeta == nil || dbMeta == nil || *localMeta == zero || *dbMeta == zero {
+		return true
 	}
-	return *localMeta == *dbMeta
+	return *localMeta != *dbMeta
 }
 
 // WriteMetaData 写入本地 meta.json 文件
 // 该函数根据需要更新或重写本地的 meta.json 文件。
 //
 // 参数:
-// metas map[string]MetaDatasCache - 需要写入的元数据缓存
+// metas map[string]LocalMetaDatasCache - 需要写入的元数据缓存
 // rebuild bool - 是否全部重写（true 表示重写，false 表示只写入修改的部分）
 func WriteMetaData(
-	metas map[string]MetaDatasCache,
+	metas map[string]LocalMetaDatasCache,
 	rebuild bool,
 ) {
 
-	update_metas := make([]MetaDatasCache, 0)
+	update_metas := make([]LocalMetaDatasCache, 0)
 
 	for _, meta := range metas {
 		if meta.NeedWrite || rebuild {
@@ -140,7 +117,7 @@ func WriteMetaData(
 	for _, meta := range update_metas {
 		wg.Add(1)
 
-		go func(meta MetaDatasCache) {
+		go func(meta LocalMetaDatasCache) {
 
 			defer wg.Done()
 
@@ -149,10 +126,17 @@ func WriteMetaData(
 				Documents: meta.Documents,
 			}
 
-			data, _ := json.MarshalIndent(output, "", "    ")
-			outputPath := filepath.Join(meta.ParentFolder, global.AppConfig.MetaFile)
+			data, err := json.MarshalIndent(output, "", "    ")
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 
-			os.WriteFile(outputPath, data, 0644)
+			outputPath := filepath.Join(global.AppConfig.Resource, meta.ParentFolder, global.AppConfig.MetaFile)
+
+			err = os.WriteFile(outputPath, data, 0644)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 
 		}(meta)
 	}
@@ -186,9 +170,9 @@ func WalkSkip(root string, info os.FileInfo, path string) error {
 		return filepath.SkipDir
 	}
 
-	// if info.IsDir() && strings.ToLower(info.Name()) == "ue" {
-	// 	return filepath.SkipDir
-	// }
+	if info.IsDir() && strings.ToLower(info.Name()) == "ue" {
+		return filepath.SkipDir
+	}
 
 	if !info.IsDir() && strings.HasPrefix(info.Name(), "_") {
 		return ErrSkip

@@ -77,6 +77,11 @@ func Batch(tx *gorm.DB, datas []interface{}, batchSize int, method string) (err 
 //	err        error           - 如果操作过程中出现错误，则返回错误，否则返回nil
 func DBUpdate(db *gorm.DB, collection DBCollections) (err error) {
 
+	// 无变换 直接跳过
+	if len(collection.Creates) == 0 && len(collection.Updates) == 0 && len(collection.Deletes) == 0 {
+		return nil
+	}
+
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {

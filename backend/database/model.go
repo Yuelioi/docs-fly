@@ -4,7 +4,7 @@ import (
 	"docsfly/models"
 )
 
-type MetaDatasCache struct {
+type LocalMetaDatasCache struct {
 	ParentFolder string `json:"-"`
 	NeedWrite    bool
 	Documents    []models.MetaData `json:"documents"`

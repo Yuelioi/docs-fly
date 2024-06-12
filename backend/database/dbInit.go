@@ -35,10 +35,13 @@ type MetaMaps struct {
 	}
 	Local struct {
 		// 本地Meta信息
-		Store map[string]MetaDatasCache
+		Store map[string]models.MetaData
+
+		// 已读取的Meta.json relative_path 路径
+		Maps map[string]uint
 
 		// 剩余Meta信息 用于更新
-		Remain map[string]MetaDatasCache
+		Remain map[string]LocalMetaDatasCache
 	}
 }
 
@@ -52,7 +55,7 @@ func initAdminAccount(db *gorm.DB) {
 	}
 }
 
-// 初始化数据库数据结构 √
+// 循环前 初始化数据库数据结构 √
 //
 // @param db *gorm.DB 数据库实例
 //
@@ -65,8 +68,8 @@ func initDBDatas(db *gorm.DB) *DBDatas {
 	}
 }
 
-// 初始化映射表, 包括数据库的以及本地的 √
-// 其中本地的赋零值
+// 循环前 初始化映射表√
+// 本地的赋零值
 // 数据库的直接填满
 func initMetaMaps(dbDatas DBDatas) *MetaMaps {
 	metaMaps := &MetaMaps{}
@@ -74,8 +77,9 @@ func initMetaMaps(dbDatas DBDatas) *MetaMaps {
 	metaMaps.DB.Store = make(map[string]models.Entry)
 	metaMaps.DB.Remain = make(map[string]models.Entry)
 
-	metaMaps.Local.Store = make(map[string]MetaDatasCache)
-	metaMaps.Local.Remain = make(map[string]MetaDatasCache)
+	metaMaps.Local.Store = make(map[string]models.MetaData)
+	metaMaps.Local.Remain = make(map[string]LocalMetaDatasCache)
+	metaMaps.Local.Maps = make(map[string]uint)
 
 	for _, file := range dbDatas.Stores {
 		metaMaps.DB.Store[file.Filepath] = file
@@ -85,32 +89,52 @@ func initMetaMaps(dbDatas DBDatas) *MetaMaps {
 	return metaMaps
 }
 
-// 注入本地读取的Meta数据
-func populateMetaMaps(metaMaps *MetaMaps, relative_parent string, parent string) {
-	if _, exists := metaMaps.Local.Store[relative_parent]; !exists {
+// 初始化本地Store
+// 已读取, 直接尝试获取meta数据
+// 未读取, 直接填充
+// 并且获取本地meta
+func initLocalStore(metaMaps *MetaMaps, relative_path, relative_parent, parent string) (localMeta *models.MetaData) {
 
-		var localMeta models.MetaDatas
+	var local_MetasCache LocalMetaDatasCache
 
-		if err := utils.ReadJson(filepath.Join(parent, global.AppConfig.MetaFile), &localMeta); err != nil {
-			localMeta = models.MetaDatas{
-				Categorys: make([]models.MetaData, 0),
-				Documents: make([]models.MetaData, 0),
+	if _, exists := metaMaps.Local.Maps[relative_parent]; !exists {
+
+		// 不存在就从本地读取
+		if err := utils.ReadJson(filepath.Join(parent, global.AppConfig.MetaFile), &local_MetasCache); err == nil {
+			// 本地有直接写入 但是要防止零值
+			if local_MetasCache.Categorys != nil {
+				for _, cat := range local_MetasCache.Categorys {
+					metaMaps.Local.Store[cat.Filepath] = cat
+				}
 			}
 
-		} else {
-			if localMeta.Categorys == nil {
-				localMeta.Categorys = make([]models.MetaData, 0)
-			}
-			if localMeta.Documents == nil {
-				localMeta.Documents = make([]models.MetaData, 0)
+			if local_MetasCache.Documents != nil {
+				for _, doc := range local_MetasCache.Documents {
+					metaMaps.Local.Store[doc.Filepath] = doc
+				}
 			}
 		}
 
-		metaMaps.Local.Store[relative_parent] = MetaDatasCache{
-			ParentFolder: parent,
-			Categorys:    localMeta.Categorys,
-			Documents:    localMeta.Documents,
-		}
+		// 初始化order
+		metaMaps.Local.Maps[relative_parent] = 1
+	}
+
+	if value, exist := metaMaps.Local.Store[relative_path]; exist {
+		localMeta = &value
+	} else {
+		localMeta = &models.MetaData{}
+	}
+
+	return
+}
+
+func findLocalMetas(maps *MetaMaps, relative_path string) *LocalMetaDatasCache {
+	if value, exist := maps.Local.Remain[relative_path]; exist {
+		return &value
+	}
+	return &LocalMetaDatasCache{
+		Documents: []models.MetaData{},
+		Categorys: []models.MetaData{},
 	}
 }
 
@@ -129,25 +153,8 @@ func createMetaData(info os.FileInfo, relative_path string) models.MetaData {
 	}
 }
 
-// 创建本地临时LocalMetas数据 用于后续修改以及是否保存
-func initLocalMetaCache(metaMaps *MetaMaps, relative_parent, parent string) MetaDatasCache {
-	if value, exists := metaMaps.Local.Store[relative_parent]; !exists {
-		// 本地不存在就初始化
-		localMetasCache := MetaDatasCache{
-			ParentFolder: parent,
-			NeedWrite:    false,
-			Categorys:    make([]models.MetaData, 0),
-			Documents:    make([]models.MetaData, 0),
-		}
-
-		return localMetasCache
-	} else {
-		return value
-	}
-}
-
-// 初始化Meta数据
-func initItemMeta(metadata *models.MetaData, localMeta *models.MetaData, dbMeta *models.MetaData) {
+// 刷新Meta数据
+func refreshItemMeta(metadata *models.MetaData, localMeta *models.MetaData, dbMeta *models.MetaData) {
 	if localMeta != nil || dbMeta != nil {
 		if value, ok := assignIfNotZero(localMeta.Order, dbMeta.Order); ok {
 			metadata.Order = value
@@ -161,10 +168,13 @@ func initItemMeta(metadata *models.MetaData, localMeta *models.MetaData, dbMeta 
 		if value, ok := assignIfNotZero(localMeta.Title, dbMeta.Title); ok {
 			metadata.Title = value
 		}
+		if value, ok := assignIfNotZero(localMeta.WebPath, dbMeta.WebPath); ok {
+			metadata.WebPath = value
+		}
 	}
 }
 
-// assignIfNotZero 赋值辅助函数，处理指针类型
+// assignIfNotZero 赋值辅助函数，防止零值
 func assignIfNotZero[T comparable](localValue, dbValue T) (T, bool) {
 	var zeroValue T
 	if !isZeroValue(localValue) {
@@ -232,20 +242,17 @@ func DBInit(db *gorm.DB) error {
 			return err
 		}
 
-		// 元数据
+		// 元数据 用于更新
 		var metaData models.MetaData
 
-		// 本地元数据
+		// 本地元数据 只读
 		var localMeta *models.MetaData
 
-		// 数据库元数据
+		// 数据库元数据 只读
 		var dbMeta *models.MetaData
 
-		// 本地元数据表缓存
-		var localMetasCache MetaDatasCache
-
-		// 本地元数据表
-		var localMetas MetaDatasCache
+		// 本地当前元数据表缓存 用于更新
+		var localMetasCache *LocalMetaDatasCache
 
 		// Entry
 		var entry models.Entry
@@ -260,8 +267,16 @@ func DBInit(db *gorm.DB) error {
 		// 跳过数据库已经存在的文件文件夹
 		if info.IsDir() {
 			// 父级文件夹修改时间不变 直接跳过
-			if value, exists := metaMaps.DB.Store[relative_parent]; exists {
+			if value, exists := metaMaps.DB.Store[relative_path]; exists {
 				if value.ModTime.Equal(info.ModTime()) {
+
+					for key, entry := range metaMaps.DB.Remain {
+						if strings.HasPrefix(entry.Filepath, relative_parent+"/") {
+							fmt.Printf("key: %v\n", key)
+							delete(metaMaps.DB.Remain, key)
+						}
+					}
+
 					return filepath.SkipDir
 				}
 			}
@@ -274,60 +289,56 @@ func DBInit(db *gorm.DB) error {
 			}
 		}
 
-		// 初始化metaMaps 填充本地数据到Store
-		populateMetaMaps(metaMaps, relative_parent, parent)
+		// 初始化 不一定有,防止空指针
+		dbMeta = &models.MetaData{}
+		localMeta = &models.MetaData{}
 
-		// 基于本地数据初始化本地 LocalMeta
-		localMetas = initLocalMetaCache(metaMaps, relative_parent, parent)
+		// 初始化metaMaps 填充本地数据到Store
+		localMeta = initLocalStore(metaMaps, relative_path, relative_parent, parent)
+
+		localMetasCache = findLocalMetas(metaMaps, relative_parent)
+
+		// 查找当前本地元数据
+		if value, exists := metaMaps.Local.Store[relative_path]; exists {
+			localMeta = &value
+		}
 
 		// 根据文件信息先初始化一个
 		metaData = createMetaData(info, relative_path)
 
-		// 初始化 防止空指针
-		dbMeta = &models.MetaData{}
-		localMeta = &models.MetaData{}
-
 		// 查找数据库的信息
 		searchDBMetaDatas(metaMaps.DB.Store, relative_path, dbMeta)
-		// 查找本地数据
-		searchMetaDatasCache(metaMaps.Local.Store[relative_parent], info, localMeta)
 
-		// 检查数据库与本地是否一致
-		isDifferent := !compare(localMeta, dbMeta)
+		// 刷新Metadata
+		refreshItemMeta(&metaData, localMeta, dbMeta)
 
-		if isDifferent {
+		// 检查数据库内容是否变动
+		dbNeedUpdate := compare(&metaData, dbMeta)
+
+		// 检查本地数据是否变动
+		metaNeedUpdate := compare(localMeta, dbMeta)
+
+		if metaNeedUpdate {
+			localMetasCache.ParentFolder = relative_parent
 			localMetasCache.NeedWrite = true
 		}
-
-		initItemMeta(&metaData, localMeta, dbMeta)
 
 		entry = models.Entry{
 			MetaData: metaData,
 			ModTime:  info.ModTime(),
 		}
 
+		if entry.Order == 0 {
+			entry.Order = metaMaps.Local.Maps[relative_parent]
+		}
+
 		if info.IsDir() {
 			entry.IsDir = true
-
-			if entry.Order == 0 {
-				entry.Order = uint(len(metaMaps.Local.Store[relative_parent].Categorys)) + 1
-			}
-
-			if localMetasCache.NeedWrite {
-				if value, exists := metaMaps.Local.Remain[relative_parent]; exists {
-					localMetasCache = value
-				} else {
-					localMetasCache = MetaDatasCache{}
-				}
-				localMetasCache.Categorys = append(localMetasCache.Categorys, entry.MetaData)
-			}
+			// 追加真实分类内容
+			localMetasCache.Categorys = append(localMetasCache.Categorys, entry.MetaData)
 
 		} else {
-
-			if entry.Order == 0 {
-				entry.Order = uint(len(metaMaps.Local.Store[relative_parent].Documents)) + 1
-			}
-
+			// 追加真实文档内容
 			localMetasCache.Documents = append(localMetasCache.Documents, entry.MetaData)
 
 		}
@@ -335,9 +346,7 @@ func DBInit(db *gorm.DB) error {
 		// 数据库有则先删除 如果修改 = 更新, 数据库没有说明要新增
 		if value, exists := metaMaps.DB.Store[relative_path]; exists {
 			delete(metaMaps.DB.Remain, relative_path)
-			fmt.Printf("relative_path: %v\n", relative_path)
-
-			if !value.ModTime.Equal(info.ModTime()) || isDifferent {
+			if !value.ModTime.Equal(info.ModTime()) && dbNeedUpdate {
 				entry.ModTime = info.ModTime()
 				dbDatas.Updates = append(dbDatas.Updates, entry)
 			}
@@ -345,8 +354,11 @@ func DBInit(db *gorm.DB) error {
 			dbDatas.Creates = append(dbDatas.Creates, entry)
 		}
 
-		// 更新缓存数据
-		metaMaps.Local.Remain[relative_parent] = localMetasCache
+		// 当前层级的Order+1
+		metaMaps.Local.Maps[relative_parent] += 1
+
+		// 储存需要修改的本地metas, 暂时别判断, 可能要全局修改
+		metaMaps.Local.Remain[relative_parent] = *localMetasCache
 
 		return nil
 	})
@@ -355,7 +367,7 @@ func DBInit(db *gorm.DB) error {
 		return err
 	}
 
-	// 数据库要删除的 就是最后还剩下的
+	// 数据库要删除的 就是最后还剩下的, 同时还要删除LocalRemain里对应的此条
 	for _, entry := range metaMaps.DB.Remain {
 		dbDatas.Deletes = append(dbDatas.Deletes, entry)
 	}
