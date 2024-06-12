@@ -17,7 +17,8 @@ type Config struct {
 	Username string
 	Password string
 
-	LogLevel string // 添加日志等级配置
+	LogLevel            string // 添加日志等级配置
+	FolderIntroFileName string
 }
 
 var AppConfig Config

@@ -21,11 +21,11 @@ func GetBook(c *gin.Context) {
 
 	db, err := database.DbManager.Connect()
 
-	var cats []models.Category
-	db.Model(models.Category{}).Preload("Documents").Where("webpath like ?", slug+"/"+locale+"%").Where("depth = ?", 3).Find(&cats)
+	var cats []models.Entry
+	db.Model(models.Entry{}).Where("webpath like ?", slug+"/"+locale+"%").Where("file_type", 1).Where("depth = ?", 3).Find(&cats)
 
-	var docs []models.Document
-	db.Model(models.Document{}).Where("webpath like ?", slug+"/"+locale+"%").Where("depth = ?", 3).Find(&docs)
+	var docs []models.Entry
+	db.Model(models.Entry{}).Where("webpath like ?", slug+"/"+locale+"%").Where("file_type", 0).Where("depth = ?", 3).Find(&docs)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
@@ -37,16 +37,16 @@ func GetBook(c *gin.Context) {
 	// 1.分类数据
 	for _, cat := range cats {
 
-		var minOrderDocument models.Document
+		var minOrderDocument models.Entry
 
 		minOrderDocument.Order = 9999
 
-		// TODO 如果是UE 也许没有第一篇文章
-		for _, doc := range cat.Documents {
-			if doc.Order < minOrderDocument.Order {
-				minOrderDocument = doc
-			}
-		}
+		// // TODO 如果是UE 也许没有第一篇文章
+		// for _, doc := range cat.Documents {
+		// 	if doc.Order < minOrderDocument.Order {
+		// 		minOrderDocument = doc
+		// 	}
+		// }
 
 		chapter := models.BookData{
 			Url:         minOrderDocument.WebPath,
@@ -147,11 +147,11 @@ func SaveBookMeta(c *gin.Context) {
 
 	// 更新数据库
 	for _, meta := range metas.Categorys {
-		db.Model(&models.Category{}).Where("filepath = ?", meta.Filepath).Updates(meta)
+		db.Model(&models.Entry{}).Where("filepath = ?", filepath+"/"+meta.Name).Updates(meta)
 	}
 
 	for _, meta := range metas.Documents {
-		db.Model(&models.Document{}).Where("filepath = ?", meta.Filepath).Updates(meta)
+		db.Model(&models.Entry{}).Where("filepath = ?", filepath+"/"+meta.Name).Updates(meta)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Data saved successfully"})
@@ -167,7 +167,7 @@ func UpdateBookMeta(c *gin.Context) {
 		return
 	}
 
-	var catInfo models.Category
+	var catInfo models.Entry
 
 	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
 

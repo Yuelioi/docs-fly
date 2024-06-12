@@ -58,20 +58,6 @@ func (m *SQLiteManager) Init(db *gorm.DB) error {
 //	  - "warn": logger.Warn
 //	  - "info": logger.Info (默认)
 //
-// 自定义日志记录器配置:
-//   - 慢速 SQL 阈值为 3 秒
-//   - 忽略 ErrRecordNotFound 错误
-//   - SQL 日志中不包含参数
-//   - 启用彩色日志输出
-//
-// 数据库连接配置:
-//   - 表名前缀为 "db_"
-//   - 使用复数表名
-//   - 字段名不转换为小写
-//
-// 自动迁移:
-//   - 迁移的模型包括: User, Category, Document, Visitor, Comment
-//
 // 使用示例:
 //
 //	db, err := m.Connect()
@@ -127,8 +113,9 @@ func (m *SQLiteManager) Connect() (*gorm.DB, error) {
 
 	err = db.AutoMigrate(
 		models.User{},
-		models.Category{}, models.Document{},
-		models.Visitor{}, models.Comment{},
+		models.Entry{},
+		models.Visitor{},
+		models.Comment{},
 	)
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)

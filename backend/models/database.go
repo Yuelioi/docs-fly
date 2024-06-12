@@ -7,30 +7,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// 用于写入本地
-type MetaDataLocal struct {
-	Size     int
-	Hash     string
-	Filepath string
-}
-
-// 分类, 记录文件夹
-type Category struct {
+// 文件或者文件夹信息
+type Entry struct {
 	gorm.Model
 	MetaData
-	ModTime   time.Time
-	Documents []Document
-}
-
-// 文档(.md) 记录文件信息
-type Document struct {
-	gorm.Model
-	MetaData
-	ModTime    time.Time
-	Locale     string
-	Content    string
-	CategoryID uint
-	Category   Category
+	ModTime time.Time
+	IsDir   bool
+	Locale  string
+	Content string
 }
 
 // 访客记录

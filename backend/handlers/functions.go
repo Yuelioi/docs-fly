@@ -37,9 +37,9 @@ func GetFilepathByWebpath(db *gorm.DB, typeName string, webpath string) string {
 
 	var filepath string
 	if typeName == "category" {
-		db.Model(models.Category{}).Where("webpath = ?", webpath).Select("filepath").Scan(&filepath)
+		db.Model(models.Entry{}).Where("webpath = ?", webpath).Select("filepath").Scan(&filepath)
 	} else {
-		db.Model(models.Document{}).Where("webpath = ?", webpath).Select("filepath").Scan(&filepath)
+		db.Model(models.Entry{}).Where("webpath = ?", webpath).Select("filepath").Scan(&filepath)
 	}
 	return filepath
 }

@@ -16,3 +16,6 @@ Password = "admin"
 
 # 日志等级 silent/error/warn/info
 LogLevel = "silent"
+
+# 文件夹显示内容
+FolderIntroFileName = "README.md"

@@ -136,9 +136,9 @@ func GetPostHtml(c *gin.Context) {
 
 }
 
-func getPostData(db *gorm.DB, slug, document string) *models.Document {
-	var documentInfo models.Document
-	db.Model(&models.Document{}).Where("filepath = ?", slug+"/"+document).First(&documentInfo)
+func getPostData(db *gorm.DB, slug, document string) *models.Entry {
+	var documentInfo models.Entry
+	db.Model(&models.Entry{}).Where("filepath = ?", slug+"/"+document).First(&documentInfo)
 	return &documentInfo
 }
 
@@ -155,7 +155,7 @@ func SavePost(c *gin.Context) {
 	}
 
 	db, err := database.DbManager.Connect()
-	var documentInfo *models.Document
+	var documentInfo *models.Entry
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
@@ -195,7 +195,7 @@ func SavePost(c *gin.Context) {
 	c.JSON(http.StatusOK, &responseData)
 
 }
-func buildFolderTree(folder *models.Chapter, categories []models.Category, documents []models.Document) {
+func buildFolderTree(folder *models.Chapter, categories []models.Entry, documents []models.Entry) {
 	folder.Documents = make([]models.MetaData, 0)
 	folder.Children = make([]models.Chapter, 0)
 	// TODO 可以优化 添加后删除该文件夹
@@ -235,18 +235,18 @@ func GetChapter(c *gin.Context) {
 
 	db, err := database.DbManager.Connect()
 
-	var categories []models.Category
-	var documents []models.Document
+	var categories []models.Entry
+	var documents []models.Entry
 
 	db.Where("filepath LIKE ?", book+"%").Find(&categories)
 	db.Where("filepath LIKE ?", book+"%").Find(&documents)
 
 	// 创建根文件夹
-	var rootCategory models.Category
-	db.Where("filepath = ? AND depth = ?", book, 2).First(&rootCategory)
+	var rootEntry models.Entry
+	db.Where("filepath = ? AND depth = ?", book, 2).First(&rootEntry)
 
 	rootFolder := models.Chapter{
-		MetaData:  rootCategory.MetaData,
+		MetaData:  rootEntry.MetaData,
 		Documents: make([]models.MetaData, 0),
 		Children:  make([]models.Chapter, 0),
 	}

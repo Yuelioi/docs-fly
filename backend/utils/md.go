@@ -68,7 +68,7 @@ func ReadMarkdownMeta(path string, info os.FileInfo, order uint) (metadata *mode
 	return metadata, nil
 }
 
-func GenerateMeta(docs models.Document) string {
+func GenerateMeta(docs models.Entry) string {
 	return fmt.Sprintf(`---
 display_name: %v
 order: %v
@@ -94,7 +94,7 @@ func GetMeta(metaReader map[string]interface{}) string {
 	return metaString + "---"
 }
 
-func InitMarkdownMeta(docs models.Document) error {
+func InitMarkdownMeta(docs models.Entry) error {
 
 	content, err := os.ReadFile(docs.Filepath)
 	if err != nil {

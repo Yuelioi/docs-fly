@@ -22,10 +22,10 @@ func GetNav(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	var cats []models.Category
-	var books []models.Category
-	db.Model(models.Category{}).Where("depth = ?", 0).Find(&cats)
-	db.Model(models.Category{}).Where("depth = ?", 1).Find(&books)
+	var cats []models.Entry
+	var books []models.Entry
+	db.Model(models.Entry{}).Where("depth = ?", 0).Find(&cats)
+	db.Model(models.Entry{}).Where("depth = ?", 1).Find(&books)
 
 	for _, cat := range cats {
 
@@ -64,13 +64,13 @@ func Query(c *gin.Context) {
 	// 内容截取长度
 	count := 30
 
-	var documentInfo models.Document
-	var documents []models.Document
+	var documentInfo models.Entry
+	var documents []models.Entry
 
 	if slug != "" {
-		db.Model(&documentInfo).Preload("Category").Where("filepath LIKE ?", slug+"%").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
+		db.Model(&documentInfo).Preload("Entry").Where("filepath LIKE ?", slug+"%").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
 	} else {
-		db.Model(&documentInfo).Preload("Category").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
+		db.Model(&documentInfo).Preload("Entry").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
 	}
 
 	if len(documents) == 0 {
@@ -115,8 +115,8 @@ func Query(c *gin.Context) {
 
 			var catTitle string
 			var bookTitle string
-			db.Model(&models.Category{}).Where("filepath = ?", cat).Select("title").Scan(&catTitle)
-			db.Model(&models.Category{}).Where("filepath = ?", cat+"/"+book).Select("title").Scan(&bookTitle)
+			db.Model(&models.Entry{}).Where("filepath = ?", cat).Select("title").Scan(&catTitle)
+			db.Model(&models.Entry{}).Where("filepath = ?", cat+"/"+book).Select("title").Scan(&bookTitle)
 
 			dsData := models.SearchData{
 				Url:           document.WebPath,

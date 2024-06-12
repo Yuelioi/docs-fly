@@ -10,6 +10,7 @@ type Toc struct {
 // 一个章节的信息
 type Chapter struct {
 	MetaData  `json:"metadata"`
+	Filepath  string
 	Documents []MetaData `json:"documents"`
 	Children  []Chapter  `json:"children"`
 }
