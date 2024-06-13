@@ -7,13 +7,13 @@ export function addZero(num: number, length: number) {
     return str
 }
 
-export function getCat(urlpath: string): string[] {
-    const pathSegments = urlpath.split('/') // 按斜杠分割路径
+export function getCat(url_path: string): string[] {
+    const pathSegments = url_path.split('/') // 按斜杠分割路径
     return pathSegments.filter((segment) => !segment.endsWith('.md'))
 }
 
-export function getDocument(urlpath: string): string {
-    const pathSegments = urlpath.split('/') // 按斜杠分割路径
+export function getDocument(url_path: string): string {
+    const pathSegments = url_path.split('/') // 按斜杠分割路径
 
     const filteredDocument = pathSegments.filter((segment) => segment.endsWith('.md')).join('')
     return filteredDocument ? filteredDocument : 'xxxxx'

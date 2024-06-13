@@ -28,7 +28,7 @@
                                 :to="{
                                     name: 'book',
                                     params: {
-                                        book: child.urlpath.split('/')
+                                        slug: child.url_path.split('/')
                                     }
                                 }"
                                 ><i class="pi pi-book"></i>

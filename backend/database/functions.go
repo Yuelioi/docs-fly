@@ -56,7 +56,7 @@ func WriteContentToDocsData(datas ...*[]models.Entry) {
 
 				var contentPath string
 				if docsData.IsDir {
-					contentPath = filepath.Join(global.AppConfig.Resource, docsData.Filepath, global.AppConfig.FolderIntroFileName)
+					contentPath = filepath.Join(global.AppConfig.Resource, docsData.Filepath, global.AppConfig.IntroFile)
 				} else {
 					contentPath = filepath.Join(global.AppConfig.Resource, docsData.Filepath)
 

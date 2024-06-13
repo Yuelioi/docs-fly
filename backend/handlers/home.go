@@ -24,8 +24,8 @@ func GetNav(c *gin.Context) {
 	}
 	var cats []models.Entry
 	var books []models.Entry
-	db.Model(models.Entry{}).Scopes(FindCategory, FindFolders).Find(&cats)
-	db.Model(models.Entry{}).Scopes(FindBook, FindFolders).Find(&books)
+	db.Model(models.Entry{}).Scopes(FindCategory, FindFolder).Find(&cats)
+	db.Model(models.Entry{}).Scopes(FindBook, FindFolder).Find(&books)
 
 	for _, cat := range cats {
 
@@ -82,13 +82,13 @@ func Query(c *gin.Context) {
 
 	for _, document := range documents {
 
-		plaintext, err := ExtractPlainText(document.Content)
+		plaintext, err := extractPlainText(document.Content)
 		if err != nil {
 			return
 		}
 
 		runeSlice := []rune(*plaintext)
-		keywordIndex := IndexOfKeywordInRuneSlice(runeSlice, keyword)
+		keywordIndex := indexOfKeywordInRuneSlice(runeSlice, keyword)
 
 		if keywordIndex == -1 {
 			continue

@@ -79,7 +79,7 @@
                             :to="{
                                 name: 'post',
                                 params: {
-                                    slug: getCat(chapter.url),
+                                    book: getCat(chapter.url),
                                     document: getDocument(chapter.url)
                                 }
                             }">
@@ -134,7 +134,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="meta in metas.categorys" :key="meta.urlpath">
+                                <tr v-for="meta in metas.categorys" :key="meta.url_path">
                                     <td class="px-4 py-2">
                                         <input type="text" class="" disabled v-model="meta.name" />
                                     </td>
@@ -162,7 +162,7 @@
                             </tbody>
 
                             <tbody>
-                                <tr v-for="meta in metas.documents" :key="meta.urlpath">
+                                <tr v-for="meta in metas.documents" :key="meta.url_path">
                                     <td class="px-4 py-2">
                                         <input type="text" class="" disabled v-model="meta.name" />
                                     </td>
@@ -281,7 +281,7 @@ async function updateMeta() {
 async function refreshBook(params: RouteParams) {
     // /book/Ae/basic
 
-    const db_data = await getDBBookData(params)
+    const db_data = await getDBBookData(params['slug'] as string[], locale.value)
 
     if (db_data) {
         bookDatas.value = db_data.data
@@ -291,7 +291,7 @@ async function refreshBook(params: RouteParams) {
 
         if (ok) {
             bookDatas.value = data
-            await addDBBookData(params, data)
+            await addDBBookData(params['slug'] as string[], locale.value, data)
         } else {
             Message('未找到书籍数据', 'warn')
         }

@@ -4,9 +4,9 @@ import { fetchContent, fetchContentAdmin } from './utils'
 // BookPage
 
 // 获取书籍信息
-export const getBookData = async (slug: string, locale: string) => {
+export const getBookData = async (path: string, locale: string) => {
     return await fetchContent('/book', {
-        slug: slug,
+        path: path,
         locale: locale
     })
 }

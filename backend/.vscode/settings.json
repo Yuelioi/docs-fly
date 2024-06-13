@@ -28,7 +28,8 @@
         "docsfly",
         "fsnotify",
         "Hitokoto",
-        "metas"
+        "metas",
+        "url_path"
     ],
     "git.ignoreLimitWarning": true
 }

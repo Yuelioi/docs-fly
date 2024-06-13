@@ -13,7 +13,7 @@ const routes = [
     },
 
     {
-        path: '/book/:book+',
+        path: '/book/:slug+',
         name: 'book',
         component: Book
     },
@@ -23,7 +23,7 @@ const routes = [
         component: PostStar
     },
     {
-        path: '/post/:post+',
+        path: '/post/:slug+',
         name: 'post',
         component: Post
     },

@@ -25,14 +25,14 @@ func GetStatisticHome(c *gin.Context) {
 		TodayVisitorCount      int64
 	)
 
-	db.Model(models.Entry{}).Where("depth = ?", 1).Count(&BooksCount)
-	db.Model(models.Entry{}).Count(&DocumentsCount)
+	db.Model(models.Entry{}).Scopes(FindBook, FindCategory).Count(&BooksCount)
+	db.Model(models.Entry{}).Scopes(FindFile).Count(&DocumentsCount)
 
 	db.Model(models.Visitor{}).Count(&HistoricalVisitorCount)
 
 	// today := time.Now().Format("2006-01-02") 不能用(DATE(time))
 	today := time.Now().Truncate(24 * time.Hour)
-	db.Debug().Model(models.Visitor{}).Where("time > ?", today).Count(&TodayVisitorCount)
+	db.Model(models.Visitor{}).Where("time > ?", today).Count(&TodayVisitorCount)
 
 	stats := Statistic{
 		BookCount:              BooksCount,
@@ -46,7 +46,6 @@ func GetStatisticHome(c *gin.Context) {
 func GetStatisticBook(c *gin.Context) {
 
 	slug := c.Query("slug")
-	locale := c.Query("locale")
 
 	db, err := database.DbManager.Connect()
 
@@ -63,10 +62,10 @@ func GetStatisticBook(c *gin.Context) {
 	// db.Model(models.Visitor{}).Where("category = ?", category).Where("book = ?", book).Count(&bookReadCount)
 
 	// 获取章节数量
-	db.Model(models.Entry{}).Where("filepath Like ?", slug+"/"+locale+"%").Count(&chapterCount)
+	db.Model(models.Entry{}).Scopes(HasPrefixPath(slug)).Count(&chapterCount)
 
 	// 获取书籍数量
-	db.Model(models.Entry{}).Where("filepath Like ?", slug+"/"+locale+"%").Count(&documentCount)
+	db.Model(models.Entry{}).Scopes(HasPrefixPath(slug)).Count(&documentCount)
 
 	type bookCount struct {
 		ReadCount     int64 `json:"read_count"`

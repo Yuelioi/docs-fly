@@ -8,8 +8,8 @@ import (
 	"docsfly/models"
 	"docsfly/utils"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,80 +19,70 @@ func GetBook(c *gin.Context) {
 	slug := c.Query("slug")
 	locale := c.Query("locale")
 
+	clientTime := time.Now()
+
 	db, err := database.DbManager.Connect()
 
-	var cats []models.Entry
-	db.Model(models.Entry{}).Where("urlpath like ?", slug+"/"+locale+"%").Where("file_type", 1).Where("depth = ?", 3).Find(&cats)
-
-	var docs []models.Entry
-	db.Model(models.Entry{}).Where("urlpath like ?", slug+"/"+locale+"%").Where("file_type", 0).Where("depth = ?", 3).Find(&docs)
-
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed load database")
 		return
 	}
 
+	var cats, docs []models.Entry
 	var bookDatas []BookData
+
+	db.Model(models.Entry{}).Scopes(HasPrefixPath(slug+"/"+locale), FindChapter, FindFolder).Find(&cats)
+	db.Model(models.Entry{}).Scopes(HasPrefixPath(slug+"/"+locale), FindChapter, FindFile).Where("depth = ?", 3).Find(&docs)
 
 	// 1.分类数据
 	for _, cat := range cats {
 
-		var minOrderDocument models.Entry
+		var closeDoc models.Entry
+		db.Model(models.Entry{}).Scopes(FindFile, HasPrefixPath(cat.Filepath)).
+			Order("depth ASC, `order` ASC").
+			Limit(1).Find(&closeDoc)
 
-		minOrderDocument.Order = 9999
-
-		// // TODO 如果是UE 也许没有第一篇文章
-		// for _, doc := range cat.Documents {
-		// 	if doc.Order < minOrderDocument.Order {
-		// 		minOrderDocument = doc
-		// 	}
-		// }
-
-		chapter := BookData{
-			Url:         minOrderDocument.URLPath,
-			ChapterType: "category",
-			MetaData:    cat.MetaData,
-		}
-		// TODO 这里找不到应该log 个 warning
-		if chapter.Url != "" {
+		if closeDoc.URLPath != "" {
+			chapter := BookData{
+				Url:      closeDoc.URLPath,
+				IsDir:    true,
+				MetaData: cat.MetaData,
+			}
 			bookDatas = append(bookDatas, chapter)
-		} else {
-			fmt.Printf("chapter: %v\n", chapter)
 		}
+
 	}
 
 	// 2.文章数据
 	for _, doc := range docs {
-
-		chapter := BookData{
-			Url:         doc.URLPath,
-			ChapterType: "document",
-			MetaData:    doc.MetaData,
-		}
-		if chapter.Url != "" {
-			bookDatas = append(bookDatas, chapter)
-		} else {
-			fmt.Printf("chapter: %v\n", chapter)
+		if doc.URLPath != "" {
+			bookDatas = append(bookDatas, BookData{
+				Url:      doc.URLPath,
+				IsDir:    false,
+				MetaData: doc.MetaData,
+			})
 		}
 	}
 
-	c.JSON(http.StatusOK, bookDatas)
+	sendResponse(c, clientTime, bookDatas)
 }
 
 func GetBookMeta(c *gin.Context) {
 	slug := c.Query("slug")
 	locale := c.Query("locale")
 
+	clientTime := time.Now()
+
 	db, err := database.DbManager.Connect()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed load database")
 		return
 	}
 
-	filepath := GetFilepathByURLPath(db, "category", slug+"/"+locale)
+	filepath := getFilepathByURLPath(db, slug+"/"+locale)
 
 	if filepath == "" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Find Target Category"})
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed Find Target Category")
 		return
 	}
 
@@ -102,11 +92,10 @@ func GetBookMeta(c *gin.Context) {
 	err = utils.ReadJson(metapath, &data)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load data"})
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed load data")
 		return
 	}
-
-	c.JSON(http.StatusOK, &data)
+	sendResponse(c, clientTime, data)
 }
 
 func SaveBookMeta(c *gin.Context) {
@@ -135,7 +124,7 @@ func SaveBookMeta(c *gin.Context) {
 		return
 	}
 
-	filepath := GetFilepathByURLPath(db, "category", slug+"/"+locale)
+	filepath := getFilepathByURLPath(db, slug+"/"+locale)
 
 	// 保存meta.json
 	metapath := global.AppConfig.Resource + "/" + filepath + "/" + global.AppConfig.MetaFile

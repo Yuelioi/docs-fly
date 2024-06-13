@@ -15,10 +15,10 @@ const storeConf = new StoreConf(storeName)
 dbManager.dbStores.push(storeConf)
 dbManager.dbVersion += 1
 
-export async function getDBBookData(params: RouteParams) {
+export async function getDBBookData(bookName: string[], locale: string) {
     const result = (await dbManager.getDataByKey(
         storeName,
-        `book__${(params['slug'] as string[]).join('_')}`
+        `book__${bookName.join('_')}_${locale}`
     )) as DBData
 
     if (result != undefined && Date.now() < result.expiration) {
@@ -28,10 +28,10 @@ export async function getDBBookData(params: RouteParams) {
     }
 }
 
-export async function addDBBookData(params: RouteParams, chapters: LocalMetaDatas) {
+export async function addDBBookData(bookName: string[], locale: string, chapters: LocalMetaDatas) {
     await dbManager.addData(
         storeConf,
-        `book__${(params['slug'] as string[]).join('_')}`,
+        `book__${bookName.join('_')}_${locale}`,
         JSON.parse(JSON.stringify(chapters))
     )
 }

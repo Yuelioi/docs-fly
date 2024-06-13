@@ -3,49 +3,48 @@ package handlers
 import (
 	"docsfly/models"
 	"math/rand"
-	"reflect"
+	"net/http"
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/gin-gonic/gin"
 	extractor "github.com/huantt/plaintext-extractor"
 	"gorm.io/gorm"
 )
 
-func GetFieldValue(obj interface{}, fieldName string) interface{} {
-	// 获取对象的反射值
-	val := reflect.ValueOf(obj)
+func sendResponse(c *gin.Context, clientTime time.Time, data interface{}) {
+	c.JSON(http.StatusOK, ResponseData{
+		ClientTime: clientTime,
+		IP:         c.ClientIP(),
+		ServerTime: time.Now(),
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
 
-	// 如果不是结构体类型，直接返回 nil
-	if val.Kind() != reflect.Struct {
-		return nil
-	}
-
-	// 获取字段的反射值
-	fieldVal := val.FieldByName(fieldName)
-
-	// 如果字段不存在，返回 nil
-	if !fieldVal.IsValid() {
-		return nil
-	}
-
-	// 返回字段的值
-	return fieldVal.Interface()
 }
 
-func GetFilepathByURLPath(db *gorm.DB, typeName string, urlpath string) string {
+func sendErrorResponse(c *gin.Context, statusCode int, clientTime time.Time, errMessage string) {
 
+	c.JSON(http.StatusOK, ResponseData{
+		ClientTime: clientTime,
+		IP:         c.ClientIP(),
+		ServerTime: time.Now(),
+		StatusCode: statusCode,
+		Data:       gin.H{"error": errMessage},
+	})
+
+}
+
+func getFilepathByURLPath(db *gorm.DB, url_path string) string {
 	var filepath string
-	if typeName == "category" {
-		db.Model(models.Entry{}).Where("urlpath = ?", urlpath).Select("filepath").Scan(&filepath)
-	} else {
-		db.Model(models.Entry{}).Where("urlpath = ?", urlpath).Select("filepath").Scan(&filepath)
-	}
+	db.Model(models.Entry{}).Where("url_path = ?", url_path).Select("filepath").Scan(&filepath)
 	return filepath
 }
 
 // 根据关键词获取对应索引
-func IndexOfKeywordInRuneSlice(runeSlice []rune, keyword string) int {
+func indexOfKeywordInRuneSlice(runeSlice []rune, keyword string) int {
 	key := []rune(keyword)
 
 	for idx := range runeSlice {
@@ -62,7 +61,7 @@ func IndexOfKeywordInRuneSlice(runeSlice []rune, keyword string) int {
 }
 
 // 提取纯文本数据 过滤掉符号
-func ExtractPlainText(markdownContent string) (output *string, err error) {
+func extractPlainText(markdownContent string) (output *string, err error) {
 	extractor := extractor.NewMarkdownExtractor()
 	output, err = extractor.PlainText(markdownContent)
 

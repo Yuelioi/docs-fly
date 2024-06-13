@@ -2,6 +2,6 @@ import { MetaData } from './base'
 
 export class BookData {
     url = ''
-    chapter_type = ''
+    is_dir = false
     metadata: MetaData = new MetaData()
 }

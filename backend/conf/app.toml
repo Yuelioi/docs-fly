@@ -18,4 +18,7 @@ Password = "admin"
 LogLevel = "silent"
 
 # 文件夹显示内容
-FolderIntroFileName = "README.md"
+IntroFile = "README.md"
+
+# API版本
+Version = "v1"

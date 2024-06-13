@@ -6,10 +6,19 @@ import (
 	// 假设这是你的数据库包
 )
 
+// ResponseData 结构体用于扩展返回数据
+type ResponseData struct {
+	ClientTime time.Time   `json:"client_time"`
+	IP         string      `json:"ip"`
+	ServerTime time.Time   `json:"server_time"`
+	StatusCode int         `json:"status_code"`
+	Data       interface{} `json:"data"`
+}
+
 type BookData struct {
-	Url         string          `json:"url"`
-	ChapterType string          `json:"chapter_type"`
-	MetaData    models.MetaData `json:"metadata"`
+	Url      string          `json:"url"`
+	IsDir    bool            `json:"is_dir"`
+	MetaData models.MetaData `json:"metadata"`
 }
 
 // 主页统计信息
@@ -38,15 +47,6 @@ type SearchData struct {
 type Nav struct {
 	MetaData models.MetaData   `json:"metadata"`
 	Children []models.MetaData `json:"children"`
-}
-
-// ResponseData 结构体用于扩展返回数据
-type ResponseData struct {
-	MetaData   []Nav     `json:"metadata"`
-	Timestamp  time.Time `json:"timestamp"`
-	IP         string    `json:"ip"`
-	ServerTime time.Time `json:"server_time"`
-	StatusCode int       `json:"status_code"`
 }
 
 // 文章目录

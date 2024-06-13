@@ -68,7 +68,7 @@ func parseToken(c *gin.Context) (*jwt.Token, error) {
 
 	tokenString := parts[1]
 
-	token, err := CheckToken(tokenString)
+	token, err := checkToken(tokenString)
 
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func parseToken(c *gin.Context) (*jwt.Token, error) {
 }
 
 // 验证token字符串
-func CheckToken(tokenString string) (*jwt.Token, error) {
+func checkToken(tokenString string) (*jwt.Token, error) {
 	// Parse the token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Validate the token signing method
@@ -97,7 +97,7 @@ func CheckToken(tokenString string) (*jwt.Token, error) {
 func TokenVerify(c *gin.Context) {
 	token := c.Query("token")
 
-	_, err := CheckToken(token)
+	_, err := checkToken(token)
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err})

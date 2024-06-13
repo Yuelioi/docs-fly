@@ -11,14 +11,15 @@ type Config struct {
 	Database string
 	MetaFile string
 
-	Addr   string
-	DBMode int
+	Addr string
 
 	Username string
 	Password string
 
-	LogLevel            string // 添加日志等级配置
-	FolderIntroFileName string
+	LogLevel  string // 添加日志等级配置
+	IntroFile string
+
+	Version string // API版本
 }
 
 var AppConfig Config

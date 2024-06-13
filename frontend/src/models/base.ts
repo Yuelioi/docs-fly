@@ -7,10 +7,18 @@ export class MetaData {
     order = 0
     icon = ''
     status = 1
-    urlpath = ''
+    url_path = ''
 }
 
 export class LocalMetaDatas {
     documents: MetaData[] = []
     categorys: MetaData[] = []
+}
+
+export class ResponseData {
+    clientTime: Date = new Date()
+    ip: string = ''
+    serverTime: Date = new Date()
+    statusCode: number = 0
+    data: any = null
 }
