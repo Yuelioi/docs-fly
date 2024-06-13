@@ -22,17 +22,17 @@ func GetBook(c *gin.Context) {
 	db, err := database.DbManager.Connect()
 
 	var cats []models.Entry
-	db.Model(models.Entry{}).Where("webpath like ?", slug+"/"+locale+"%").Where("file_type", 1).Where("depth = ?", 3).Find(&cats)
+	db.Model(models.Entry{}).Where("urlpath like ?", slug+"/"+locale+"%").Where("file_type", 1).Where("depth = ?", 3).Find(&cats)
 
 	var docs []models.Entry
-	db.Model(models.Entry{}).Where("webpath like ?", slug+"/"+locale+"%").Where("file_type", 0).Where("depth = ?", 3).Find(&docs)
+	db.Model(models.Entry{}).Where("urlpath like ?", slug+"/"+locale+"%").Where("file_type", 0).Where("depth = ?", 3).Find(&docs)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
 		return
 	}
 
-	var bookDatas []models.BookData
+	var bookDatas []BookData
 
 	// 1.分类数据
 	for _, cat := range cats {
@@ -48,8 +48,8 @@ func GetBook(c *gin.Context) {
 		// 	}
 		// }
 
-		chapter := models.BookData{
-			Url:         minOrderDocument.WebPath,
+		chapter := BookData{
+			Url:         minOrderDocument.URLPath,
 			ChapterType: "category",
 			MetaData:    cat.MetaData,
 		}
@@ -64,8 +64,8 @@ func GetBook(c *gin.Context) {
 	// 2.文章数据
 	for _, doc := range docs {
 
-		chapter := models.BookData{
-			Url:         doc.WebPath,
+		chapter := BookData{
+			Url:         doc.URLPath,
 			ChapterType: "document",
 			MetaData:    doc.MetaData,
 		}
@@ -89,7 +89,7 @@ func GetBookMeta(c *gin.Context) {
 		return
 	}
 
-	filepath := GetFilepathByWebpath(db, "category", slug+"/"+locale)
+	filepath := GetFilepathByURLPath(db, "category", slug+"/"+locale)
 
 	if filepath == "" {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Find Target Category"})
@@ -135,7 +135,7 @@ func SaveBookMeta(c *gin.Context) {
 		return
 	}
 
-	filepath := GetFilepathByWebpath(db, "category", slug+"/"+locale)
+	filepath := GetFilepathByURLPath(db, "category", slug+"/"+locale)
 
 	// 保存meta.json
 	metapath := global.AppConfig.Resource + "/" + filepath + "/" + global.AppConfig.MetaFile

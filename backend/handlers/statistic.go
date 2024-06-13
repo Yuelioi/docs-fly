@@ -34,7 +34,7 @@ func GetStatisticHome(c *gin.Context) {
 	today := time.Now().Truncate(24 * time.Hour)
 	db.Debug().Model(models.Visitor{}).Where("time > ?", today).Count(&TodayVisitorCount)
 
-	stats := models.Statistic{
+	stats := Statistic{
 		BookCount:              BooksCount,
 		DocumentCount:          DocumentsCount,
 		HistoricalVisitorCount: HistoricalVisitorCount,

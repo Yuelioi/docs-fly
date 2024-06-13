@@ -72,7 +72,7 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
             if (ok) {
                 chapters.value = data
                 await addPostChapterData(
-                    chapters.value.metadata.filepath,
+                    chapters.value.metadata.urlpath,
                     JSON.parse(JSON.stringify(chapters.value))
                 )
             } else {

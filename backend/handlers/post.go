@@ -33,11 +33,11 @@ func GetDepth(node atom.Atom) int {
 
 }
 
-func loopNode(n *html.Node, entries *[]models.Toc) {
+func loopNode(n *html.Node, entries *[]Toc) {
 	if n.Type == html.ElementNode && (n.DataAtom == atom.H1 || n.DataAtom == atom.H2) {
 		for _, a := range n.Attr {
 			if a.Key == "id" {
-				*entries = append(*entries, models.Toc{
+				*entries = append(*entries, Toc{
 					ID:    a.Val,
 					Depth: uint(GetDepth(n.DataAtom)),
 					Title: textContent(n),
@@ -56,7 +56,7 @@ func GenerateTOC(htmlContent string) ([]byte, error) {
 		return nil, err
 	}
 
-	var entries []models.Toc
+	var entries []Toc
 
 	loopNode(doc, &entries)
 
@@ -195,22 +195,22 @@ func SavePost(c *gin.Context) {
 	c.JSON(http.StatusOK, &responseData)
 
 }
-func buildFolderTree(folder *models.Chapter, categories []models.Entry, documents []models.Entry) {
+func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry) {
 	folder.Documents = make([]models.MetaData, 0)
-	folder.Children = make([]models.Chapter, 0)
+	folder.Children = make([]Chapter, 0)
 	// TODO 可以优化 添加后删除该文件夹
 
 	// 添加文件到当前文件夹
 	for _, doc := range documents {
-		if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == folder.Depth+1 {
+		if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == folder.MetaData.Depth+1 {
 			folder.Documents = append(folder.Documents, doc.MetaData)
 		}
 	}
 
 	// 添加子文件夹到当前文件夹
 	for _, cat := range categories {
-		if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == folder.Depth+1 {
-			childFolder := models.Chapter{
+		if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == folder.MetaData.Depth+1 {
+			childFolder := Chapter{
 				MetaData: cat.MetaData,
 			}
 			buildFolderTree(&childFolder, categories, documents)
@@ -245,10 +245,10 @@ func GetChapter(c *gin.Context) {
 	var rootEntry models.Entry
 	db.Where("filepath = ? AND depth = ?", book, 2).First(&rootEntry)
 
-	rootFolder := models.Chapter{
+	rootFolder := Chapter{
 		MetaData:  rootEntry.MetaData,
 		Documents: make([]models.MetaData, 0),
-		Children:  make([]models.Chapter, 0),
+		Children:  make([]Chapter, 0),
 	}
 
 	// 构建文件夹树

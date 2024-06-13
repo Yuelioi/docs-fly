@@ -149,7 +149,7 @@ func createMetaData(info os.FileInfo, relative_path string) models.MetaData {
 		Icon:     "",
 		Status:   1,
 		Filepath: relative_path,
-		WebPath:  utils.ConvertFilepathToWebPath(relative_path),
+		URLPath:  utils.ConvertFilepathToURLPath(relative_path),
 	}
 }
 
@@ -168,8 +168,8 @@ func refreshItemMeta(metadata *models.MetaData, localMeta *models.MetaData, dbMe
 		if value, ok := assignIfNotZero(localMeta.Title, dbMeta.Title); ok {
 			metadata.Title = value
 		}
-		if value, ok := assignIfNotZero(localMeta.WebPath, dbMeta.WebPath); ok {
-			metadata.WebPath = value
+		if value, ok := assignIfNotZero(localMeta.URLPath, dbMeta.URLPath); ok {
+			metadata.URLPath = value
 		}
 	}
 }

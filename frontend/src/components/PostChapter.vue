@@ -77,12 +77,12 @@
                             :to="{
                                 name: 'post',
                                 params: {
-                                    slug: getCat(chapter.metadata.filepath),
-                                    document: getDocument(chapter.metadata.filepath)
+                                    slug: getCat(chapter.metadata.urlpath),
+                                    document: getDocument(chapter.metadata.urlpath)
                                 }
                             }"
                             :data-index="chapter.id"
-                            :key="chapter.metadata.filepath"
+                            :key="chapter.metadata.urlpath"
                             class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-theme-text-base hover:rounded dark:hover:bg-slate-800">
                             <h5
                                 class="select-none text-lg font-bold mb-4 lg:mb-3 text-theme-text-base">
@@ -106,14 +106,14 @@
                                     <span> {{ section.metadata.title }}</span>
                                     <div
                                         v-for="(document, document_index) in section.documents"
-                                        :key="document.filepath"
+                                        :key="document.urlpath"
                                         class="flex border-l border-l-slate-400">
                                         <router-link
                                             :to="{
                                                 name: 'post',
                                                 params: {
-                                                    slug: getCat(document.filepath),
-                                                    document: getDocument(document.filepath)
+                                                    slug: getCat(document.urlpath),
+                                                    document: getDocument(document.urlpath)
                                                 }
                                             }"
                                             :key="chapter_index + document_index"
@@ -130,14 +130,14 @@
 
                                 <div
                                     v-for="(document, document_index) in chapter.documents"
-                                    :key="document.filepath"
+                                    :key="document.urlpath"
                                     class="flex border-l border-l-slate-400">
                                     <router-link
                                         :to="{
                                             name: 'post',
                                             params: {
-                                                slug: getCat(document.filepath),
-                                                document: getDocument(document.filepath)
+                                                slug: getCat(document.urlpath),
+                                                document: getDocument(document.urlpath)
                                             }
                                         }"
                                         :key="chapter_index + document_index"

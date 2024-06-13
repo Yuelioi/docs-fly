@@ -134,7 +134,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="meta in metas.categorys" :key="meta.filepath">
+                                <tr v-for="meta in metas.categorys" :key="meta.urlpath">
                                     <td class="px-4 py-2">
                                         <input type="text" class="" disabled v-model="meta.name" />
                                     </td>
@@ -162,7 +162,7 @@
                             </tbody>
 
                             <tbody>
-                                <tr v-for="meta in metas.documents" :key="meta.filepath">
+                                <tr v-for="meta in metas.documents" :key="meta.urlpath">
                                     <td class="px-4 py-2">
                                         <input type="text" class="" disabled v-model="meta.name" />
                                     </td>

@@ -16,7 +16,7 @@ import (
 // 获取顶部导航栏信息
 func GetNav(c *gin.Context) {
 
-	navs := []models.Nav{}
+	navs := []Nav{}
 	db, err := database.DbManager.Connect()
 
 	if err != nil {
@@ -24,12 +24,12 @@ func GetNav(c *gin.Context) {
 	}
 	var cats []models.Entry
 	var books []models.Entry
-	db.Model(models.Entry{}).Where("depth = ?", 0).Find(&cats)
-	db.Model(models.Entry{}).Where("depth = ?", 1).Find(&books)
+	db.Model(models.Entry{}).Scopes(FindCategory, FindFolders).Find(&cats)
+	db.Model(models.Entry{}).Scopes(FindBook, FindFolders).Find(&books)
 
 	for _, cat := range cats {
 
-		nav := models.Nav{}
+		nav := Nav{}
 		nav.MetaData = cat.MetaData
 
 		for _, book := range books {
@@ -78,7 +78,7 @@ func Query(c *gin.Context) {
 		return
 	}
 
-	var searchResult models.SearchResult
+	var searchResult SearchResult
 
 	for _, document := range documents {
 
@@ -118,8 +118,8 @@ func Query(c *gin.Context) {
 			db.Model(&models.Entry{}).Where("filepath = ?", cat).Select("title").Scan(&catTitle)
 			db.Model(&models.Entry{}).Where("filepath = ?", cat+"/"+book).Select("title").Scan(&bookTitle)
 
-			dsData := models.SearchData{
-				Url:           document.WebPath,
+			dsData := SearchData{
+				Url:           document.URLPath,
 				CategoryTitle: catTitle,
 				BookTitle:     bookTitle,
 				Locale:        locale,

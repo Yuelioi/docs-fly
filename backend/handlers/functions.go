@@ -33,13 +33,13 @@ func GetFieldValue(obj interface{}, fieldName string) interface{} {
 	return fieldVal.Interface()
 }
 
-func GetFilepathByWebpath(db *gorm.DB, typeName string, webpath string) string {
+func GetFilepathByURLPath(db *gorm.DB, typeName string, urlpath string) string {
 
 	var filepath string
 	if typeName == "category" {
-		db.Model(models.Entry{}).Where("webpath = ?", webpath).Select("filepath").Scan(&filepath)
+		db.Model(models.Entry{}).Where("urlpath = ?", urlpath).Select("filepath").Scan(&filepath)
 	} else {
-		db.Model(models.Entry{}).Where("webpath = ?", webpath).Select("filepath").Scan(&filepath)
+		db.Model(models.Entry{}).Where("urlpath = ?", urlpath).Select("filepath").Scan(&filepath)
 	}
 	return filepath
 }

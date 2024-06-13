@@ -28,7 +28,7 @@
                                 :to="{
                                     name: 'book',
                                     params: {
-                                        slug: child.filepath.split('/')
+                                        book: child.urlpath.split('/')
                                     }
                                 }"
                                 ><i class="pi pi-book"></i>
@@ -83,11 +83,13 @@
             </div>
         </div>
     </div>
+    <button type="button" @click="deleteDB">清除数据库</button>
     <HSearchWithDialog v-model:showSearchDialog="showSearchDialog" v-model:navs="navs">
     </HSearchWithDialog>
 </template>
 
 <script setup lang="ts">
+import { dbManager } from '@/database/manager'
 import { Nav, MetaData } from '@/models'
 import { ref, onMounted } from 'vue'
 import { getNav } from '@/handlers/index'
@@ -102,6 +104,15 @@ import { storeToRefs } from 'pinia'
 import { useRoute, useRouter, type RouteParams } from 'vue-router'
 
 import { useDark, useToggle } from '@vueuse/core'
+
+async function deleteDB() {
+    try {
+        await dbManager.clearDatabase()
+        console.log('Database cleared successfully')
+    } catch (error) {
+        console.error('Failed to clear database:', error)
+    }
+}
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)

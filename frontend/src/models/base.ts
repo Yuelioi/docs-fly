@@ -7,7 +7,7 @@ export class MetaData {
     order = 0
     icon = ''
     status = 1
-    filepath = ''
+    urlpath = ''
 }
 
 export class LocalMetaDatas {
