@@ -64,7 +64,7 @@ func GetBook(c *gin.Context) {
 		}
 	}
 
-	sendResponse(c, clientTime, bookDatas)
+	sendSuccessResponse(c, clientTime, bookDatas)
 }
 
 func GetBookMeta(c *gin.Context) {
@@ -95,7 +95,7 @@ func GetBookMeta(c *gin.Context) {
 		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed load data")
 		return
 	}
-	sendResponse(c, clientTime, data)
+	sendSuccessResponse(c, clientTime, data)
 }
 
 func SaveBookMeta(c *gin.Context) {

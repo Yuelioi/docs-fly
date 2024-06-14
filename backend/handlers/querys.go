@@ -1,35 +1,42 @@
 package handlers
 
 import (
+	"docsfly/models"
+
 	"gorm.io/gorm"
 )
 
-// 分类层级:0
+// Model Entry
+func BasicModel(db *gorm.DB) *gorm.DB {
+	return db.Model(models.Entry{})
+}
+
+// 分类 深度 :0
 func FindCategory(db *gorm.DB) *gorm.DB {
 	return db.Where("depth = ?", 0)
 }
 
-// 书籍层级:1
+// 书籍 深度:1
 func FindBook(db *gorm.DB) *gorm.DB {
 	return db.Where("depth = ?", 1)
 }
 
-// 语言层级:2
+// 语言 深度:2
 func FindLocale(db *gorm.DB) *gorm.DB {
 	return db.Where("depth = ?", 2)
 }
 
-// 章节层级:3
+// 章节 深度:3
 func FindChapter(db *gorm.DB) *gorm.DB {
 	return db.Where("depth = ?", 3)
 }
 
-// 只搜索文件0
+// 文件 only
 func FindFile(db *gorm.DB) *gorm.DB {
 	return db.Where("is_dir = ?", 0)
 }
 
-// 只搜索文件夹1
+// Dir only
 func FindFolder(db *gorm.DB) *gorm.DB {
 	return db.Where("is_dir = ?", 1)
 }

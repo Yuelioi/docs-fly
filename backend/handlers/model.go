@@ -2,18 +2,8 @@ package handlers
 
 import (
 	"docsfly/models"
-	"time"
 	// 假设这是你的数据库包
 )
-
-// ResponseData 结构体用于扩展返回数据
-type ResponseData struct {
-	ClientTime time.Time   `json:"client_time"`
-	IP         string      `json:"ip"`
-	ServerTime time.Time   `json:"server_time"`
-	StatusCode int         `json:"status_code"`
-	Data       interface{} `json:"data"`
-}
 
 type BookData struct {
 	Url      string          `json:"url"`

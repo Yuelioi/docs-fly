@@ -14,27 +14,40 @@ import (
 	"gorm.io/gorm"
 )
 
-func sendResponse(c *gin.Context, clientTime time.Time, data interface{}) {
-	c.JSON(http.StatusOK, ResponseData{
+func currentTime() time.Time {
+	return time.Now()
+}
+
+func sendSuccessResponse(c *gin.Context, clientTime time.Time, data interface{}) {
+	c.JSON(http.StatusOK, models.ResponseBasicData{
 		ClientTime: clientTime,
 		IP:         c.ClientIP(),
 		ServerTime: time.Now(),
 		StatusCode: http.StatusOK,
 		Data:       data,
 	})
+}
 
+func sendSuccessResponse2(c *gin.Context, clientTime time.Time, data interface{}) {
+	c.JSON(http.StatusOK, models.ResponseBasicData{
+		ClientTime: clientTime,
+		IP:         c.ClientIP(),
+		ServerTime: time.Now(),
+		StatusCode: http.StatusOK,
+		Data:       data,
+	})
 }
 
 func sendErrorResponse(c *gin.Context, statusCode int, clientTime time.Time, errMessage string) {
 
-	c.JSON(http.StatusOK, ResponseData{
+	c.JSON(http.StatusOK, models.ResponseBasicData{
 		ClientTime: clientTime,
 		IP:         c.ClientIP(),
 		ServerTime: time.Now(),
 		StatusCode: statusCode,
 		Data:       gin.H{"error": errMessage},
 	})
-
+	c.Abort()
 }
 
 func getFilepathByURLPath(db *gorm.DB, url_path string) string {

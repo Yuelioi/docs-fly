@@ -78,7 +78,7 @@ func textContent(n *html.Node) string {
 	return b.String()
 }
 
-type PostResponseData struct {
+type PostResponseBasicData struct {
 	ContentMarkdown string `json:"content_markdown"`
 	ContentHTML     string `json:"content_html"`
 	TOC             string `json:"toc"`
@@ -101,7 +101,7 @@ func GetPost(c *gin.Context) {
 
 	toc, _ := GenerateTOC(htmlContent)
 
-	responseData := PostResponseData{
+	responseData := PostResponseBasicData{
 		ContentMarkdown: documentInfo.Content,
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
@@ -122,7 +122,7 @@ func GetPostHtml(c *gin.Context) {
 	htmlContent := string(utils.MarkdownToHTML([]byte(content)))
 
 	toc, _ := GenerateTOC(htmlContent)
-	responseData := PostResponseData{
+	responseData := PostResponseBasicData{
 		ContentMarkdown: "",
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
@@ -186,7 +186,7 @@ func SavePost(c *gin.Context) {
 		return
 	}
 
-	responseData := PostResponseData{
+	responseData := PostResponseBasicData{
 		ContentMarkdown: documentInfo.Content,
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),

@@ -3,82 +3,102 @@ package handlers
 // HomePage
 
 import (
-	"docsfly/database"
 	"docsfly/models"
 	"docsfly/utils"
 	"net/http"
+	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // 获取顶部导航栏信息
 func GetNav(c *gin.Context) {
 
-	navs := []Nav{}
-	db, err := database.DbManager.Connect()
-
-	if err != nil {
+	dbContext, exists := c.Get("db")
+	if !exists {
 		return
 	}
+
+	clientTime := currentTime()
+	db := dbContext.(*gorm.DB)
+
 	var cats []models.Entry
 	var books []models.Entry
-	db.Model(models.Entry{}).Scopes(FindCategory, FindFolder).Find(&cats)
-	db.Model(models.Entry{}).Scopes(FindBook, FindFolder).Find(&books)
+	var navs []Nav
+
+	if err := db.Scopes(BasicModel, FindCategory, FindFolder).Find(&cats).Error; err != nil {
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed to retrieve categories")
+	}
+	if err := db.Scopes(BasicModel, FindBook, FindFolder).Find(&books).Error; err != nil {
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed to retrieve books")
+	}
 
 	for _, cat := range cats {
-
 		nav := Nav{}
 		nav.MetaData = cat.MetaData
-
 		for _, book := range books {
-
 			if strings.HasPrefix(book.Filepath, cat.Filepath) {
 				nav.Children = append(nav.Children, book.MetaData)
 			}
 		}
 		navs = append(navs, nav)
 	}
-
-	c.JSON(http.StatusOK, navs)
-
+	sendSuccessResponse(c, clientTime, navs)
 }
 
 func Query(c *gin.Context) {
-	slug := c.Query("slug")
-	keyword := c.Query("keyword")
 
-	start := time.Now()
-
-	db, err := database.DbManager.Connect()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
+	dbContext, exists := c.Get("db")
+	if !exists {
 		return
 	}
+
+	clientTime := currentTime()
+	db := dbContext.(*gorm.DB)
+
+	fullPath := c.Query("fullPath")
+	keyword := c.Query("keyword")
+	pageStr := c.Query("page")
+	pageSizeStr := c.Query("pageSize")
+
+	// 解析分页参数
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil || pageSize < 1 || pageSize > 50 {
+		pageSize = 20
+	}
+
+	// 计算 offset
+	offset := (page - 1) * pageSize
 
 	// 结果数量
-	limit := 20
+	splitContentSize := 30
 
-	// 内容截取长度
-	count := 30
-
-	var documentInfo models.Entry
 	var documents []models.Entry
+	var totalEntries int64
 
-	if slug != "" {
-		db.Model(&documentInfo).Preload("Entry").Where("filepath LIKE ?", slug+"%").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
-	} else {
-		db.Model(&documentInfo).Preload("Entry").Where("content LIKE ?", "%"+keyword+"%").Limit(limit).Find(&documents)
+	// 根据查询条件获取结果
+	query := db.Scopes(BasicModel)
+	if fullPath != "" {
+		query = query.Scopes(HasPrefixPath(fullPath))
 	}
+
+	query = query.Where("content LIKE ?", "%"+keyword+"%")
+	query.Model(&models.Entry{}).Count(&totalEntries)
+
+	query = query.Offset(offset).Limit(pageSize)
+	query.Find(&documents)
 
 	if len(documents) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No documents found"})
-		return
+		sendErrorResponse(c, http.StatusNotFound, clientTime, "No documents found")
 	}
 
-	var searchResult SearchResult
+	var results []SearchData
 
 	for _, document := range documents {
 
@@ -94,13 +114,13 @@ func Query(c *gin.Context) {
 			continue
 		}
 
-		start := keywordIndex - count
+		start := keywordIndex - splitContentSize
 		if start < 0 {
 			start = 0
 		}
 
 		// 确定截取的结束位置
-		end := keywordIndex + count
+		end := keywordIndex + splitContentSize
 		if end > len(runeSlice) {
 			end = len(runeSlice)
 		}
@@ -115,8 +135,8 @@ func Query(c *gin.Context) {
 
 			var catTitle string
 			var bookTitle string
-			db.Model(&models.Entry{}).Where("filepath = ?", cat).Select("title").Scan(&catTitle)
-			db.Model(&models.Entry{}).Where("filepath = ?", cat+"/"+book).Select("title").Scan(&bookTitle)
+			db.Scopes(BasicModel).Where("filepath = ?", cat).Select("title").Scan(&catTitle)
+			db.Scopes(BasicModel).Where("filepath = ?", cat+"/"+book).Select("title").Scan(&bookTitle)
 
 			dsData := SearchData{
 				Url:           document.URLPath,
@@ -126,12 +146,10 @@ func Query(c *gin.Context) {
 				DocumentTitle: strings.Replace(document.Title, ".md", "", 1),
 				Content:       nearbyText,
 			}
-			searchResult.Result = append(searchResult.Result, dsData)
+			results = append(results, dsData)
 		}
 
 	}
 
-	searchResult.SearchTime = utils.DurationToString(time.Since(start))
-
-	c.JSON(http.StatusOK, searchResult)
+	c.JSON(http.StatusOK, results)
 }

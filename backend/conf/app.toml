@@ -21,4 +21,4 @@ LogLevel = "silent"
 IntroFile = "README.md"
 
 # API版本
-Version = "v1"
+APIVersion = "v1"
