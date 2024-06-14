@@ -77,8 +77,7 @@
                             :to="{
                                 name: 'post',
                                 params: {
-                                    slug: getCat(chapter.metadata.url_path),
-                                    document: getDocument(chapter.metadata.url_path)
+                                    postPath: chapter.metadata.url_path.split('/')
                                 }
                             }"
                             :data-index="chapter.id"
@@ -112,8 +111,7 @@
                                             :to="{
                                                 name: 'post',
                                                 params: {
-                                                    slug: getCat(document.url_path),
-                                                    document: getDocument(document.url_path)
+                                                    postPath: document.url_path.split('/')
                                                 }
                                             }"
                                             :key="chapter_index + document_index"
@@ -136,8 +134,7 @@
                                         :to="{
                                             name: 'post',
                                             params: {
-                                                slug: getCat(document.url_path),
-                                                document: getDocument(document.url_path)
+                                                postPath: document.url_path.split('/')
                                             }
                                         }"
                                         :key="chapter_index + document_index"
@@ -161,7 +158,8 @@
 import { ChapterData, Chapter, MetaData } from '@/models'
 import { ref, computed, watch, onMounted } from 'vue'
 
-import { addZero, getCat, getDocument } from '@/utils'
+import { addZero } from '@/utils'
+import { BIconCaretLeft, BIconCaretRight } from 'bootstrap-icons-vue'
 
 const chapters = defineModel('chapters', { type: Chapter, required: true })
 

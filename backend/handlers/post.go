@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"bytes"
-	"docsfly/database"
+	"docsfly/global"
 	"docsfly/models"
 	"docsfly/utils"
 	"encoding/json"
@@ -17,7 +17,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetDepth(node atom.Atom) int {
+func getDepth(node atom.Atom) int {
 	switch node {
 	case atom.H1:
 		return 1
@@ -39,7 +39,7 @@ func loopNode(n *html.Node, entries *[]Toc) {
 			if a.Key == "id" {
 				*entries = append(*entries, Toc{
 					ID:    a.Val,
-					Depth: uint(GetDepth(n.DataAtom)),
+					Depth: uint(getDepth(n.DataAtom)),
 					Title: textContent(n),
 				})
 			}
@@ -50,7 +50,7 @@ func loopNode(n *html.Node, entries *[]Toc) {
 	}
 }
 
-func GenerateTOC(htmlContent string) ([]byte, error) {
+func generateTOC(htmlContent string) ([]byte, error) {
 	doc, err := html.Parse(strings.NewReader(htmlContent))
 	if err != nil {
 		return nil, err
@@ -78,40 +78,37 @@ func textContent(n *html.Node) string {
 	return b.String()
 }
 
-type PostResponseBasicData struct {
-	ContentMarkdown string `json:"content_markdown"`
-	ContentHTML     string `json:"content_html"`
-	TOC             string `json:"toc"`
-}
-
 // 文章页面获取文章markdown
 func GetPost(c *gin.Context) {
-	slug := c.Query("slug")
-	document := c.Query("document")
-	db, err := database.DbManager.Connect()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
+	postPath := c.Query("postPath")
+	clientTime := currentTime()
+	dbContext, exists := c.Get("db")
+	if !exists {
 		return
 	}
 
-	documentInfo := getPostData(db, slug, document)
+	db := dbContext.(*gorm.DB)
+
+	var documentInfo models.Entry
+	db.Scopes(BasicModel, MatchPath(postPath)).First(&documentInfo)
 
 	htmlContent := string(utils.MarkdownToHTML([]byte(documentInfo.Content)))
 
-	toc, _ := GenerateTOC(htmlContent)
+	if htmlContent == "" {
+		sendErrorResponse(c, http.StatusNotFound, clientTime, "No documents found")
+
+		return
+	}
+
+	toc, _ := generateTOC(htmlContent)
 
 	responseData := PostResponseBasicData{
 		ContentMarkdown: documentInfo.Content,
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
 	}
-	if htmlContent == "" {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No documents found"})
-		return
-	}
 
-	c.JSON(http.StatusOK, responseData)
+	sendSuccessResponse(c, clientTime, responseData)
 
 }
 
@@ -121,7 +118,7 @@ func GetPostHtml(c *gin.Context) {
 
 	htmlContent := string(utils.MarkdownToHTML([]byte(content)))
 
-	toc, _ := GenerateTOC(htmlContent)
+	toc, _ := generateTOC(htmlContent)
 	responseData := PostResponseBasicData{
 		ContentMarkdown: "",
 		ContentHTML:     htmlContent,
@@ -136,16 +133,10 @@ func GetPostHtml(c *gin.Context) {
 
 }
 
-func getPostData(db *gorm.DB, slug, document string) *models.Entry {
-	var documentInfo models.Entry
-	db.Model(&models.Entry{}).Where("filepath = ?", slug+"/"+document).First(&documentInfo)
-	return &documentInfo
-}
-
 // 保存文章 数据库+本地
 func SavePost(c *gin.Context) {
-	slug := c.Query("slug")
-	document := c.Query("document")
+	postPath := c.Query("postPath")
+
 	content := c.Query("content")
 
 	ok, err := TokenVerifyMiddleware(c)
@@ -154,20 +145,25 @@ func SavePost(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 	}
 
-	db, err := database.DbManager.Connect()
-	var documentInfo *models.Entry
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
+	clientTime := currentTime()
+	dbContext, exists := c.Get("db")
+	if !exists {
 		return
 	}
 
-	documentInfo = getPostData(db, slug, document)
+	db := dbContext.(*gorm.DB)
+
+	var documentInfo models.Entry
+	db.Scopes(BasicModel, MatchPath(postPath)).First(&documentInfo)
+
+	documentPath := global.AppConfig.Resource + "/" + documentInfo.Filepath
 
 	// 写入本地文件
-	err_write := os.WriteFile(document, []byte(content), 0644)
+	err_write := os.WriteFile(documentPath, []byte(content), 0644)
+
 	if err_write != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err_write.Error()})
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, err_write.Error())
+
 		return
 	}
 
@@ -180,7 +176,7 @@ func SavePost(c *gin.Context) {
 
 	// 重新获取html与toc
 	htmlContent := string(utils.MarkdownToHTML([]byte(content)))
-	toc, err := GenerateTOC(htmlContent)
+	toc, err := generateTOC(htmlContent)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -191,8 +187,7 @@ func SavePost(c *gin.Context) {
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
 	}
-
-	c.JSON(http.StatusOK, &responseData)
+	sendSuccessResponse(c, clientTime, responseData)
 
 }
 func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry) {
@@ -221,9 +216,17 @@ func buildFolderTree(folder *Chapter, categories []models.Entry, documents []mod
 
 // 获取当前书籍章节信息,没有章节则直接获取文档信息
 func GetChapter(c *gin.Context) {
-	slug := c.Query("slug")
+	postPath := c.Query("postPath")
 
-	parts := strings.Split(slug, "/")
+	clientTime := currentTime()
+	dbContext, exists := c.Get("db")
+	if !exists {
+		return
+	}
+
+	db := dbContext.(*gorm.DB)
+
+	parts := strings.Split(postPath, "/")
 	var book string
 
 	// 检查是否有足够的部分
@@ -233,31 +236,25 @@ func GetChapter(c *gin.Context) {
 		return
 	}
 
-	db, err := database.DbManager.Connect()
-
 	var categories []models.Entry
 	var documents []models.Entry
 
-	db.Where("filepath LIKE ?", book+"%").Find(&categories)
-	db.Where("filepath LIKE ?", book+"%").Find(&documents)
+	db.Scopes(BasicModel, HasPrefixPath(book)).Find(&categories)
+	db.Scopes(BasicModel, HasPrefixPath(book)).Find(&documents)
 
 	// 创建根文件夹
 	var rootEntry models.Entry
 	db.Where("filepath = ? AND depth = ?", book, 2).First(&rootEntry)
 
-	rootFolder := Chapter{
+	chapterMeta := Chapter{
 		MetaData:  rootEntry.MetaData,
+		Filepath:  rootEntry.MetaData.Filepath,
 		Documents: make([]models.MetaData, 0),
 		Children:  make([]Chapter, 0),
 	}
 
 	// 构建文件夹树
-	buildFolderTree(&rootFolder, categories, documents)
+	buildFolderTree(&chapterMeta, categories, documents)
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
-		return
-	}
-
-	c.JSON(http.StatusOK, rootFolder)
+	sendSuccessResponse(c, clientTime, chapterMeta)
 }

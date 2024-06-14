@@ -59,18 +59,18 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
 
     // 更新章节
     if (reload) {
-        const path = (params['slug'] as string[]).slice(0, 3).join('/')
-        const result: any = await getPostChapterData(path)
-        if (result) {
-            chapters.value = result['data']
+        const path = (params['postPath'] as string[]).slice(0, 3).join('/')
+        const data: any = await getPostChapterData(path)
+        if (data) {
+            chapters.value = data['data']
         } else {
             const [ok, data] = await fetchChapter(
-                (params['slug'] as string[]).join('/'),
+                (params['postPath'] as string[]).join('/'),
                 params['document'] as string
             )
 
             if (ok) {
-                chapters.value = data
+                chapters.value = data['data']
                 await addPostChapterData(
                     chapters.value.metadata.url_path,
                     JSON.parse(JSON.stringify(chapters.value))
@@ -83,14 +83,14 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
 
     // 更新文章
     const [ok, data] = await getPost(
-        (params['slug'] as string[]).join('/'),
+        (params['postPath'] as string[]).join('/'),
         params['document'] as string
     )
 
     if (ok) {
-        postContent.value = data['content_markdown']
-        postHtml.value = data['content_html']
-        toc.value = JSON.parse(data['toc'])
+        postContent.value = data['data']['content_markdown']
+        postHtml.value = data['data']['content_html']
+        toc.value = JSON.parse(data['data']['toc'])
     } else {
         Message('获取文章失败', 'error')
         postContent.value = ''
@@ -101,7 +101,7 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
 
 watch(route, async (val: RouteLocationNormalizedLoaded, oldVal: RouteLocationNormalizedLoaded) => {
     let reload = true
-    if (oldVal.params['slug'] == val.params['slug']) {
+    if (oldVal.params['postPath'] == val.params['postPath']) {
         reload = false
     }
 

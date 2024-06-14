@@ -1,36 +1,11 @@
-// package handlers: 用于管理api接口
+// handlers: 管理api接口
+export { fetchStatisticHome, getNav, fetchKeyword, fetchSearchOptions } from './home'
+export { fetchYiYan } from './vendor'
+export { fetchStatisticBook, getBookData, getBookMeta, saveBookMeta, updateBookMeta } from './book'
+export { fetchChapter, getPost, fetchPostHtml, savePost } from './post'
 
-import { getBookData, getBookMeta, saveBookMeta, updateBookMeta } from './book'
-import { getNav, fetchKeyword, fetchSearchOptions } from './home'
-import { fetchChapter, getPost, fetchPostHtml, savePost } from './post'
-import { AddVisitorLog } from './visitor'
-import { fetchStatisticHome, fetchStatisticBook } from './statistic'
-import { fetchAuthLogin, fetchCheckToken } from './auth'
+export { AddVisitorLog } from './visitor'
+export { fetchAuthLogin, fetchCheckToken } from './auth'
 
-import { fetchYiYan } from './vendor'
-import { postBookComment } from './comment'
-
-import { getRandNickname, getRandPoem } from './others'
-
-export {
-    getBookData,
-    getBookMeta,
-    saveBookMeta,
-    updateBookMeta,
-    fetchStatisticHome,
-    fetchStatisticBook,
-    getNav,
-    fetchKeyword,
-    fetchChapter,
-    postBookComment,
-    fetchPostHtml,
-    fetchCheckToken,
-    savePost,
-    getPost,
-    AddVisitorLog,
-    fetchYiYan,
-    fetchSearchOptions,
-    fetchAuthLogin,
-    getRandNickname,
-    getRandPoem
-}
+export { postBookComment } from './comment'
+export { getRandNickname, getRandPoem } from './others'

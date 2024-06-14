@@ -49,6 +49,11 @@ import { Message } from '@/plugins/message'
 
 import { addPostStarData, deletePostStarData, getPostStarData } from '@/database/star'
 import { PostStar } from '@/models'
+import {
+    BIconArrowsFullscreen,
+    BIconFullscreenExit,
+    BIconQuestionCircle
+} from 'bootstrap-icons-vue'
 
 const route = useRoute()
 
@@ -84,7 +89,7 @@ async function save() {
 
     if (mdContent) {
         const [ok, data] = await savePost(
-            (params['slug'] as string[]).join('/'),
+            (params['postPath'] as string[]).join('/'),
             params['document'] as string,
             mdContent
         )
@@ -106,8 +111,8 @@ async function starPost() {
 
     postStar.key = route.fullPath
     postStar.document = route.params['document'] as string
-    postStar.slug = route.params['slug'] as string[]
-    postStar.params = (route.params['slug'] as string[]).slice(0, 3).join('/')
+    postStar.postPath = route.params['postPath'] as string[]
+    postStar.params = (route.params['postPath'] as string[]).slice(0, 3).join('/')
 
     await addPostStarData(postStar)
     Message('收藏成功')

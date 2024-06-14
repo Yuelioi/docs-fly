@@ -11,14 +11,13 @@ type ResponseBasicData struct {
 	Data       interface{} `json:"data"`
 }
 
-// ResponseBasicData 结构体用于扩展返回数据
-type ResponseQueryData struct {
+type ResponsePageData struct {
 	ClientTime time.Time   `json:"client_time"`
 	IP         string      `json:"ip"`
 	ServerTime time.Time   `json:"server_time"`
 	StatusCode int         `json:"status_code"`
-	MaxSize    int         `json:"max_size"`
-	Page       int         `json:"page"`
-	PageSize   int         `json:"page_size"`
+	TotalCount int64       `json:"total_count"` // 总记录数
+	Page       int         `json:"page"`        // 当前页码 从1开始
+	PageSize   int         `json:"page_size"`   // 每页记录数
 	Data       interface{} `json:"data"`
 }

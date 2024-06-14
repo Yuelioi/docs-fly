@@ -1,72 +1,88 @@
 import axios from 'axios'
 
-export const baseurl = 'http://localhost:8088'
+import type { InternalAxiosRequestConfig, AxiosResponse, AxiosRequestConfig } from 'axios'
+
+export const baseurl = 'http://localhost:8088/api/v1'
 
 const apiClient = axios.create({
-    baseURL: baseurl, // 你的API基础URL
+    baseURL: baseurl, // API基础URL
     timeout: 1000 // 请求超时时间
 })
 
 // 请求拦截器
 apiClient.interceptors.request.use(
-    (config) => {
+    (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem('token')
-
         // 如果token存在，则添加到请求头
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
         }
-
         return config
     },
-    (error) => {
+    (error: any) => {
         // 错误处理
         return Promise.reject(error)
     }
 )
 
-export const fetchContent = async (
+// 通用请求函数
+const makeRequest = async (
     query: string,
-    params: any = '',
-    method: string = 'get',
-    base: string = ''
-) => {
+    params: any,
+    method: 'get' | 'post' | 'put' | 'delete' = 'get',
+    base: string = '',
+    withCookie: boolean = false
+): Promise<[boolean, any]> => {
     try {
-        if (['get', 'post', 'put', 'delete'].includes(method)) {
-            const response = await axios({
-                method: method,
-                url: base ? `${base}${query}` : `${baseurl}${query}`,
-                params: params
-            })
-
-            return [true, response.data]
-        } else {
+        if (!['get', 'post', 'put', 'delete'].includes(method)) {
             return [false, `无效的请求方法: ${method}`]
         }
-    } catch (error) {
-        return [false, error]
+
+        const config: AxiosRequestConfig = {
+            method: method,
+            url: base ? `${base}${query}` : `${baseurl}${query}`,
+            params: params,
+            withCredentials: withCookie
+        }
+
+        const response: AxiosResponse = await axios(config)
+
+        if (response.status >= 200 && response.status < 300) {
+            return [true, response.data]
+        } else {
+            return [false, response.data]
+        }
+    } catch (error: any) {
+        let errorMessage: string
+
+        if (error.response) {
+            errorMessage = `请求失败，状态码: ${error.response.status}, 响应: ${error.response.data}`
+        } else if (error.request) {
+            errorMessage = '请求已发出，但没有收到服务器响应'
+        } else {
+            errorMessage = `请求出错: ${error.message}`
+        }
+
+        return [false, errorMessage]
     }
 }
 
-export const fetchContentAdmin = async (
+// 不需要cookie的请求
+export const fetchContent = (
     query: string,
-    params: any,
-    method: string = 'get',
+    params: any = '',
+    method: 'get' | 'post' | 'put' | 'delete' = 'get',
     base: string = ''
-) => {
-    try {
-        if (['get', 'post', 'put', 'delete'].includes(method)) {
-            const response = await apiClient({
-                method: method,
-                url: base ? `${base}${query}` : `${baseurl}${query}`,
-                params: params
-            })
+): Promise<[boolean, any]> => {
+    return makeRequest(query, params, method, base, false)
+}
 
-            return [true, response.data]
-        } else {
-            return [false, `无效的请求方法: ${method}`]
-        }
-    } catch (error) {
-        return [false, error]
-    }
+// 需要cookie的请求
+export const fetchContentAdmin = (
+    query: string,
+    params: any = '',
+    method: 'get' | 'post' | 'put' | 'delete' = 'get',
+    base: string = ''
+): Promise<[boolean, any]> => {
+    return makeRequest(query, params, method, base, true)
 }

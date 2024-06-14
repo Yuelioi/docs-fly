@@ -9,57 +9,118 @@ import (
 	"docsfly/utils"
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-// 获取当前书籍章节信息,没有章节则直接获取文档信息
-func GetBook(c *gin.Context) {
-	slug := c.Query("slug")
-	locale := c.Query("locale")
+func GetStatisticBook(c *gin.Context) {
 
-	clientTime := time.Now()
+	bookPath := c.Query("bookPath")
 
-	db, err := database.DbManager.Connect()
-
-	if err != nil {
-		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed load database")
+	clientTime := currentTime()
+	dbContext, exists := c.Get("db")
+	if !exists {
 		return
 	}
 
-	var cats, docs []models.Entry
-	var bookDatas []BookData
+	db := dbContext.(*gorm.DB)
 
-	db.Model(models.Entry{}).Scopes(HasPrefixPath(slug+"/"+locale), FindChapter, FindFolder).Find(&cats)
-	db.Model(models.Entry{}).Scopes(HasPrefixPath(slug+"/"+locale), FindChapter, FindFile).Where("depth = ?", 3).Find(&docs)
+	var bookTitle string
+	var bookReadCount int64
+	var chapterCount int64
+	var documentCount int64
 
-	// 1.分类数据
-	for _, cat := range cats {
+	category, book := getCategoryAndBookByUrl(bookPath)
 
-		var closeDoc models.Entry
-		db.Model(models.Entry{}).Scopes(FindFile, HasPrefixPath(cat.Filepath)).
-			Order("depth ASC, `order` ASC").
-			Limit(1).Find(&closeDoc)
-
-		if closeDoc.URLPath != "" {
-			chapter := BookData{
-				Url:      closeDoc.URLPath,
-				IsDir:    true,
-				MetaData: cat.MetaData,
-			}
-			bookDatas = append(bookDatas, chapter)
-		}
-
+	if category == "" || book == "" {
+		sendErrorResponse(c, http.StatusBadRequest, clientTime, "Book Don't Exist")
+		return
 	}
 
-	// 2.文章数据
-	for _, doc := range docs {
-		if doc.URLPath != "" {
+	db.Model(models.Visitor{}).Where("category = ?", category).Where("book = ?", book).Count(&bookReadCount)
+
+	// 获取阅读量和书籍标题
+	err := db.Scopes(BasicModel, MatchPath(bookPath)).
+		Select("title").Scan(&bookTitle).Error
+	if err != nil {
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Error fetching book statistics")
+		return
+	}
+
+	// 获取章节数量
+	db.Scopes(BasicModel, FindChapter, HasPrefixPath(bookPath)).Count(&chapterCount)
+
+	// 获取书籍数量
+	db.Scopes(BasicModel, FindFile, HasPrefixPath(bookPath)).Count(&documentCount)
+
+	type bookStatistic struct {
+		BookTitle     string `json:"book_title"`
+		ReadCount     int64  `json:"read_count"`
+		ChapterCount  int64  `json:"chapter_count"`
+		DocumentCount int64  `json:"document_count"`
+	}
+
+	sendSuccessResponse(c, clientTime,
+		bookStatistic{
+			BookTitle:     bookTitle,
+			ReadCount:     bookReadCount,
+			ChapterCount:  chapterCount,
+			DocumentCount: documentCount,
+		})
+}
+
+// 获取当前书籍章节信息,没有章节则直接获取文档信息
+func GetBook(c *gin.Context) {
+	bookPath := c.Query("bookPath")
+	locale := c.Query("locale")
+
+	clientTime := currentTime()
+	dbContext, exists := c.Get("db")
+	if !exists {
+		return
+	}
+
+	db := dbContext.(*gorm.DB)
+
+	var entries []models.Entry
+	var bookDatas []BookData
+
+	// 查询分类章节和文章章节
+	err := db.Scopes(BasicModel, HasPrefixPath(bookPath+"/"+locale), FindChapter).
+		Order("is_dir DESC, depth ASC, `order` ASC").
+		Find(&entries).Error
+
+	if err != nil {
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Database query error")
+		return
+	}
+
+	if len(entries) == 0 {
+		sendErrorResponse(c, http.StatusNotFound, clientTime, "Chapter does not exist or no matching documents found")
+		return
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir {
+			var closeDoc models.Entry
+			db.Scopes(BasicModel, FindFile, HasPrefixPath(entry.Filepath)).
+				Order("depth ASC, `order` ASC").
+				Limit(1).Find(&closeDoc)
+
+			if closeDoc.URLPath != "" {
+				chapter := BookData{
+					Url:      closeDoc.URLPath,
+					IsDir:    true,
+					MetaData: entry.MetaData,
+				}
+				bookDatas = append(bookDatas, chapter)
+			}
+		} else {
 			bookDatas = append(bookDatas, BookData{
-				Url:      doc.URLPath,
+				Url:      entry.URLPath,
 				IsDir:    false,
-				MetaData: doc.MetaData,
+				MetaData: entry.MetaData,
 			})
 		}
 	}
@@ -68,28 +129,28 @@ func GetBook(c *gin.Context) {
 }
 
 func GetBookMeta(c *gin.Context) {
-	slug := c.Query("slug")
+	bookPath := c.Query("bookPath")
 	locale := c.Query("locale")
 
-	clientTime := time.Now()
-
-	db, err := database.DbManager.Connect()
-	if err != nil {
-		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed load database")
+	clientTime := currentTime()
+	dbContext, exists := c.Get("db")
+	if !exists {
 		return
 	}
 
-	filepath := getFilepathByURLPath(db, slug+"/"+locale)
+	db := dbContext.(*gorm.DB)
 
-	if filepath == "" {
+	filePath := getFilepathByURLPath(db, bookPath+"/"+locale)
+
+	if filePath == "" {
 		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed Find Target Category")
 		return
 	}
 
-	metapath := global.AppConfig.Resource + "/" + filepath + "/" + global.AppConfig.MetaFile
+	metaPath := global.AppConfig.Resource + "/" + filePath + "/" + global.AppConfig.MetaFile
 
 	var data map[string]interface{}
-	err = utils.ReadJson(metapath, &data)
+	err := utils.ReadJson(metaPath, &data)
 
 	if err != nil {
 		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed load data")

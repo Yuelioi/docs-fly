@@ -3,7 +3,7 @@
  */
 export class PostStar {
     key: string = Date.now().toString()
-    slug: string[] = []
+    postPath: string[] = []
     document: string = ''
     link: string = ''
     createdTime: Date = new Date() // 收藏时间

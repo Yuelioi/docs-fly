@@ -122,8 +122,7 @@
 import type { HomeStatistic } from '@/models'
 import { onMounted, ref } from 'vue'
 import Clock from '@/components/VClock.vue'
-
-import { fetchStatisticHome, fetchYiYan } from '@/handlers/index'
+import { fetchStatisticHome, fetchYiYan } from '@/handlers'
 
 const yiyan = ref('')
 
@@ -132,7 +131,7 @@ const statistic = ref<HomeStatistic>()
 onMounted(async () => {
     const [ok, data] = await fetchStatisticHome()
     if (ok) {
-        statistic.value = data
+        statistic.value = data['data']
     }
 
     const [ok2, data2] = await fetchYiYan()

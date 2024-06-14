@@ -28,7 +28,7 @@
                                 :to="{
                                     name: 'book',
                                     params: {
-                                        slug: child.url_path.split('/')
+                                        bookPath: child.url_path.split('/')
                                     }
                                 }"
                                 ><i class="pi pi-book"></i>
@@ -123,7 +123,7 @@ const router = useRouter()
 import { basicStore } from '@/stores/index'
 import { Message } from '@/plugins/message'
 const basic = basicStore()
-const { locale, token, isAdmin } = storeToRefs(basic)
+const { locale, isAdmin } = storeToRefs(basic)
 const { translate } = basic
 
 const navs = ref<Nav[]>([])
@@ -167,7 +167,6 @@ function changeLocale() {
 
 // 登出
 function logout() {
-    token.value = ''
     isAdmin.value = false
     localStorage.removeItem('token')
     Message('已成功登出', 'success')
@@ -187,7 +186,7 @@ onMounted(async () => {
     } else {
         const [ok, data] = await getNav()
         if (ok) {
-            navs.value = data.sort(
+            navs.value = data['data'].sort(
                 (pre: Nav, next: Nav) => pre.metadata.order - next.metadata.order
             )
             await addDBNav(navs.value)

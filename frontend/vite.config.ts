@@ -7,9 +7,24 @@ import VueDevTools from 'vite-plugin-vue-devtools'
 
 import dynamicThemePlugin from './tools/vite-plugin-dynamic-theme'
 
+import Components from 'unplugin-vue-components/vite'
+
+import AutoImport from 'unplugin-auto-import/vite'
+
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [vue(), vueJsx(), VueDevTools(), dynamicThemePlugin()],
+    plugins: [
+        vue(),
+        vueJsx(),
+        VueDevTools(),
+        dynamicThemePlugin(),
+        AutoImport({
+            dirs: ['./src/handlers']
+        }),
+        Components({
+            dts: true // enabled by default if `typescript` is installed
+        })
+    ],
     resolve: {
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',

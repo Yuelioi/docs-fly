@@ -47,3 +47,9 @@ func HasPrefixPath(path string) func(db *gorm.DB) *gorm.DB {
 		return db.Where("filepath Like ?", path+"/%")
 	}
 }
+
+func MatchPath(path string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("filepath = ?", path)
+	}
+}

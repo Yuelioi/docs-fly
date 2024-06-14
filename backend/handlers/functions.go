@@ -28,16 +28,6 @@ func sendSuccessResponse(c *gin.Context, clientTime time.Time, data interface{})
 	})
 }
 
-func sendSuccessResponse2(c *gin.Context, clientTime time.Time, data interface{}) {
-	c.JSON(http.StatusOK, models.ResponseBasicData{
-		ClientTime: clientTime,
-		IP:         c.ClientIP(),
-		ServerTime: time.Now(),
-		StatusCode: http.StatusOK,
-		Data:       data,
-	})
-}
-
 func sendErrorResponse(c *gin.Context, statusCode int, clientTime time.Time, errMessage string) {
 
 	c.JSON(http.StatusOK, models.ResponseBasicData{
@@ -50,10 +40,46 @@ func sendErrorResponse(c *gin.Context, statusCode int, clientTime time.Time, err
 	c.Abort()
 }
 
+func sendSuccessResponsePageData(c *gin.Context, clientTime time.Time, data interface{}, totalCount int64, page, pageSize int) {
+	c.JSON(http.StatusOK, models.ResponsePageData{
+		ClientTime: clientTime,
+		IP:         c.ClientIP(),
+		ServerTime: time.Now(),
+		StatusCode: http.StatusOK,
+		TotalCount: totalCount,
+		Page:       page,
+		PageSize:   pageSize,
+		Data:       data,
+	})
+}
+
+func sendErrorResponsePageData(c *gin.Context, statusCode int, clientTime time.Time, totalCount int64, page, pageSize int, errMessage string) {
+	c.JSON(http.StatusOK, models.ResponsePageData{
+		ClientTime: clientTime,
+		IP:         c.ClientIP(),
+		ServerTime: time.Now(),
+		StatusCode: statusCode,
+		TotalCount: totalCount,
+		Page:       page,
+		PageSize:   pageSize,
+		Data:       gin.H{"error": errMessage},
+	})
+}
+
 func getFilepathByURLPath(db *gorm.DB, url_path string) string {
 	var filepath string
 	db.Model(models.Entry{}).Where("url_path = ?", url_path).Select("filepath").Scan(&filepath)
 	return filepath
+}
+
+func getCategoryAndBookByUrl(url string) (string, string) {
+	urlList := strings.Split(url, "/")
+	if len(urlList) < 2 {
+		return "", ""
+	}
+
+	return urlList[0], urlList[1]
+
 }
 
 // 根据关键词获取对应索引

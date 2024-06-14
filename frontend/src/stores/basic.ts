@@ -11,11 +11,6 @@ export const basicStore = defineStore('basic', () => {
     const isAdmin = ref(false)
 
     /**
-     * 验证token
-     */
-    const token = ref('')
-
-    /**
      * 语言
      */
     const locale = ref('zh')
@@ -53,5 +48,5 @@ export const basicStore = defineStore('basic', () => {
         return i18n[source as keyof typeof i18n][locale.value as 'en' | 'zh']
     }
 
-    return { isAdmin, token, nickname, locale, translate }
+    return { isAdmin, nickname, locale, translate }
 })

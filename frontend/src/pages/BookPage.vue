@@ -79,8 +79,7 @@
                             :to="{
                                 name: 'post',
                                 params: {
-                                    book: getCat(chapter.url),
-                                    document: getDocument(chapter.url)
+                                    postPath: chapter.url.split('/')
                                 }
                             }">
                             <span class="pl-2">{{
@@ -230,11 +229,10 @@ import {
 
 import { getDBBookData, addDBBookData } from '@/database'
 
-import { getCat, getDocument } from '@/utils'
-
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { basicStore } from '@/stores/index'
+import { BIconBook, BIconFiletypeDoc, BIconGraphUpArrow, BIconJournal } from 'bootstrap-icons-vue'
 
 const basic = basicStore()
 const locale = computed(() => basic.locale)
@@ -258,18 +256,18 @@ const bookDatas = ref<BookData[]>([])
 watch(tabId, async (newVal: number, old: number) => {
     if (newVal == 3) {
         let [ok, data] = await getBookMeta(
-            (route.params['slug'] as string[]).join('/'),
+            (route.params['bookPath'] as string[]).join('/'),
             locale.value
         )
 
         if (ok) {
-            metas.value = data
+            metas.value = data['data']
         }
     }
 })
 
 async function saveMeta() {
-    await saveBookMeta((route.params['slug'] as string[]).join('/'), locale.value, metas.value)
+    await saveBookMeta((route.params['bookPath'] as string[]).join('/'), locale.value, metas.value)
 }
 
 async function postNewComment() {}
@@ -281,28 +279,32 @@ async function updateMeta() {
 async function refreshBook(params: RouteParams) {
     // /book/Ae/basic
 
-    const db_data = await getDBBookData(params['slug'] as string[], locale.value)
+    const db_data = await getDBBookData(params['bookPath'] as string[], locale.value)
 
     if (db_data) {
         bookDatas.value = db_data.data
         console.log(bookDatas.value)
     } else {
-        const [ok, data] = await getBookData((params['slug'] as string[]).join('/'), locale.value)
+        const [ok, data] = await getBookData(
+            (params['bookPath'] as string[]).join('/'),
+            locale.value
+        )
 
         if (ok) {
-            bookDatas.value = data
-            await addDBBookData(params['slug'] as string[], locale.value, data)
+            bookDatas.value = data['data']
+            await addDBBookData(params['bookPath'] as string[], locale.value, data)
         } else {
             Message('未找到书籍数据', 'warn')
         }
     }
 
-    const [ok2, statisticData] = await fetchStatisticBook(
-        (route.params['slug'] as string[]).join('/'),
+    const [ok2, data] = await fetchStatisticBook(
+        (route.params['bookPath'] as string[]).join('/'),
         locale.value
     )
 
     if (ok2) {
+        const statisticData = data['data']
         bookReadCount.value = statisticData['read_count']
         bookChapterCount.value = statisticData['chapter_count']
         bookDocumentCount.value = statisticData['document_count']

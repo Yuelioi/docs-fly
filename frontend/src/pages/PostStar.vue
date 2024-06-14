@@ -14,7 +14,7 @@
                 :to="{
                     name: 'post',
                     params: {
-                        slug: star.slug,
+                        postPath: star.postPath,
                         document: star.document
                     }
                 }">
