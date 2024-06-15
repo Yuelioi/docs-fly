@@ -43,8 +43,6 @@ export const basicStore = defineStore('basic', () => {
      * 翻译函数
      */
     const translate = function (source: string) {
-        console.log(locale.value)
-
         return i18n[source as keyof typeof i18n][locale.value as 'en' | 'zh']
     }
 

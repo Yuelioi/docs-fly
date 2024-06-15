@@ -1,3 +1,4 @@
+/* post页面样式 */
 .main h1,
 .main h2 {
     padding-top: 0.5rem;
@@ -53,12 +54,12 @@
     content: 'H6';
 }
 
-.main>h1:before,
-.main>h2:before,
-.main>h3:before,
-.main>h4:before,
-.main>h5:before,
-.main>h6:before {
+.main > h1:before,
+.main > h2:before,
+.main > h3:before,
+.main > h4:before,
+.main > h5:before,
+.main > h6:before {
     float: left;
     padding-right: 0.25rem;
     margin-top: 0.25rem;
@@ -80,10 +81,11 @@
     margin: 1rem 0;
 }
 
-#vditor code {
-    background: #1e293b;
+iframe {
+    height: 500px;
 }
 
+/* 代码块样式 */
 .chroma {
     overflow-x: scroll;
 }
@@ -121,23 +123,23 @@
     opacity: 1;
 }
 
-.chroma tr>td:first-child {
+.chroma tr > td:first-child {
     padding: 1.5rem 0.6rem 0.6rem 0.6rem;
     border: none;
     border-right: 2px solid #000000;
 }
 
-.chroma tr>td:nth-child(2) {
+.chroma tr > td:nth-child(2) {
     padding: 1.5rem 0.6rem 0.6rem 0.75rem;
     border: none;
     border-left: 2px solid #454545;
 }
 
-.chroma tr>td:nth-child(2) pre {
+.chroma tr > td:nth-child(2) pre {
     position: relative;
 }
 
-.chroma tr>td:nth-child(2) pre::before {
+.chroma tr > td:nth-child(2) pre::before {
     content: attr(data-language);
     color: rgba(235, 235, 235, 0.38);
     padding: 3px;
@@ -150,13 +152,54 @@
     transition: opacity 0.5s;
 }
 
-.chroma tr>td:nth-child(2) {
+.chroma tr > td:nth-child(2) {
     width: 100%;
 }
 
-iframe {
-    height: 500px;
+#vditor code {
+    color: aliceblue;
 }
+
+.chroma .kd,
+#vditor .hljs-keyword {
+    color: #ff5c57 !important;
+}
+/*变量 */
+.chroma .nx {
+    color: aliceblue;
+}
+/* = */
+.chroma .o {
+    color: #ff6ac1;
+}
+/* try */
+.chroma .k {
+    color: #ff6ac1;
+}
+/* 标点 */
+.chroma .p {
+}
+
+.chroma .nb,
+#vditor .hljs-built_in {
+    color: aquamarine;
+}
+
+.chroma .s2,
+#vditor .hljs-string {
+    color: #5af78e;
+}
+/* 数字 */
+.chroma .mi,
+#vditor .hljs-number {
+    color: #ff9f43;
+}
+/* 注释 */
+.chroma .cl {
+    color: #78787e;
+}
+
+/* 编辑器 */
 
 .vditor-content,
 .vditor-sv.vditor-reset,
@@ -182,6 +225,10 @@ pre.vditor-reset,
 #vditor code {
     padding: 0.6rem;
     font-size: 1rem;
+    background: #1e293b;
+}
+.vditor-reset code:not(.hljs):not(.highlight-chroma) {
+    background-color: rgba(27, 31, 35, 0.05);
 }
 
 @media screen and (min-width: 576px) {

@@ -33,21 +33,19 @@ export const fetchPostHtml = async (content: string) => {
 
  * @returns
  */
-export const savePost = async (postPath: string, document: string, content: string) => {
+export const savePost = async (postPath: string, content: string) => {
     return fetchContentAdmin(
         '/post',
         {
             postPath: postPath,
-            document: document,
             content: content
         },
         'post'
     )
 }
 
-export const fetchChapter = async (postPath: string, document: string) => {
+export const getChapter = async (postPath: string) => {
     return await fetchContent('/post/chapter', {
-        postPath: postPath,
-        document: document
+        postPath: postPath
     })
 }

@@ -4,21 +4,25 @@
         ref="fullElement"
         class="max-w-6xl m-auto relative mb-12 bg-theme-card p-16 rounded-2xl">
         <div
-            class="toolbar py-4 fixed flex-col top-16 right-[2rem] lg:right-[17rem] xl:right-[21rem]">
+            class="toolbar py-4 fixed flex-col top-16 text-[1.25rem] right-[2rem] lg:right-[17rem] xl:right-[21rem]">
             <div class="p-2">
-                <BIconArrowsFullscreen v-if="!isFullscreen" @click="enter"></BIconArrowsFullscreen>
-                <BIconFullscreenExit v-else @click="exit"></BIconFullscreenExit>
+                <BIconArrowsFullscreen
+                    v-if="!isFullscreen"
+                    @click="switchFullscreen"></BIconArrowsFullscreen>
+                <BIconFullscreenExit v-else @click="switchFullscreen"></BIconFullscreenExit>
             </div>
             <div class="p-2">
-                <i class="pi pi-star" v-if="!isStared" @click="starPost"></i>
-                <i v-else class="pi pi-star-fill" @click="unStarPost"></i>
+                <BIconBookmarkPlus v-if="!isStared" @click="starPost"></BIconBookmarkPlus>
+                <BIconBookmarkDash v-else @click="unStarPost"></BIconBookmarkDash>
             </div>
             <div v-if="isAdmin" class="flex flex-col p-2">
-                <i class="pi pi-file-edit" v-if="!isEditing" @click="isEditing = !isEditing"></i>
-                <i class="pi pi-file" v-else @click="isEditing = !isEditing"></i>
+                <BIconPencilSquare
+                    v-if="!isEditing"
+                    @click="isEditing = !isEditing"></BIconPencilSquare>
+                <BIconEye v-else @click="isEditing = !isEditing"></BIconEye>
             </div>
             <div v-if="isAdmin && isEditing" class="flex flex-col p-2">
-                <i class="pi pi-save" @click="save"></i>
+                <BIconSave2 @click="save"></BIconSave2>
             </div>
             <div class="p-2"><BIconQuestionCircle></BIconQuestionCircle></div>
         </div>
@@ -40,9 +44,6 @@ import { basicStore, keyStore } from '@/stores/index'
 import { watch, ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { useFullscreen } from '@vueuse/core'
-const { isFullscreen, enter, exit } = useFullscreen()
-
 import Vditor from 'vditor'
 
 import { Message } from '@/plugins/message'
@@ -50,21 +51,26 @@ import { Message } from '@/plugins/message'
 import { addPostStarData, deletePostStarData, getPostStarData } from '@/database/star'
 import { PostStar } from '@/models'
 import {
+    BIconBookmarkPlus,
+    BIconBookmarkDash,
     BIconArrowsFullscreen,
     BIconFullscreenExit,
-    BIconQuestionCircle
+    BIconPencilSquare,
+    BIconQuestionCircle,
+    BIconSave2,
+    BIconEye
 } from 'bootstrap-icons-vue'
 
 const route = useRoute()
 
 const basic = basicStore()
-const keys = keyStore()
+const shortcuts = keyStore()
 const isAdmin = computed(() => basic.isAdmin)
 const isEditing = ref(false)
 const isStared = ref(false)
+const isFullscreen = ref(false)
 
 const fullElement = ref<HTMLElement | null>(null)
-
 const postContainer = ref()
 const postContent = defineModel('postContent', { type: String, required: true })
 const postHtml = defineModel('postHtml', { type: String, required: true })
@@ -72,12 +78,34 @@ const postHtml = defineModel('postHtml', { type: String, required: true })
 const contentEditor = ref<Vditor>()
 
 function switchFullscreen() {
-    const content = document.querySelector('#content')
+    const content = document.querySelector('article')
     if (content) {
-        if (!isFullscreen.value) {
-            content.requestFullscreen()
+        if (!document.fullscreenElement) {
+            content
+                .requestFullscreen()
+                .then(() => {
+                    isFullscreen.value = true
+                    content.style.overflow = 'auto' // 允许滚动
+                    content.style.height = '100vh' // 确保高度覆盖视窗高度
+                })
+                .catch((err) => {
+                    console.error(
+                        `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
+                    )
+                })
         } else {
-            document.exitFullscreen()
+            document
+                .exitFullscreen()
+                .then(() => {
+                    isFullscreen.value = false
+                    content.style.overflow = '' // 还原滚动设置
+                    content.style.height = '' // 还原高度设置
+                })
+                .catch((err) => {
+                    console.error(
+                        `Error attempting to exit full-screen mode: ${err.message} (${err.name})`
+                    )
+                })
         }
     }
 }
@@ -88,11 +116,7 @@ async function save() {
     const mdContent = contentEditor.value?.getValue()
 
     if (mdContent) {
-        const [ok, data] = await savePost(
-            (params['postPath'] as string[]).join('/'),
-            params['document'] as string,
-            mdContent
-        )
+        const [ok, data] = await savePost((params['postPath'] as string[]).join('/'), mdContent)
 
         if (ok) {
             Message('已保存', 'success')
@@ -122,7 +146,7 @@ async function unStarPost() {
     const key = route.fullPath
 
     await deletePostStarData(key)
-    Message('已取消收藏', 'contrast')
+    Message('已取消收藏')
 }
 
 async function refreshStarStatus() {
@@ -214,15 +238,6 @@ watch(isEditing, async () => {
         })
     }
 })
-function handleFullscreenChange() {
-    if (document.fullscreenElement) {
-        document.body.classList.add('fullscreen')
-        isFullscreen.value = true
-    } else {
-        document.body.classList.remove('fullscreen')
-        isFullscreen.value = false
-    }
-}
 
 function copyCodeBlock(codeBlock: HTMLElement) {
     navigator.clipboard.writeText(codeBlock.innerText).then(
@@ -252,20 +267,18 @@ function clipboardListener() {
 }
 
 onMounted(async () => {
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-
     document.addEventListener('keydown', function (event: KeyboardEvent) {
-        if (keys.isFullScreenKey(event)) {
+        if (shortcuts.isFullScreenKey(event)) {
             event.preventDefault()
             switchFullscreen()
         }
 
-        if (keys.isEditKey(event)) {
+        if (shortcuts.isEditKey(event)) {
             event.preventDefault()
             isEditing.value = !isEditing.value
         }
 
-        if (keys.isSaveKey(event)) {
+        if (shortcuts.isSaveKey(event)) {
             event.preventDefault()
             if (isEditing.value == true) {
                 save()

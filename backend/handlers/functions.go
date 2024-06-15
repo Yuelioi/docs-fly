@@ -30,7 +30,7 @@ func sendSuccessResponse(c *gin.Context, clientTime time.Time, data interface{})
 
 func sendErrorResponse(c *gin.Context, statusCode int, clientTime time.Time, errMessage string) {
 
-	c.JSON(http.StatusOK, models.ResponseBasicData{
+	c.JSON(statusCode, models.ResponseBasicData{
 		ClientTime: clientTime,
 		IP:         c.ClientIP(),
 		ServerTime: time.Now(),
@@ -54,7 +54,7 @@ func sendSuccessResponsePageData(c *gin.Context, clientTime time.Time, data inte
 }
 
 func sendErrorResponsePageData(c *gin.Context, statusCode int, clientTime time.Time, totalCount int64, page, pageSize int, errMessage string) {
-	c.JSON(http.StatusOK, models.ResponsePageData{
+	c.JSON(statusCode, models.ResponsePageData{
 		ClientTime: clientTime,
 		IP:         c.ClientIP(),
 		ServerTime: time.Now(),

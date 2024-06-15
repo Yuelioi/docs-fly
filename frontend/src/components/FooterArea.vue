@@ -9,19 +9,17 @@ import { fetchCheckToken } from '@/handlers/index'
 
 import { basicStore } from '@/stores/index'
 const basic = basicStore()
-let { isAdmin, token, locale } = storeToRefs(basic)
+let { isAdmin, locale } = storeToRefs(basic)
 
 onMounted(async () => {
     // 初始化token
     const localToken = localStorage.getItem('token')
     if (localToken) {
-        const result = await fetchCheckToken(localToken)
-        if (result[0]) {
+        const [ok, result] = await fetchCheckToken(localToken)
+        if (ok) {
             isAdmin.value = true
-            token.value = localToken
         } else {
             isAdmin.value = false
-            token.value = ''
             localStorage.removeItem('token')
         }
     } else {
@@ -35,5 +33,7 @@ onMounted(async () => {
     } else {
         locale.value = 'zh'
     }
+
+    // 初始化数据库
 })
 </script>

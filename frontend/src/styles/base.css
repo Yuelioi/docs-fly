@@ -33,11 +33,6 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* *:not([class*='icon']):not(i) {
-    font-family: 'iconfont';
-    font-weight: 100;
-} */
-
 html {
     font-size: 100%;
     overflow-y: scroll;
@@ -47,21 +42,6 @@ html {
     overflow-x: hidden;
     max-width: 100%;
     image-rendering: -webkit-optimize-contrast;
-}
-
-body::before {
-    content: '';
-    width: 100%;
-    height: 100%;
-    bottom: 0;
-    left: 0;
-    position: fixed;
-    background-image: url(https://cdn.yuelili.com/2023/07/20230710145615-Hp.jpg);
-    background-size: cover;
-    filter: blur(10px);
-    transform: scale(1.1);
-    opacity: 0.2;
-    pointer-events: none;
 }
 
 a {
@@ -134,8 +114,4 @@ td {
 
 table tbody tr:nth-child(2n) {
     background-color: #fff;
-}
-
-.vditor-reset code:not(.hljs):not(.highlight-chroma) {
-    background-color: rgba(27, 31, 35, 0.05);
 }

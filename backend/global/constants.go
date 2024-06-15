@@ -19,6 +19,7 @@ type Config struct {
 	LogLevel  string // 添加日志等级配置
 	IntroFile string
 
+	AppVersion string
 	APIVersion string // API版本
 }
 

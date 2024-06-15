@@ -119,26 +119,19 @@
 </template>
 
 <script setup lang="ts">
-import type { HomeStatistic } from '@/models'
+import { HomeStatistic } from '@/models'
 import { onMounted, ref } from 'vue'
 import Clock from '@/components/VClock.vue'
 import { fetchStatisticHome, fetchYiYan } from '@/handlers'
+import { fetchBasic } from '@/utils'
 
 const yiyan = ref('')
 
 const statistic = ref<HomeStatistic>()
 
 onMounted(async () => {
-    const [ok, data] = await fetchStatisticHome()
-    if (ok) {
-        statistic.value = data['data']
-    }
-
-    const [ok2, data2] = await fetchYiYan()
-
-    if (ok2) {
-        yiyan.value = data2['hitokoto']
-    }
+    await fetchBasic(statistic, new HomeStatistic(), fetchStatisticHome, {})
+    await fetchBasic(yiyan, '最短的捷径就是绕远路。', fetchYiYan, {}, 'hitokoto')
 })
 </script>
 

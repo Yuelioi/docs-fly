@@ -6,23 +6,27 @@
             class="search fixed w-screen h-full pt-8 z-50 flex flex-col align-center">
             <div
                 @click.stop
-                class="dialog relative bg-theme-card dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] md:w-[80%] md:left-[10%] lg:w-1/2 lg:left-1/4 max-h-1/2 z-50 top-18">
+                class="shadow-2xl dialog relative bg-theme-card dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] md:w-[80%] md:left-[10%] lg:w-1/2 lg:left-1/4 max-h-1/2 z-50 top-18">
                 <!-- 顶部工具 -->
                 <div class="w-full flex-col h-16 z-50">
-                    <div class="flex justify-around border-b-2 mt-4 pb-4">
+                    <div class="flex justify-around items-center border-b-2 mt-4 pb-4">
                         <!-- 书籍设置 -->
                         <div class="pl-4 md:pl-8 lg:pl-16 flex flex-col select-none">
                             <div
                                 @mouseover="showSearchDropdown = true"
                                 class="h-10 flex relative justify-center items-center text-center text-nowrap w-32 bg-transparent text-sm font-semibold">
-                                <i class="pi pi-book pr-2"></i>
+                                <div class="pr-2">
+                                    <BIconBook></BIconBook>
+                                </div>
                                 <span class="group" @mouseleave="showSearchDropdown = false">{{
                                     currentOption.name ? currentOption.name : '全站搜索'
                                 }}</span>
-                                <i
+                                <div
                                     v-show="currentOption.name.length > 0"
-                                    class="pi pi-times pl-2 text-sm/[12px]"
-                                    @click="currentOption.name = ''"></i>
+                                    class="pl-2 text-sm/[12px]"
+                                    @click="currentOption.name = ''">
+                                    <BIconX></BIconX>
+                                </div>
                                 <div
                                     v-if="showSearchDropdown"
                                     class="absolute z-[100] top-[3rem] rounded h-32">
@@ -42,45 +46,51 @@
                         </div>
                         <!-- 搜索框 -->
                         <div class="pl-8 flex-1 flex items-center">
-                            <div class="relative flex ml-4 h-10">
-                                <i
-                                    class="pi pi-search absolute top-2/4 -mt-2 left-3 text-surface-400 dark:text-surface-600" />
+                            <div class="relative flex ml-4 h-10 w-full">
+                                <div
+                                    class="absolute top-2/4 -mt-2 left-3 text-surface-400 dark:text-surface-600">
+                                    <BIconSearch></BIconSearch>
+                                </div>
                                 <input
                                     v-model="search"
                                     placeholder="搜索..."
                                     @keydown.enter="handleSearch"
-                                    class="pl-10 bg-transparent" />
+                                    class="pl-10 bg-transparent flex-1" />
                             </div>
                         </div>
 
-                        <div class="toolbar absolute top-6 right-4 flex">
+                        <div class="toolbar ml-4 flex">
                             <div class="pr-2 lg:pr-4">
-                                <i
-                                    class="pi pi-lock"
+                                <div
+                                    class="text-[1.25rem]"
                                     v-show="!pinSearchResult"
                                     @click="pinSearchResult = !pinSearchResult">
-                                </i>
-                                <i
-                                    class="pi pi-lock-open"
+                                    <BIconLock></BIconLock>
+                                </div>
+                                <div
+                                    class="text-[1.25rem]"
                                     v-show="pinSearchResult"
                                     @click="pinSearchResult = !pinSearchResult">
-                                </i>
+                                    <BIconUnlock></BIconUnlock>
+                                </div>
                             </div>
-                            <div class="pr-2">
-                                <i class="pi pi-times" @click="closeDialog(undefined)"></i>
+                            <div class="pr-4">
+                                <div class="text-[1.25rem]" @click="closeDialog(undefined)">
+                                    <BIconX></BIconX>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- 结果展示 -->
                 <div
-                    class="content w-full flex pt-6 items-center justify-center"
+                    class="content w-full flex pt-6 items-center justify-center min-h-[400px]"
                     style="height: calc(100% - 9rem)">
                     <transition name="result">
                         <div
-                            v-if="searchResult.result.length"
+                            v-if="searchResult.length"
                             class="h-full w-full overflow-scroll p-6 first:pt-2">
-                            <div v-for="(data, index) in searchResult.result" :key="data.url">
+                            <div v-for="(data, index) in searchResult" :key="data.url">
                                 <div class="p-2">
                                     <div
                                         class="hover:bg-theme-primary-hover relative border-b rounded-lg hover:rounded-lg p-4">
@@ -95,7 +105,8 @@
                                                         {{ data.document_title }}</span
                                                     >
                                                     <div class="absolute right-4 top-0">
-                                                        <i class="pi pi-book pr-2"></i>
+                                                        <BIconBook class="pr-2"></BIconBook>
+
                                                         <span class="">
                                                             {{
                                                                 data.category_title +
@@ -115,10 +126,10 @@
                                 </div>
                             </div></div
                     ></transition>
-                    <div v-if="searchResult.result.length == 0" class="">没有找到任何文章~</div>
+                    <div v-if="searchResult.length == 0" class="">没有找到任何文章~</div>
                 </div>
-                <div v-if="searchResult.result.length > 0" class="text-center">
-                    {{ '搜索耗时: ' + searchResult.search_time }}
+                <div v-if="searchResult.length > 0" class="text-center border-t-4 pt-4">
+                    {{ '搜索耗时: ' + searchConsume }}
                 </div>
             </div>
         </div></transition
@@ -132,15 +143,18 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { fetchKeyword } from '@/handlers'
-import { MetaData, SearchData, SearchResult, Nav } from '@/models'
+import { MetaData, SearchData, Nav } from '@/models'
+import { BIconBook, BIconLock, BIconSearch, BIconUnlock, BIconX } from 'bootstrap-icons-vue'
 
 // 默认不pin
 const pinSearchResult = ref(false)
 const search = ref('')
 const lastSearch = ref('')
 
+const searchConsume = ref('')
+
 const currentOption = ref<MetaData>(new MetaData())
-const searchResult = ref<SearchResult>(new SearchResult())
+const searchResult = ref<SearchData[]>([])
 
 const searchDialogRef = ref(null)
 const route = useRouter()
@@ -210,24 +224,31 @@ const options = computed(() => {
 
 async function handleSearch() {
     if (search.value == '') {
-        searchResult.value = new SearchResult()
+        searchResult.value = []
         return
     }
 
-    let option_list
-    if (currentOption.value.name == '') {
-        option_list = ['', '']
-    } else {
-        option_list = currentOption.value.name.split('/')
-    }
-
-    const [ok, data] = await fetchKeyword(option_list[0], option_list[1], search.value)
+    const [ok, data] = await fetchKeyword(currentOption.value.name, search.value, 1, 20)
 
     if (ok) {
-        searchResult.value = data
+        const msTotal =
+            new Date(data['server_time'] as string).getTime() -
+            new Date(data['client_time'] as string).getTime()
+
+        const seconds = Math.floor(msTotal / 1000)
+        const ms = msTotal % 1000
+
+        if (seconds > 1) {
+            searchConsume.value = `${seconds}秒${ms}毫秒`
+        } else {
+            searchConsume.value = `${ms}毫秒`
+        }
+
+        searchResult.value = data['data']
         lastSearch.value = search.value
     } else {
-        searchResult.value = new SearchResult()
+        searchResult.value = []
+        searchConsume.value = ''
     }
 }
 

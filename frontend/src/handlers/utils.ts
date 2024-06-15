@@ -44,8 +44,12 @@ const makeRequest = async (
             params: params,
             withCredentials: withCookie
         }
-
-        const response: AxiosResponse = await axios(config)
+        let response: AxiosResponse
+        if (withCookie) {
+            response = await apiClient(config)
+        } else {
+            response = await axios(config)
+        }
 
         if (response.status >= 200 && response.status < 300) {
             return [true, response.data]

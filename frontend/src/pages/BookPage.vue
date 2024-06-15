@@ -7,19 +7,19 @@
             <div class="flex flex-col px-6 select-none">
                 <div class="py-3 border-b">
                     <BIconBook class="inline-block"></BIconBook>
-                    <span class="pl-2">书籍名称: {{ route.params['category'] }}</span>
+                    <span class="pl-2">书籍名称: {{ bookStatistic.bookTitle }}</span>
                 </div>
                 <div class="py-3 border-b">
                     <BIconGraphUpArrow class="inline-block"></BIconGraphUpArrow
-                    ><span class="pl-2">阅读次数: {{ bookReadCount }}</span>
+                    ><span class="pl-2">阅读次数: {{ bookStatistic.readCount }}</span>
                 </div>
                 <div class="py-3 border-b">
                     <BIconJournal class="inline-block"></BIconJournal>
-                    <span class="pl-2">章节数量: {{ bookChapterCount }}</span>
+                    <span class="pl-2">章节数量: {{ bookStatistic.chapterCount }}</span>
                 </div>
                 <div class="py-3 border-b">
                     <BIconFiletypeDoc class="inline-block"></BIconFiletypeDoc>
-                    <span class="pl-2">文章数量: {{ bookDocumentCount }}</span>
+                    <span class="pl-2">文章数量: {{ bookStatistic.documentCount }}</span>
                 </div>
             </div>
         </div>
@@ -73,7 +73,7 @@
                         </div>
                         <router-link
                             v-else
-                            v-for="(chapter, index) in bookDatas"
+                            v-for="(chapter, index) in sortedBookDatas"
                             :key="index"
                             class="py-2 px-4 border-b hover:bg-theme-card border-dashed rounded-md flex items-center"
                             :to="{
@@ -91,6 +91,7 @@
 
                 <div class="tab-item" v-if="tabId == 2">
                     <div class="w-full">
+                        {{ nickname }}
                         <textarea
                             name=""
                             id=""
@@ -212,9 +213,9 @@
 <script setup lang="ts">
 import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
 
-import { addZero } from '@/utils'
+import { addZero, fetchBasic } from '@/utils'
 
-import { BookData, LocalMetaDatas } from '@/models'
+import { BookData, BookStatistic, LocalMetaDatas } from '@/models'
 import { Message } from '@/plugins/message'
 import {
     getBookData,
@@ -233,11 +234,13 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { basicStore } from '@/stores/index'
 import { BIconBook, BIconFiletypeDoc, BIconGraphUpArrow, BIconJournal } from 'bootstrap-icons-vue'
+import { storeToRefs } from 'pinia'
 
 const basic = basicStore()
 const locale = computed(() => basic.locale)
 const isAdmin = computed(() => basic.isAdmin)
-const nickname = computed(() => basic.nickname)
+
+let { nickname } = storeToRefs(basic)
 
 const metas = ref<LocalMetaDatas>(new LocalMetaDatas())
 
@@ -246,12 +249,14 @@ const translate = basic.translate
 const tabId = ref(1)
 
 const route = useRoute()
-const bookReadCount = ref(0)
-const bookChapterCount = ref(0)
-const bookDocumentCount = ref(0)
+const bookStatistic = ref<BookStatistic>(new BookStatistic())
+
 const poem = ref('')
 
 const bookDatas = ref<BookData[]>([])
+const sortedBookDatas = computed(() => {
+    return bookDatas.value.slice().sort((pre, next) => pre.metadata.order - next.metadata.order)
+})
 
 watch(tabId, async (newVal: number, old: number) => {
     if (newVal == 3) {
@@ -264,6 +269,12 @@ watch(tabId, async (newVal: number, old: number) => {
             metas.value = data['data']
         }
     }
+})
+
+watch(locale, async () => {
+    console.log(112)
+
+    await refreshBook(route.params)
 })
 
 async function saveMeta() {
@@ -283,7 +294,6 @@ async function refreshBook(params: RouteParams) {
 
     if (db_data) {
         bookDatas.value = db_data.data
-        console.log(bookDatas.value)
     } else {
         const [ok, data] = await getBookData(
             (params['bookPath'] as string[]).join('/'),
@@ -292,8 +302,9 @@ async function refreshBook(params: RouteParams) {
 
         if (ok) {
             bookDatas.value = data['data']
-            await addDBBookData(params['bookPath'] as string[], locale.value, data)
+            await addDBBookData(params['bookPath'] as string[], locale.value, data['data'])
         } else {
+            bookDatas.value = []
             Message('未找到书籍数据', 'warn')
         }
     }
@@ -305,9 +316,12 @@ async function refreshBook(params: RouteParams) {
 
     if (ok2) {
         const statisticData = data['data']
-        bookReadCount.value = statisticData['read_count']
-        bookChapterCount.value = statisticData['chapter_count']
-        bookDocumentCount.value = statisticData['document_count']
+        bookStatistic.value.bookTitle = statisticData['book_title']
+        bookStatistic.value.readCount = statisticData['read_count']
+        bookStatistic.value.chapterCount = statisticData['chapter_count']
+        bookStatistic.value.documentCount = statisticData['document_count']
+    } else {
+        bookStatistic.value = new BookStatistic()
     }
 }
 
@@ -318,12 +332,7 @@ watch(route, async (val: RouteLocationNormalizedLoaded) => {
 onMounted(async () => {
     refreshBook(route.params)
 
-    poem.value = '山重水复疑无路，柳暗花明又一村。'
-
-    const [ok, data] = await getRandPoem()
-
-    if (ok) {
-        poem.value = data['content']
-    }
+    await fetchBasic(poem, '山重水复疑无路，柳暗花明又一村。', getRandPoem, {})
+    await fetchBasic(nickname, '匿名用户', getRandNickname, {})
 })
 </script>

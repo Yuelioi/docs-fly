@@ -9,11 +9,11 @@ export class Toc {
 export class Chapter {
     metadata: MetaData = new MetaData()
     documents: MetaData[] = []
+    filepath: string = ''
     children: Chapter[] = []
 }
 
 export class ChapterData extends Chapter {
     collapsed: boolean = false // 前端独立属性
-    ref: HTMLElement = new HTMLElement()
     id: number = 0
 }

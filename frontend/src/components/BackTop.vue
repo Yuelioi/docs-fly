@@ -5,11 +5,12 @@
             id="scrollToTop"
             class="fixed right-12 duration-200 transition-opacity ease-in-out bottom-12 w-8 h-8 bg-theme-backToTop-base hover:bg-theme-backToTop-hover p-3 rounded-full flex items-center justify-center"
             @click="scrollToTop()">
-            <i class="pi pi-sort-up"></i></button
+            <div class="text-[1.25rem]"><BIconCaretUp></BIconCaretUp></div></button
     ></transition>
 </template>
 
 <script lang="ts" setup>
+import { BIconCaretUp } from 'bootstrap-icons-vue'
 import { onMounted, ref } from 'vue'
 
 function scrollToTop() {

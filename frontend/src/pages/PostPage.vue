@@ -25,22 +25,16 @@ import type { RouteLocationNormalizedLoaded, RouteParams } from 'vue-router'
 
 import { Message } from '@/plugins/message'
 
-import { ref, onBeforeMount, watch, computed } from 'vue'
+import { ref, onBeforeMount, watch } from 'vue'
 import { useRoute } from 'vue-router'
-
-import { basicStore } from '@/stores'
 
 import PostChapter from '@/components/PostChapter.vue'
 import PostContent from '@/components/PostContent.vue'
 import PostToc from '@/components/PostToc.vue'
 
 import { getPostChapterData, addPostChapterData } from '@/database/index'
-import { getPost, fetchChapter } from '@/handlers/index'
+import { getPost, getChapter } from '@/handlers/index'
 import { AddVisitorLog } from '@/handlers/index'
-
-const basic = basicStore()
-
-const locale = computed(() => basic.locale)
 
 const postContent = ref('')
 const postHtml = ref('')
@@ -64,10 +58,7 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
         if (data) {
             chapters.value = data['data']
         } else {
-            const [ok, data] = await fetchChapter(
-                (params['postPath'] as string[]).join('/'),
-                params['document'] as string
-            )
+            const [ok, data] = await getChapter((params['postPath'] as string[]).join('/'))
 
             if (ok) {
                 chapters.value = data['data']
@@ -90,7 +81,8 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
     if (ok) {
         postContent.value = data['data']['content_markdown']
         postHtml.value = data['data']['content_html']
-        toc.value = JSON.parse(data['data']['toc'])
+        const tocData = JSON.parse(data['data']['toc'])
+        toc.value = tocData
     } else {
         Message('获取文章失败', 'error')
         postContent.value = ''

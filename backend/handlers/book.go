@@ -17,6 +17,7 @@ import (
 func GetStatisticBook(c *gin.Context) {
 
 	bookPath := c.Query("bookPath")
+	locale := c.Query("locale")
 
 	clientTime := currentTime()
 	dbContext, exists := c.Get("db")
@@ -49,10 +50,10 @@ func GetStatisticBook(c *gin.Context) {
 	}
 
 	// 获取章节数量
-	db.Scopes(BasicModel, FindChapter, HasPrefixPath(bookPath)).Count(&chapterCount)
+	db.Scopes(BasicModel, FindChapter, HasPrefixPath(bookPath+"/"+locale)).Count(&chapterCount)
 
 	// 获取书籍数量
-	db.Scopes(BasicModel, FindFile, HasPrefixPath(bookPath)).Count(&documentCount)
+	db.Scopes(BasicModel, FindFile, HasPrefixPath(bookPath+"/"+locale)).Count(&documentCount)
 
 	type bookStatistic struct {
 		BookTitle     string `json:"book_title"`

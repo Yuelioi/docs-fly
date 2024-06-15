@@ -12,7 +12,6 @@ type Entry struct {
 	gorm.Model
 	MetaData
 	ModTime time.Time
-	IsDir   bool
 	Locale  string
 	Content string
 }

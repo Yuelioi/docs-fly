@@ -22,3 +22,6 @@ IntroFile = "README.md"
 
 # API版本
 APIVersion = "v1"
+
+# 文档版本
+AppVersion = "0.0.1"

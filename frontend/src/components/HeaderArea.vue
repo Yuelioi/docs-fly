@@ -15,7 +15,7 @@
                 <div class="flex flex-row">
                     <div
                         class="relative group items-center flex rounded-lg h-full p-1 pl-4 pr-4"
-                        v-for="(nav, index_nav) in navs"
+                        v-for="(nav, index_nav) in filteredNavs"
                         :key="index_nav">
                         <span class="font-bold cursor-default">{{ nav.metadata.title }}</span>
 
@@ -31,7 +31,7 @@
                                         bookPath: child.url_path.split('/')
                                     }
                                 }"
-                                ><i class="pi pi-book"></i>
+                                ><div class="text-[1rem]"><BIconBook></BIconBook></div>
 
                                 <span class="pl-2">{{ child.title }}</span></router-link
                             >
@@ -52,28 +52,37 @@
                 <div class="flex items-center">
                     <!-- pi-sun -->
                     <button @click="toggleDark()">
-                        <i
-                            class="outline-theme-primary outline-1 hover:outline pi pi-moon ml-2 p-2 text-lg rounded-lg"
-                            :class="isDark ? 'i-sun' : 'pi-moon'"></i>
+                        <div
+                            class="outline-theme-primary outline-1 hover:outline ml-2 p-2 text-lg rounded-lg">
+                            <BIconSun v-if="isDark"></BIconSun> <BIconMoon v-else></BIconMoon>
+                        </div>
                     </button>
 
                     <button>
                         <router-link :to="{ name: 'star' }" :key="'star'">
-                            <i
-                                class="outline-theme-primary outline-1 hover:outline pi pi-star ml-2 fontsize p-2 text-lg rounded-lg"></i>
+                            <div
+                                class="outline-theme-primary outline-1 hover:outline ml-2 fontsize p-2 text-lg rounded-lg">
+                                <BIconStar></BIconStar>
+                            </div>
                         </router-link>
                     </button>
                     <button @click="changeLocale">
-                        <i
-                            class="outline-theme-primary outline-1 hover:outline pi pi-language ml-2 fontsize p-2 text-lg rounded-lg"></i>
+                        <div
+                            class="outline-theme-primary outline-1 hover:outline ml-2 fontsize p-2 text-lg rounded-lg">
+                            <BIconTranslate></BIconTranslate>
+                        </div>
                     </button>
                     <button v-if="!isAdmin" @click="showLoginWindow = true">
-                        <i
-                            class="outline-theme-primary outline-1 hover:outline pi pi-user ml-2 fontsize p-2 text-lg rounded-lg"></i>
+                        <div
+                            class="outline-theme-primary outline-1 hover:outline ml-2 fontsize p-2 text-lg rounded-lg">
+                            <BIconPerson></BIconPerson>
+                        </div>
                     </button>
                     <button v-else @click="logout">
-                        <i
-                            class="outline-theme-primary outline-1 hover:outline pi pi-sign-in ml-2 fontsize p-2 text-lg rounded-lg"></i>
+                        <div
+                            class="outline-theme-primary outline-1 hover:outline ml-2 fontsize p-2 text-lg rounded-lg">
+                            <BIconBoxArrowRight></BIconBoxArrowRight>
+                        </div>
                     </button>
 
                     <div v-if="showLoginWindow">
@@ -84,14 +93,14 @@
         </div>
     </div>
     <button type="button" @click="deleteDB">清除数据库</button>
-    <HSearchWithDialog v-model:showSearchDialog="showSearchDialog" v-model:navs="navs">
+    <HSearchWithDialog v-model:showSearchDialog="showSearchDialog" v-model:navs="filteredNavs">
     </HSearchWithDialog>
 </template>
 
 <script setup lang="ts">
 import { dbManager } from '@/database/manager'
 import { Nav, MetaData } from '@/models'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getNav } from '@/handlers/index'
 import { getDBNav, addDBNav } from '@/database'
 
@@ -108,6 +117,7 @@ import { useDark, useToggle } from '@vueuse/core'
 async function deleteDB() {
     try {
         await dbManager.clearDatabase()
+        Message('Database cleared successfully')
         console.log('Database cleared successfully')
     } catch (error) {
         console.error('Failed to clear database:', error)
@@ -122,11 +132,26 @@ const router = useRouter()
 
 import { basicStore } from '@/stores/index'
 import { Message } from '@/plugins/message'
+import {
+    BIconBook,
+    BIconBoxArrowRight,
+    BIconMoon,
+    BIconPerson,
+    BIconStar,
+    BIconSun,
+    BIconTranslate
+} from 'bootstrap-icons-vue'
 const basic = basicStore()
 const { locale, isAdmin } = storeToRefs(basic)
 const { translate } = basic
 
 const navs = ref<Nav[]>([])
+
+const filteredNavs = computed(() => {
+    return navs.value.slice().sort((pre, next) => {
+        return (pre.metadata.order = next.metadata.order)
+    })
+})
 
 const showLoginWindow = ref(false)
 const showSearchDialog = ref(false)

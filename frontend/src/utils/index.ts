@@ -1,3 +1,5 @@
+import type { Ref } from 'vue'
+
 // 补零
 export function addZero(num: number, length: number) {
     let str = num.toString()
@@ -25,4 +27,20 @@ export function formatDate(date_string: Date): string {
     const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 
     return formattedDate
+}
+
+// 基础异步请求api 并根据状态赋值/初始化
+export async function fetchBasic(
+    refValue: Ref<any>,
+    defaultValue: any,
+    fetchFunction: any,
+    params: any,
+    prop: string = 'data'
+) {
+    const [ok, data] = await fetchFunction(params)
+    if (ok) {
+        refValue.value = data[prop]
+    } else {
+        refValue.value = defaultValue
+    }
 }

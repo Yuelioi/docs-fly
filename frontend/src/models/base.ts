@@ -6,6 +6,7 @@ export class MetaData {
     depth = 0
     order = 0
     icon = ''
+    is_dir = true
     status = 1
     url_path = ''
 }

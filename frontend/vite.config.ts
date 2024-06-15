@@ -19,7 +19,7 @@ export default defineConfig({
         VueDevTools(),
         dynamicThemePlugin(),
         AutoImport({
-            dirs: ['./src/handlers']
+            dirs: ['./src/handlers/', './src/models/']
         }),
         Components({
             dts: true // enabled by default if `typescript` is installed

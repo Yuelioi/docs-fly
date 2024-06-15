@@ -65,6 +65,11 @@ func generateTOC(htmlContent string) ([]byte, error) {
 		fmt.Println("Error marshalling JSON:", err)
 		return jsonData, err
 	}
+
+	if string(jsonData) == "null" {
+		jsonData = []byte{'[', ']'}
+	}
+
 	return jsonData, nil
 }
 
@@ -136,16 +141,15 @@ func GetPostHtml(c *gin.Context) {
 // 保存文章 数据库+本地
 func SavePost(c *gin.Context) {
 	postPath := c.Query("postPath")
-
 	content := c.Query("content")
-
+	clientTime := currentTime()
 	ok, err := TokenVerifyMiddleware(c)
 
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		sendErrorResponse(c, http.StatusUnauthorized, clientTime, err.Error())
+		return
 	}
 
-	clientTime := currentTime()
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -193,7 +197,7 @@ func SavePost(c *gin.Context) {
 func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry) {
 	folder.Documents = make([]models.MetaData, 0)
 	folder.Children = make([]Chapter, 0)
-	// TODO 可以优化 添加后删除该文件夹
+	// TODO 可以优化 添加后删除该categories documents条目
 
 	// 添加文件到当前文件夹
 	for _, doc := range documents {
@@ -207,6 +211,7 @@ func buildFolderTree(folder *Chapter, categories []models.Entry, documents []mod
 		if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == folder.MetaData.Depth+1 {
 			childFolder := Chapter{
 				MetaData: cat.MetaData,
+				Filepath: cat.MetaData.Filepath,
 			}
 			buildFolderTree(&childFolder, categories, documents)
 			folder.Children = append(folder.Children, childFolder)
@@ -236,11 +241,17 @@ func GetChapter(c *gin.Context) {
 		return
 	}
 
-	var categories []models.Entry
-	var documents []models.Entry
+	var categories, documents, filteredDocuments []models.Entry
 
-	db.Scopes(BasicModel, HasPrefixPath(book)).Find(&categories)
-	db.Scopes(BasicModel, HasPrefixPath(book)).Find(&documents)
+	db.Scopes(BasicModel, HasPrefixPath(book), FindFolder).Find(&categories)
+	db.Scopes(BasicModel, HasPrefixPath(book), FindFile).Find(&documents)
+
+	// 需要忽略README文件
+	for _, doc := range documents {
+		if !(strings.ToLower(doc.Name) == "readme.md") {
+			filteredDocuments = append(filteredDocuments, doc)
+		}
+	}
 
 	// 创建根文件夹
 	var rootEntry models.Entry
@@ -254,7 +265,7 @@ func GetChapter(c *gin.Context) {
 	}
 
 	// 构建文件夹树
-	buildFolderTree(&chapterMeta, categories, documents)
+	buildFolderTree(&chapterMeta, categories, filteredDocuments)
 
 	sendSuccessResponse(c, clientTime, chapterMeta)
 }

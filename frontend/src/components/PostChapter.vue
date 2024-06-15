@@ -1,77 +1,82 @@
 <template>
     <div id="nav" class="my-3 lg:text-sm lg:leading-6 h-full">
-        <div v-if="chaptersData.length > virtual_limit_length">
-            <nav
-                class="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                aria-label="Pagination">
-                <a
-                    @click.prevent="(currentPage -= 1), (isNavCollapsed = true)"
-                    class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                    <span class="sr-only">Previous</span>
-                    <div class="text-[1.25rem]"><BIconCaretLeft></BIconCaretLeft></div>
-                </a>
-                <a
-                    @click="(currentPage = 1), (isNavCollapsed = true)"
-                    :class="
-                        currentPage == 1 ? 'bg-theme-primary-hover text-theme-text-inverse' : ''
-                    "
-                    class="relative select-none inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                    >1</a
-                >
-                <a
-                    :class="
-                        currentPage != 1 &&
-                        currentPage != Math.ceil(chaptersData.length / virtual_limit_length)
-                            ? 'bg-theme-primary-hover text-theme-text-inverse'
-                            : ''
-                    "
-                    class="relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 ring-1 ring-inset ring-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >{{
-                        Math.min(
-                            Math.max(currentPage, 2),
-                            Math.ceil(chaptersData.length / virtual_limit_length) - 1
-                        )
-                    }}</a
-                >
-                <a
-                    :class="
-                        currentPage == Math.ceil(chaptersData.length / virtual_limit_length)
-                            ? 'bg-theme-primary-hover text-theme-text-inverse'
-                            : ''
-                    "
-                    @click="
-                        (currentPage = Math.ceil(chaptersData.length / virtual_limit_length)),
-                            (isNavCollapsed = true)
-                    "
-                    class="relative select-none inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                    >{{ Math.ceil(chaptersData.length / virtual_limit_length) }}</a
-                >
-                <a
-                    @click.prevent="(currentPage += 1), (isNavCollapsed = true)"
-                    class="relative inline-flex items-center px-2 py-2 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                    <span class="sr-only">Next</span>
-                    <div class="text-[1.25rem]"><BIconCaretRight></BIconCaretRight></div>
-                </a>
-                <div
-                    @click="handleCollapse"
-                    class="inline-flex items-center justify-center ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                    <i
-                        class="pi rounded-r-md px-2 py-2"
-                        :class="isNavCollapsed ? 'pi-align-right' : 'pi-align-justify'"></i>
+        <div class="toolbar w-full flex">
+            <div v-if="chaptersData.length > virtual_limit_length">
+                <nav
+                    class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                    aria-label="Pagination">
+                    <a
+                        @click.prevent="(currentPage -= 1), (isNavCollapsed = true)"
+                        class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                        <span class="sr-only">Previous</span>
+                        <div class="text-[1.25rem]"><BIconCaretLeft></BIconCaretLeft></div>
+                    </a>
+                    <a
+                        @click="(currentPage = 1), (isNavCollapsed = true)"
+                        :class="
+                            currentPage == 1 ? 'bg-theme-primary-hover text-theme-text-inverse' : ''
+                        "
+                        class="relative select-none inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        >1</a
+                    >
+                    <a
+                        :class="
+                            currentPage != 1 &&
+                            currentPage != Math.ceil(chaptersData.length / virtual_limit_length)
+                                ? 'bg-theme-primary-hover text-theme-text-inverse'
+                                : ''
+                        "
+                        class="relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 ring-1 ring-inset ring-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        >{{
+                            Math.min(
+                                Math.max(currentPage, 2),
+                                Math.ceil(chaptersData.length / virtual_limit_length) - 1
+                            )
+                        }}</a
+                    >
+                    <a
+                        :class="
+                            currentPage == Math.ceil(chaptersData.length / virtual_limit_length)
+                                ? 'bg-theme-primary-hover text-theme-text-inverse'
+                                : ''
+                        "
+                        @click="
+                            (currentPage = Math.ceil(chaptersData.length / virtual_limit_length)),
+                                (isNavCollapsed = true)
+                        "
+                        class="relative select-none inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        >{{ Math.ceil(chaptersData.length / virtual_limit_length) }}</a
+                    >
+                    <a
+                        @click.prevent="(currentPage += 1), (isNavCollapsed = true)"
+                        class="relative inline-flex items-center px-2 py-2 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                        <span class="sr-only">Next</span>
+                        <div class="text-[1.25rem]"><BIconCaretRight></BIconCaretRight></div>
+                    </a>
+                </nav>
+            </div>
+
+            <div
+                @click="handleCollapse"
+                class="inline-flex ml-auto text-[1.25rem] items-center justify-center ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                <div v-if="isNavCollapsed" class="rounded-r-md px-2 py-2">
+                    <BIconFilterLeft></BIconFilterLeft>
                 </div>
-            </nav>
+                <div v-else class="rounded-r-md px-2 py-2">
+                    <BIconJustify></BIconJustify>
+                </div>
+            </div>
         </div>
 
-        <div ref="scrollContainerRef" class="relative h-full overflow-y-scroll">
+        <div class="relative h-full overflow-y-scroll">
             <div class="list mb-3 absolute py-3 pb-12 pl-1 w-full text-ellipsis text-nowrap">
                 <ul
                     v-for="(chapter, chapter_index) in filteredChapters"
                     :key="chapter.id"
-                    class="scroll-item lg:mt-4 overflow-hidden"
+                    class="scroll-item mt-2 overflow-hidden"
                     :class="chapter.metadata.status ? '' : 'hidden'"
-                    :data-index="chapter.id"
-                    @click.prevent="chapter.collapsed = !chapter.collapsed">
-                    <!-- 情况1. 没有章节 speedTree -->
+                    :data-index="chapter.id">
+                    <!-- 1. 没有章节 speedTree -->
                     <div v-if="chapter.documents.length == 0 && chapters.children.length == 0">
                         <router-link
                             :to="{
@@ -83,30 +88,49 @@
                             :data-index="chapter.id"
                             :key="chapter.metadata.url_path"
                             class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-theme-text-base hover:rounded dark:hover:bg-slate-800">
-                            <h5
-                                class="select-none text-lg font-bold mb-4 lg:mb-3 text-theme-text-base">
+                            <h5 class="select-none text-lg mb-2 lg:mb-3 text-theme-text-base">
                                 {{ chapter.metadata.title }}
                             </h5></router-link
                         >
                     </div>
 
-                    <!-- 情况2 有章节 -->
+                    <!-- 2. 有章节 -->
 
                     <div v-else class="">
-                        <h5 class="select-none text-lg font-bold mb-4 lg:mb-3 text-theme-text-base">
-                            {{ chapter.id + 1 + '. ' + chapter.metadata.title }}
-                        </h5>
+                        <!-- 2.1章节目录 -->
+                        <router-link
+                            :to="{
+                                name: 'post',
+                                params: {
+                                    postPath: chapter.metadata.url_path.split('/')
+                                }
+                            }"
+                            :key="chapter.metadata.url_path">
+                            <h5 class="text-lg font-bold mb-4 lg:mb-3 text-theme-text-base">
+                                {{ chapter_index + 1 + '. ' + chapter.metadata.title }}
+                            </h5>
+                        </router-link>
 
                         <Transition name="list">
                             <li v-if="!chapter.collapsed">
                                 <div
                                     v-for="(section, section_id) in chapter.children"
                                     :key="section_id">
-                                    <span> {{ section.metadata.title }}</span>
+                                    <router-link
+                                        :to="{
+                                            name: 'post',
+                                            params: {
+                                                postPath: section.metadata.url_path.split('/')
+                                            }
+                                        }"
+                                        :key="chapter.metadata.url_path"
+                                        ><span> {{ section.metadata.title }}</span></router-link
+                                    >
+
                                     <div
                                         v-for="(document, document_index) in section.documents"
                                         :key="document.url_path"
-                                        class="flex border-l border-l-slate-400">
+                                        class="flex border-l border-l-slate-400 last:pb-4">
                                         <router-link
                                             :to="{
                                                 name: 'post',
@@ -115,13 +139,14 @@
                                                 }
                                             }"
                                             :key="chapter_index + document_index"
-                                            class="pl-4 -ml-px hover:bg-theme-card hover:pl-3.5 hover:pr-4 hover:border-theme-primary hover:border-l-4"
-                                            @click.stop
-                                            ><span>{{
-                                                addZero(document_index + 1, 2) +
-                                                '. ' +
-                                                document.title
-                                            }}</span></router-link
+                                            class="pl-6 -ml-px hover:bg-theme-card hover:pl-7 hover:pr-4 hover:border-theme-primary hover:border-l-4"
+                                            ><span>
+                                                {{
+                                                    addZero(document_index + 1, 2) +
+                                                    '. ' +
+                                                    document.title
+                                                }}</span
+                                            ></router-link
                                         >
                                     </div>
                                 </div>
@@ -159,9 +184,9 @@ import { ChapterData, Chapter, MetaData } from '@/models'
 import { ref, computed, watch, onMounted } from 'vue'
 
 import { addZero } from '@/utils'
-import { BIconCaretLeft, BIconCaretRight } from 'bootstrap-icons-vue'
+import { BIconCaretLeft, BIconCaretRight, BIconFilterLeft, BIconJustify } from 'bootstrap-icons-vue'
 
-const chapters = defineModel('chapters', { type: Chapter, required: true })
+const chapters = defineModel('chapters', { type: Object as () => Chapter, required: true })
 
 const isNavCollapsed = ref(false)
 
@@ -205,7 +230,7 @@ function init() {
             metadata: doc,
             documents: [],
             children: [],
-            ref: document.createElement('div'),
+            filepath: '',
             collapsed: chapters.value.children.length > virtual_limit_length,
             id: index
         } as ChapterData

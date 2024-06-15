@@ -7,7 +7,10 @@ import (
 
 func registerCors(engine *gin.Engine) {
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"} // 允许的源
+	// 指定允许访问的源
+	config.AllowOrigins = []string{"http://localhost:5173"}
 	config.AllowHeaders = []string{"Origin", "Authorization", "Content-Type", "Content-Length"}
+	// 允许携带凭证（例如 Cookies）
+	config.AllowCredentials = true
 	engine.Use(cors.New(config))
 }

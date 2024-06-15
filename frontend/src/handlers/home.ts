@@ -8,8 +8,18 @@ export const fetchStatisticHome = async () => {
 }
 
 // 根据关键词获取文章信息
-export const fetchKeyword = async (category: string, book: string, keyword: string) => {
-    return await fetchContent('/query', { category: category, book: book, keyword: keyword })
+export const fetchKeyword = async (
+    bookPath: string,
+    keyword: string,
+    page: number,
+    pageSize: number
+) => {
+    return await fetchContent('/query', {
+        bookPath: bookPath,
+        keyword: keyword,
+        page: page,
+        pageSize: pageSize
+    })
 }
 
 // 获取顶部导航栏

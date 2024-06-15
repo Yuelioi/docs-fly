@@ -13,13 +13,9 @@ export class SearchOption extends MetaData {
     children: MetaData[] = []
 }
 
-export class SearchResult {
-    search_time: number = 0
-    result: SearchData[] = []
-}
-
 // 主页搜索显示数据
 export class SearchData {
+    index: number = 0
     url: string = ''
     locale: string = ''
     category_title: string = ''
