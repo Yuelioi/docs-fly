@@ -50,11 +50,17 @@
                             </p>
                             <div
                                 class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
-                                <a
-                                    href="#"
+                                <router-link
                                     class="btn bg-theme-primary-base hover:bg-theme-primary-hover px-3.5 py-2.5"
-                                    >开始阅读</a
-                                >
+                                    :to="{
+                                        name: 'post',
+                                        params: {
+                                            postPath: rndPostUrl
+                                        }
+                                    }"
+                                    :key="rndPostUrl">
+                                    <span>开始阅读</span>
+                                </router-link>
                                 <a href="#" class="text-sm font-semibold leading-6"
                                     >Start Reading <span aria-hidden="true">→</span></a
                                 >
@@ -119,19 +125,27 @@
 </template>
 
 <script setup lang="ts">
-import { HomeStatistic } from '@/models'
+import { HomeStatistic, MetaData } from '@/models'
 import { onMounted, ref } from 'vue'
 import Clock from '@/components/VClock.vue'
 import { fetchStatisticHome, fetchYiYan } from '@/handlers'
 import { fetchBasic } from '@/utils'
+import { getRandPost } from '@/handlers/others'
 
 const yiyan = ref('')
 
 const statistic = ref<HomeStatistic>()
 
+const rndPostUrl = ref<string[]>(['intro'])
+
 onMounted(async () => {
-    await fetchBasic(statistic, new HomeStatistic(), fetchStatisticHome, {})
-    await fetchBasic(yiyan, '最短的捷径就是绕远路。', fetchYiYan, {}, 'hitokoto')
+    await fetchBasic(statistic, new HomeStatistic(), fetchStatisticHome)
+    await fetchBasic(yiyan, '最短的捷径就是绕远路。', fetchYiYan, '', 'hitokoto')
+
+    const [ok, data] = await getRandPost()
+    if (ok) {
+        rndPostUrl.value = (data['data'] as MetaData).url.split('/')
+    }
 })
 </script>
 

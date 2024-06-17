@@ -41,15 +41,30 @@ func FindFolder(db *gorm.DB) *gorm.DB {
 	return db.Where("is_dir = ?", 1)
 }
 
-// 匹配文件夹前缀,已经补了正斜杠 /
-func HasPrefixPath(path string) func(db *gorm.DB) *gorm.DB {
+// 匹配filepath前缀,已经补了正斜杠 /
+func HasPrefixLocalPath(path string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("filepath Like ?", path+"/%")
 	}
 }
 
-func MatchPath(path string) func(db *gorm.DB) *gorm.DB {
+// 匹配filepath
+func MatchLocalPath(path string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("filepath = ?", path)
+	}
+}
+
+// 匹配url前缀,已经补了正斜杠 /
+func HasPrefixUrlPath(path string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("url Like ?", path+"/%")
+	}
+}
+
+// 匹配url
+func MatchUrlPath(path string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("url = ?", path)
 	}
 }

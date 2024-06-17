@@ -119,11 +119,11 @@ async function save() {
         const [ok, data] = await savePost((params['postPath'] as string[]).join('/'), mdContent)
 
         if (ok) {
-            Message('已保存', 'success')
+            await Message('已保存', 'success')
             postContent.value = mdContent
             postHtml.value = data['content_html']
         } else {
-            Message('保存失败', 'error')
+            await Message('保存失败', 'error')
         }
     }
 }
@@ -139,14 +139,14 @@ async function starPost() {
     postStar.params = (route.params['postPath'] as string[]).slice(0, 3).join('/')
 
     await addPostStarData(postStar)
-    Message('收藏成功')
+    await Message('收藏成功')
 }
 async function unStarPost() {
     isStared.value = !isStared.value
     const key = route.fullPath
 
     await deletePostStarData(key)
-    Message('已取消收藏')
+    await Message('已取消收藏')
 }
 
 async function refreshStarStatus() {
@@ -239,7 +239,7 @@ watch(isEditing, async () => {
     }
 })
 
-function copyCodeBlock(codeBlock: HTMLElement) {
+async function copyCodeBlock(codeBlock: HTMLElement) {
     navigator.clipboard.writeText(codeBlock.innerText).then(
         () => {
             Message('已复制到剪切板', 'success')

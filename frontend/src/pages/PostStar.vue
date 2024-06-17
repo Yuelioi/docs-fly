@@ -14,8 +14,7 @@
                 :to="{
                     name: 'post',
                     params: {
-                        postPath: star.postPath,
-                        document: star.document
+                        postPath: star.postPath
                     }
                 }">
                 <div class="flex min-w-0 gap-x-8">
@@ -64,7 +63,7 @@ const stars = ref<PostStar[]>([])
 
 async function deleteData(key: string) {
     await deletePostStarData(key)
-    Message('删除成功')
+    await Message('删除成功')
     refresh()
 }
 async function refresh() {

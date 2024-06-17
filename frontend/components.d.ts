@@ -13,6 +13,7 @@ declare module 'vue' {
     HSearch: typeof import('./src/components/HSearch.vue')['default']
     HSearchWithDialog: typeof import('./src/components/HSearchWithDialog.vue')['default']
     LoginWindow: typeof import('./src/components/LoginWindow.vue')['default']
+    PComment: typeof import('./src/components/PComment.vue')['default']
     PostChapter: typeof import('./src/components/PostChapter.vue')['default']
     PostContent: typeof import('./src/components/PostContent.vue')['default']
     PostToc: typeof import('./src/components/PostToc.vue')['default']

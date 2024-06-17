@@ -1,60 +1,11 @@
 import { fetchContent } from './utils'
 
-export async function getBookComment(category: string, book: string) {
+export async function getComments(url: string) {
     return await fetchContent('/comment', {
-        category: category,
-        book: book
+        url: url
     })
 }
 
-export async function postBookComment(
-    category: string,
-    book: string,
-    nickname: string,
-    parent: number = 0
-) {
-    return await fetchContent(
-        '/comment',
-        {
-            category: category,
-            book: book,
-            nickname: nickname,
-            parent: parent
-        },
-        'post'
-    )
-}
-
-export const getDocumentComment = async (
-    category: string,
-    book: string,
-    locale: string,
-    chapter: string,
-    document: string
-) => {
-    return fetchContent('/comment', {
-        category: category,
-        book: book,
-        locale: locale,
-        chapter: chapter,
-        document: document
-    })
-}
-
-export const postDocumentComment = async (
-    category: string,
-    book: string,
-    locale: string,
-    chapter: string,
-    document: string,
-    parent: number = 0
-) => {
-    return fetchContent('/comment', {
-        category: category,
-        book: book,
-        locale: locale,
-        chapter: chapter,
-        document: document,
-        parent: parent
-    })
+export async function postComment(data: any) {
+    return await fetchContent('/comment', {}, 'post', '', data)
 }

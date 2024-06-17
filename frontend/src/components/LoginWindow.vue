@@ -74,7 +74,7 @@ import { Message } from '@/plugins/message'
 
 import { basicStore } from '@/stores/index'
 const basic = basicStore()
-let { isAdmin, token } = storeToRefs(basic)
+let { isAdmin } = storeToRefs(basic)
 
 const showLoginWindow = defineModel('showLoginWindow')
 
@@ -85,13 +85,12 @@ async function login() {
     if (username.value && password.value) {
         const [ok, data] = await fetchAuthLogin(username.value, password.value)
         if (ok) {
-            localStorage.setItem('token', data)
+            localStorage.setItem('token', data['data'])
             showLoginWindow.value = false
             isAdmin.value = true
-            token.value = data
-            Message('登录成功', 'success')
+            await Message('登录成功', 'success')
         } else {
-            Message('登录失败', 'error')
+            await Message('登录失败', 'error')
         }
     }
 }

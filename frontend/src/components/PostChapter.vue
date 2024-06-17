@@ -82,11 +82,11 @@
                             :to="{
                                 name: 'post',
                                 params: {
-                                    postPath: chapter.metadata.url_path.split('/')
+                                    postPath: chapter.metadata.url.split('/')
                                 }
                             }"
                             :data-index="chapter.id"
-                            :key="chapter.metadata.url_path"
+                            :key="chapter.metadata.url"
                             class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-theme-text-base hover:rounded dark:hover:bg-slate-800">
                             <h5 class="select-none text-lg mb-2 lg:mb-3 text-theme-text-base">
                                 {{ chapter.metadata.title }}
@@ -102,10 +102,10 @@
                             :to="{
                                 name: 'post',
                                 params: {
-                                    postPath: chapter.metadata.url_path.split('/')
+                                    postPath: chapter.metadata.url.split('/')
                                 }
                             }"
-                            :key="chapter.metadata.url_path">
+                            :key="chapter.metadata.url">
                             <h5 class="text-lg font-bold mb-4 lg:mb-3 text-theme-text-base">
                                 {{ chapter_index + 1 + '. ' + chapter.metadata.title }}
                             </h5>
@@ -120,22 +120,22 @@
                                         :to="{
                                             name: 'post',
                                             params: {
-                                                postPath: section.metadata.url_path.split('/')
+                                                postPath: section.metadata.url.split('/')
                                             }
                                         }"
-                                        :key="chapter.metadata.url_path"
+                                        :key="chapter.metadata.url"
                                         ><span> {{ section.metadata.title }}</span></router-link
                                     >
 
                                     <div
                                         v-for="(document, document_index) in section.documents"
-                                        :key="document.url_path"
+                                        :key="document.url"
                                         class="flex border-l border-l-slate-400 last:pb-4">
                                         <router-link
                                             :to="{
                                                 name: 'post',
                                                 params: {
-                                                    postPath: document.url_path.split('/')
+                                                    postPath: document.url.split('/')
                                                 }
                                             }"
                                             :key="chapter_index + document_index"
@@ -153,13 +153,13 @@
 
                                 <div
                                     v-for="(document, document_index) in chapter.documents"
-                                    :key="document.url_path"
+                                    :key="document.url"
                                     class="flex border-l border-l-slate-400">
                                     <router-link
                                         :to="{
                                             name: 'post',
                                             params: {
-                                                postPath: document.url_path.split('/')
+                                                postPath: document.url.split('/')
                                             }
                                         }"
                                         :key="chapter_index + document_index"

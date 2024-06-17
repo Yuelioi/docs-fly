@@ -31,7 +31,8 @@ const makeRequest = async (
     params: any,
     method: 'get' | 'post' | 'put' | 'delete' = 'get',
     base: string = '',
-    withCookie: boolean = false
+    withCookie: boolean = false,
+    data: any = ''
 ): Promise<[boolean, any]> => {
     try {
         if (!['get', 'post', 'put', 'delete'].includes(method)) {
@@ -42,7 +43,8 @@ const makeRequest = async (
             method: method,
             url: base ? `${base}${query}` : `${baseurl}${query}`,
             params: params,
-            withCredentials: withCookie
+            withCredentials: withCookie,
+            data: data
         }
         let response: AxiosResponse
         if (withCookie) {
@@ -76,9 +78,10 @@ export const fetchContent = (
     query: string,
     params: any = '',
     method: 'get' | 'post' | 'put' | 'delete' = 'get',
-    base: string = ''
+    base: string = '',
+    data: any = ''
 ): Promise<[boolean, any]> => {
-    return makeRequest(query, params, method, base, false)
+    return makeRequest(query, params, method, base, false, data)
 }
 
 // 需要cookie的请求

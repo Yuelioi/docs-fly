@@ -1,32 +1,34 @@
 package handlers
 
 import (
-	"docsfly/database"
 	"docsfly/models"
-	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type VisitorInfo struct {
 	IP string
 }
 
-func GetClientIP(c *gin.Context) {
-	// 获取客户端的 IP 地址
-	clientIP := c.ClientIP()
-
-	// 返回 IP 地址给客户端
-	c.JSON(http.StatusOK, gin.H{"ip": clientIP})
-}
-
 func VisitorInsertLog(c *gin.Context) {
-	// 获取客户端的 IP 地址
-	clientIP := c.ClientIP()
 
+	clientTime := currentTime()
 	url := c.Query("url")
+	dbContext, exists := c.Get("db")
+	if !exists {
+		return
+	}
+	db := dbContext.(*gorm.DB)
+
+	var count int64
+	db.Model(models.Entry{}).Scopes(MatchUrlPath(url)).First(count)
+
+	if count == 0 {
+		return
+	}
 
 	urlList := strings.Split(url, "/")
 
@@ -40,17 +42,10 @@ func VisitorInsertLog(c *gin.Context) {
 		return
 	}
 
-	db, err := database.DbManager.Connect()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
-		return
-	}
-
 	today := time.Now().Local()
 
 	vs := models.Visitor{
-		IP:       clientIP,
+		IP:       c.ClientIP(),
 		URL:      url,
 		Time:     today,
 		Category: category,
@@ -60,9 +55,6 @@ func VisitorInsertLog(c *gin.Context) {
 
 	db.Model(&models.Visitor{}).Create(&vs)
 
-	result := VisitorInfo{}
-	result.IP = clientIP
-
 	// 返回 IP 地址给客户端
-	c.JSON(http.StatusOK, result)
+	sendSuccessResponse(c, clientTime, "")
 }

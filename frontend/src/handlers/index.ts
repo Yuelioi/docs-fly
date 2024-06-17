@@ -7,5 +7,5 @@ export { getChapter, getPost, fetchPostHtml, savePost } from './post'
 export { AddVisitorLog } from './visitor'
 export { fetchAuthLogin, fetchCheckToken } from './auth'
 
-export { postBookComment } from './comment'
+export { getComments, postComment } from './comment'
 export { getRandNickname, getRandPoem } from './others'

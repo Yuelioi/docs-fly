@@ -28,7 +28,7 @@
                                 :to="{
                                     name: 'book',
                                     params: {
-                                        bookPath: child.url_path.split('/')
+                                        bookPath: child.url.split('/')
                                     }
                                 }"
                                 ><div class="text-[1rem]"><BIconBook></BIconBook></div>
@@ -92,13 +92,12 @@
             </div>
         </div>
     </div>
-    <button type="button" @click="deleteDB">清除数据库</button>
+
     <HSearchWithDialog v-model:showSearchDialog="showSearchDialog" v-model:navs="filteredNavs">
     </HSearchWithDialog>
 </template>
 
 <script setup lang="ts">
-import { dbManager } from '@/database/manager'
 import { Nav, MetaData } from '@/models'
 import { ref, onMounted, computed } from 'vue'
 import { getNav } from '@/handlers/index'
@@ -113,16 +112,6 @@ import { storeToRefs } from 'pinia'
 import { useRoute, useRouter, type RouteParams } from 'vue-router'
 
 import { useDark, useToggle } from '@vueuse/core'
-
-async function deleteDB() {
-    try {
-        await dbManager.clearDatabase()
-        Message('Database cleared successfully')
-        console.log('Database cleared successfully')
-    } catch (error) {
-        console.error('Failed to clear database:', error)
-    }
-}
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
@@ -157,7 +146,7 @@ const showLoginWindow = ref(false)
 const showSearchDialog = ref(false)
 
 // 更改语言设置
-function changeLocale() {
+async function changeLocale() {
     const lastLocale = locale.value
 
     if (locale.value == 'en') {
@@ -166,7 +155,7 @@ function changeLocale() {
         locale.value = 'en'
     }
 
-    Message(`已切换为${translate('locale')}`)
+    await Message(`已切换为${translate('locale')}`)
     localStorage.setItem('locale', locale.value)
 
     const routeParams = route.params
@@ -191,10 +180,10 @@ function changeLocale() {
 }
 
 // 登出
-function logout() {
+async function logout() {
     isAdmin.value = false
     localStorage.removeItem('token')
-    Message('已成功登出', 'success')
+    await Message('已成功登出', 'success')
 }
 
 function sortMeta(data: MetaData[]) {

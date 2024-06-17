@@ -34,7 +34,7 @@ export async function fetchBasic(
     refValue: Ref<any>,
     defaultValue: any,
     fetchFunction: any,
-    params: any,
+    params: any = {},
     prop: string = 'data'
 ) {
     const [ok, data] = await fetchFunction(params)
@@ -44,3 +44,22 @@ export async function fetchBasic(
         refValue.value = defaultValue
     }
 }
+
+// export async function fetchHandler(
+//     refValue: Ref<any>,
+//     defaultValue: any,
+//     fetchFunction: (params:any) => Promise<[boolean, any]>,
+
+//     prop: string = 'data',
+//     successMessageHandler: () => Promise<void>,
+//     failureMessageHandler: () => Promise<void>
+// ) {
+//     const [ok, data] = await fetchFunction()
+//     if (ok) {
+//         refValue.value = data[prop]
+//         await successMessageHandler()
+//     } else {
+//         refValue.value = defaultValue
+//         await failureMessageHandler()
+//     }
+// }

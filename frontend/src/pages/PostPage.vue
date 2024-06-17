@@ -63,7 +63,7 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
             if (ok) {
                 chapters.value = data['data']
                 await addPostChapterData(
-                    chapters.value.metadata.url_path,
+                    chapters.value.metadata.url,
                     JSON.parse(JSON.stringify(chapters.value))
                 )
             } else {
@@ -84,7 +84,7 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
         const tocData = JSON.parse(data['data']['toc'])
         toc.value = tocData
     } else {
-        Message('获取文章失败', 'error')
+        await Message('获取文章失败', 'error')
         postContent.value = ''
         postHtml.value = ''
         toc.value = []
@@ -98,12 +98,12 @@ watch(route, async (val: RouteLocationNormalizedLoaded, oldVal: RouteLocationNor
     }
 
     await refreshBookContent(val.params, reload)
-    await AddVisitorLog(val.params, val.fullPath)
+    await AddVisitorLog((val.params['postPath'] as string[]).join('/'))
 })
 
 onBeforeMount(async () => {
     await refreshBookContent(route.params)
-    await AddVisitorLog(route.params, route.fullPath)
+    await AddVisitorLog((route.params['postPath'] as string[]).join('/'))
 })
 </script>
 

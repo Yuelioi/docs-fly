@@ -20,18 +20,19 @@ export const getBookData = async (path: string, locale: string) => {
 }
 
 // 获取书籍元信息
-export const getBookMeta = async (postPath: string, locale: string) => {
+export const getBookMeta = async (bookPath: string, locale: string) => {
     return await fetchContent('/book/meta', {
-        postPath: postPath,
+        bookPath: bookPath,
         locale: locale
     })
 }
 
-export const saveBookMeta = async (postPath: string, locale: string, metas: LocalMetaDatas) => {
+// 更新数据库数据
+export const saveBookMeta = async (bookPath: string, locale: string, metas: LocalMetaDatas) => {
     return await fetchContentAdmin(
         '/book/meta',
         {
-            postPath: postPath,
+            bookPath: bookPath,
             locale: locale,
             metas: JSON.stringify(metas)
         },

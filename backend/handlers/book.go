@@ -3,7 +3,6 @@ package handlers
 // BookPage
 
 import (
-	"docsfly/database"
 	"docsfly/global"
 	"docsfly/models"
 	"docsfly/utils"
@@ -42,7 +41,7 @@ func GetStatisticBook(c *gin.Context) {
 	db.Model(models.Visitor{}).Where("category = ?", category).Where("book = ?", book).Count(&bookReadCount)
 
 	// 获取阅读量和书籍标题
-	err := db.Scopes(BasicModel, MatchPath(bookPath)).
+	err := db.Scopes(BasicModel, MatchUrlPath(bookPath)).
 		Select("title").Scan(&bookTitle).Error
 	if err != nil {
 		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Error fetching book statistics")
@@ -50,10 +49,10 @@ func GetStatisticBook(c *gin.Context) {
 	}
 
 	// 获取章节数量
-	db.Scopes(BasicModel, FindChapter, HasPrefixPath(bookPath+"/"+locale)).Count(&chapterCount)
+	db.Scopes(BasicModel, FindChapter, HasPrefixUrlPath(bookPath+"/"+locale)).Count(&chapterCount)
 
 	// 获取书籍数量
-	db.Scopes(BasicModel, FindFile, HasPrefixPath(bookPath+"/"+locale)).Count(&documentCount)
+	db.Scopes(BasicModel, FindFile, HasPrefixUrlPath(bookPath+"/"+locale)).Count(&documentCount)
 
 	type bookStatistic struct {
 		BookTitle     string `json:"book_title"`
@@ -88,7 +87,7 @@ func GetBook(c *gin.Context) {
 	var bookDatas []BookData
 
 	// 查询分类章节和文章章节
-	err := db.Scopes(BasicModel, HasPrefixPath(bookPath+"/"+locale), FindChapter).
+	err := db.Scopes(BasicModel, HasPrefixUrlPath(bookPath+"/"+locale), FindChapter).
 		Order("is_dir DESC, depth ASC, `order` ASC").
 		Find(&entries).Error
 
@@ -105,13 +104,13 @@ func GetBook(c *gin.Context) {
 	for _, entry := range entries {
 		if entry.IsDir {
 			var closeDoc models.Entry
-			db.Scopes(BasicModel, FindFile, HasPrefixPath(entry.Filepath)).
+			db.Scopes(BasicModel, FindFile, HasPrefixUrlPath(entry.Filepath)).
 				Order("depth ASC, `order` ASC").
 				Limit(1).Find(&closeDoc)
 
-			if closeDoc.URLPath != "" {
+			if closeDoc.URL != "" {
 				chapter := BookData{
-					Url:      closeDoc.URLPath,
+					Url:      closeDoc.URL,
 					IsDir:    true,
 					MetaData: entry.MetaData,
 				}
@@ -119,7 +118,7 @@ func GetBook(c *gin.Context) {
 			}
 		} else {
 			bookDatas = append(bookDatas, BookData{
-				Url:      entry.URLPath,
+				Url:      entry.URL,
 				IsDir:    false,
 				MetaData: entry.MetaData,
 			})
@@ -141,7 +140,7 @@ func GetBookMeta(c *gin.Context) {
 
 	db := dbContext.(*gorm.DB)
 
-	filePath := getFilepathByURLPath(db, bookPath+"/"+locale)
+	filePath := getFilepathByURL(db, bookPath+"/"+locale)
 
 	if filePath == "" {
 		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed Find Target Category")
@@ -160,39 +159,42 @@ func GetBookMeta(c *gin.Context) {
 	sendSuccessResponse(c, clientTime, data)
 }
 
-func SaveBookMeta(c *gin.Context) {
-	slug := c.Query("slug")
+func UpdateBookMeta(c *gin.Context) {
+	bookPath := c.Query("bookPath")
 	locale := c.Query("locale")
 
 	metas_data := c.Query("metas")
 
+	clientTime := currentTime()
+
 	ok, err := TokenVerifyMiddleware(c)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		sendErrorResponse(c, http.StatusUnauthorized, clientTime, err.Error())
+		return
 	}
 
 	// 解析meta数据
 	var metas models.MetaDatas
 
 	if err := json.Unmarshal([]byte(metas_data), &metas); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		sendErrorResponse(c, http.StatusBadRequest, clientTime, err.Error())
 		return
 	}
 
-	db, err := database.DbManager.Connect()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Parse Data"})
+	dbContext, exists := c.Get("db")
+	if !exists {
 		return
 	}
 
-	filepath := getFilepathByURLPath(db, slug+"/"+locale)
+	db := dbContext.(*gorm.DB)
+
+	filepath := getFilepathByURL(db, bookPath+"/"+locale)
 
 	// 保存meta.json
 	metapath := global.AppConfig.Resource + "/" + filepath + "/" + global.AppConfig.MetaFile
 	err = utils.WriteJson(metapath, metas)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Save Data"})
+		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed Save Data")
 		return
 	}
 
@@ -204,48 +206,6 @@ func SaveBookMeta(c *gin.Context) {
 	for _, meta := range metas.Documents {
 		db.Model(&models.Entry{}).Where("filepath = ?", filepath+"/"+meta.Name).Updates(meta)
 	}
+	sendSuccessResponse(c, clientTime, "Data saved successfully")
 
-	c.JSON(http.StatusOK, gin.H{"message": "Data saved successfully"})
-}
-
-func UpdateBookMeta(c *gin.Context) {
-	category := c.Query("category")
-
-	db, err := database.DbManager.Connect()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed Parse Data"})
-		return
-	}
-
-	var catInfo models.Entry
-
-	db.Model(&catInfo).Where("identity = ?", category).First(&catInfo)
-
-	// 保存meta.json
-	filepath := catInfo.Filepath + "/" + global.AppConfig.MetaFile
-
-	var metas interface{}
-
-	err = utils.ReadJson(filepath, metas)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load data"})
-		return
-	}
-
-	// 更新数据库
-
-	metaMap := make(map[string]models.MetaData)
-
-	metadataSlice, ok := metas.([]models.MetaData)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error converting to []Metadata"})
-		return
-	}
-	for _, meta := range metadataSlice {
-		metaMap[meta.Name] = meta
-	}
-
-	c.JSON(http.StatusOK, &metas)
 }

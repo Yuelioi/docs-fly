@@ -103,11 +103,18 @@ class IndexDBManager {
                 }
 
                 for (const storeConf of this.dbStores) {
+                    // 跳过收藏夹
+                    if (storeConf.storeName == 'star') {
+                        continue
+                    }
+
                     const objectStore = transaction.objectStore(storeConf.storeName)
+
                     const request = objectStore.clear()
 
                     request.onerror = () => {
                         transaction.abort()
+
                         console.error(`清空对象存储 ${storeConf.storeName} 失败`)
                         reject(`清空对象存储 ${storeConf.storeName} 失败`)
                     }
@@ -194,7 +201,6 @@ class IndexDBManager {
         return new Promise((resolve, reject) => {
             const transaction = this.db!.transaction([storeName], 'readwrite')
             const objectStore = transaction.objectStore(storeName)
-            console.log(key)
 
             const request = objectStore.delete(key)
 

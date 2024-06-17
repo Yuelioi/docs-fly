@@ -20,7 +20,7 @@ type Entry struct {
 type Visitor struct {
 	gorm.Model
 	IP       string    // 访客的 IP 地址
-	URL      string    // 访客访问的 URL
+	URL      string    `json:"url"` // 访客访问的 URL
 	Time     time.Time // 访问时间
 	Category string    // 分类 identity
 	Book     string    // 书籍 identity
@@ -36,14 +36,22 @@ type User struct {
 	IP       string `json:"ip"`
 }
 
-// CommentType 分为 article 和 book
+// 评论系统, 不会有多级嵌套
 type Comment struct {
-	gorm.Model
-	IP          string
-	CreatedAt   time.Time `gorm:"default:0" json:"created_at"`
-	Nickname    string    `gorm:"type:text;not null" json:"nickname"`
-	Content     string    `gorm:"type:text;not null" json:"content"`
-	Parent      uint      `gorm:"default:0" json:"parent"`                       // 父评论 ID，顶级评论为 0
-	Replies     []Comment `gorm:"foreignKey:Parent" json:"replies"`              // 通过外键关联回复
-	CommentType string    `gorm:"type:varchar(20);not null" json:"comment_type"` // 评论类型，文章评论或书籍评论
+	gorm.Model `json:"-"`
+	ID         uint      `json:"id"`
+	IP         string    `json:"-"`
+	CreatedAt  time.Time ` json:"createdAt"`
+	Nickname   string    `gorm:"type:text;not null" json:"nickname"`
+	Content    string    `gorm:"type:text;not null" json:"content"`
+	Parent     uint      `gorm:"default:0" json:"parent"`          // 父评论 ID，默认为0 无父级
+	Replies    []Comment `gorm:"foreignKey:Parent" json:"replies"` // 通过外键关联回复
+	URL        string    `gorm:"type:text;not null" json:"url"`    // 评论所属的链接地址
+}
+
+func (c *Comment) AfterFind(tx *gorm.DB) (err error) {
+	if c.Replies == nil {
+		c.Replies = []Comment{}
+	}
+	return
 }

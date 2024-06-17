@@ -1,9 +1,9 @@
 export class Comment {
-    ip: string = ''
-    created_at: Date = new Date()
+    id: number = 0
+    createdAt: Date = new Date()
     nickname: string = ''
     content: string = ''
     parent: number = 0
     replies: Comment[] = []
-    comment_type: string = ''
+    url: string = ''
 }

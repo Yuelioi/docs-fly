@@ -66,9 +66,9 @@ func sendErrorResponsePageData(c *gin.Context, statusCode int, clientTime time.T
 	})
 }
 
-func getFilepathByURLPath(db *gorm.DB, url_path string) string {
+func getFilepathByURL(db *gorm.DB, url string) string {
 	var filepath string
-	db.Model(models.Entry{}).Where("url_path = ?", url_path).Select("filepath").Scan(&filepath)
+	db.Model(models.Entry{}).Where("url = ?", url).Select("filepath").Scan(&filepath)
 	return filepath
 }
 

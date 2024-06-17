@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"docsfly/database"
 	"docsfly/models"
 	"docsfly/utils"
 	"errors"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 var SigningKey = []byte("docs.yuelili.com")
@@ -24,11 +24,13 @@ func LoginAuth(c *gin.Context) {
 
 	var databasePassword string
 
-	db, err := database.DbManager.Connect()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed load database"})
+	clientTime := currentTime()
+	dbContext, exists := c.Get("db")
+	if !exists {
 		return
 	}
+
+	db := dbContext.(*gorm.DB)
 
 	db.Model(models.User{}).Where("username = ?", username).Pluck("password", &databasePassword)
 
@@ -42,15 +44,15 @@ func LoginAuth(c *gin.Context) {
 
 		tokenString, err := token.SignedString(SigningKey)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "token解析失败"})
+			sendErrorResponse(c, http.StatusUnauthorized, clientTime, "token解析失败")
 			return
 		}
-		c.JSON(http.StatusOK, tokenString)
+		sendSuccessResponse(c, clientTime, tokenString)
 
 	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "账号密码错误"})
+		sendErrorResponse(c, http.StatusUnauthorized, clientTime, "账号密码错误")
+		return
 	}
-
 }
 
 // 解析token

@@ -123,7 +123,7 @@ func Query(c *gin.Context) {
 	// 根据查询条件获取结果
 	query := db.Scopes(BasicModel)
 	if bookPath != "" {
-		query = query.Scopes(HasPrefixPath(bookPath))
+		query = query.Scopes(HasPrefixUrlPath(bookPath))
 	}
 
 	// 获取总查询结果
@@ -179,12 +179,12 @@ func Query(c *gin.Context) {
 
 			var catTitle string
 			var bookTitle string
-			db.Scopes(BasicModel, MatchPath(cat)).Select("title").Scan(&catTitle)
-			db.Scopes(BasicModel, MatchPath(cat+"/"+book)).Select("title").Scan(&bookTitle)
+			db.Scopes(BasicModel, MatchUrlPath(cat)).Select("title").Scan(&catTitle)
+			db.Scopes(BasicModel, MatchUrlPath(cat+"/"+book)).Select("title").Scan(&bookTitle)
 
 			dsData := SearchData{
 				Index:         offset + i + 1,
-				Url:           document.URLPath,
+				Url:           document.URL,
 				CategoryTitle: catTitle,
 				BookTitle:     bookTitle,
 				Locale:        locale,

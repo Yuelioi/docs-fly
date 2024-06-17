@@ -8,7 +8,7 @@ export class MetaData {
     icon = ''
     is_dir = true
     status = 1
-    url_path = ''
+    url = ''
 }
 
 export class LocalMetaDatas {

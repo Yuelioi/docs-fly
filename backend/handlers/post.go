@@ -95,7 +95,7 @@ func GetPost(c *gin.Context) {
 	db := dbContext.(*gorm.DB)
 
 	var documentInfo models.Entry
-	db.Scopes(BasicModel, MatchPath(postPath)).First(&documentInfo)
+	db.Scopes(BasicModel, MatchUrlPath(postPath)).First(&documentInfo)
 
 	htmlContent := string(utils.MarkdownToHTML([]byte(documentInfo.Content)))
 
@@ -158,7 +158,7 @@ func SavePost(c *gin.Context) {
 	db := dbContext.(*gorm.DB)
 
 	var documentInfo models.Entry
-	db.Scopes(BasicModel, MatchPath(postPath)).First(&documentInfo)
+	db.Scopes(BasicModel, MatchUrlPath(postPath)).First(&documentInfo)
 
 	documentPath := global.AppConfig.Resource + "/" + documentInfo.Filepath
 
@@ -243,8 +243,8 @@ func GetChapter(c *gin.Context) {
 
 	var categories, documents, filteredDocuments []models.Entry
 
-	db.Scopes(BasicModel, HasPrefixPath(book), FindFolder).Find(&categories)
-	db.Scopes(BasicModel, HasPrefixPath(book), FindFile).Find(&documents)
+	db.Scopes(BasicModel, HasPrefixUrlPath(book), FindFolder).Find(&categories)
+	db.Scopes(BasicModel, HasPrefixUrlPath(book), FindFile).Find(&documents)
 
 	// 需要忽略README文件
 	for _, doc := range documents {

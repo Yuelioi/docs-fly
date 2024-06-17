@@ -15,38 +15,41 @@ export type MessageType = 'success' | 'info' | 'warn' | 'error' | 'secondary' | 
  *  @property:duration: number 消息持续时间(ms)
  */
 export function Message(message: string, severity: MessageType = 'info', duration: number = 2000) {
-    let mask
-    const current = document.getElementById('message-dialog')
+    return new Promise((resolve, reject) => {
+        let mask
+        const current = document.getElementById('message-dialog')
 
-    // 创建/获取消息元素
-    if (current) {
-        mask = current
-    } else {
-        mask = document.createElement('div')
-        mask.setAttribute(
-            'style',
-            'position: fixed; top:4rem;  width: 100%; display: flex; flex-direction: column; center; align-items: center'
-        )
-        mask.setAttribute('key', Date.now().toString())
-        mask.setAttribute('id', 'message-dialog')
-        document.body.appendChild(mask)
-    }
+        // 创建/获取消息元素
+        if (current) {
+            mask = current
+        } else {
+            mask = document.createElement('div')
+            mask.setAttribute(
+                'style',
+                'position: fixed; top:4rem;  width: 100%; display: flex; flex-direction: column; center; align-items: center'
+            )
+            mask.setAttribute('key', Date.now().toString())
+            mask.setAttribute('id', 'message-dialog')
+            document.body.appendChild(mask)
+        }
 
-    // 创建子元素
-    const child = document.createElement('div')
-    child.setAttribute('style', 'margin-top:1rem')
+        // 创建子元素
+        const child = document.createElement('div')
+        child.setAttribute('style', 'margin-top:1rem')
 
-    // 定时删除子元素
-    setTimeout(() => {
-        render(null, mask)
-        child.remove()
-    }, duration)
+        // 定时删除子元素
+        setTimeout(() => {
+            render(null, mask)
+            child.remove()
+            resolve('')
+        }, duration)
 
-    // 挂载到父元素
-    const VNode = createVNode(VMessage, {
-        severity: severity,
-        message: message
+        // 挂载到父元素
+        const VNode = createVNode(VMessage, {
+            severity: severity,
+            message: message
+        })
+
+        render(VNode, mask.appendChild(child))
     })
-
-    render(VNode, mask.appendChild(child))
 }

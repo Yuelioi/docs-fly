@@ -9,7 +9,7 @@ import (
 )
 
 // 将文件路径转换为适合在网站上使用的路径
-func ConvertFilepathToURLPath(filepath string) string {
+func ConvertFilepathToURL(filepath string) string {
 	// 去除空格
 	cleanedPath := strings.ReplaceAll(filepath, " ", "")
 
