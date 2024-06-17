@@ -17,7 +17,7 @@ export default function generateThemeConfigPlugin(): Plugin {
             }
 
             fs.writeFileSync(
-                path.join(process.cwd(), 'src/configs/themeConfig.json'),
+                path.join(process.cwd(), 'public/configs/themeConfig.json'),
                 JSON.stringify(config, null, 2)
             )
         }

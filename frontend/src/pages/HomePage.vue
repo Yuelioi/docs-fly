@@ -58,7 +58,7 @@
                                             postPath: rndPostUrl
                                         }
                                     }"
-                                    :key="rndPostUrl">
+                                    :key="rndPostUrl.join('/')">
                                     <span>开始阅读</span>
                                 </router-link>
                                 <a href="#" class="text-sm font-semibold leading-6"

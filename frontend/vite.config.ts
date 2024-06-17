@@ -56,5 +56,6 @@ export default defineConfig({
                 prependData: `@import "@/node_modules/vditor/src/assets/less/index.less";`
             }
         }
-    }
+    },
+    publicDir: 'public'
 })

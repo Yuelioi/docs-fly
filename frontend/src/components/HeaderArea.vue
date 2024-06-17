@@ -163,8 +163,9 @@ async function changeLocale() {
 
     Object.keys(routeParams).forEach((key) => {
         if (Array.isArray(routeParams[key])) {
-            const paramArray = routeParams[key]
-            const newParamArray: string[] = paramArray.map((ele: string) =>
+            const paramArray = routeParams[key] as string[]
+
+            const newParamArray = paramArray.map((ele: string) =>
                 ele === lastLocale ? locale.value : ele
             )
             updatedParams[key] = newParamArray

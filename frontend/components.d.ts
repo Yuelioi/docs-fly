@@ -19,7 +19,6 @@ declare module 'vue' {
     PostToc: typeof import('./src/components/PostToc.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    TimeLine: (typeof import('./src/components/TimeLine.vue'))['default']
     VClock: typeof import('./src/components/VClock.vue')['default']
   }
 }

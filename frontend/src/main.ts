@@ -16,7 +16,7 @@ import { themeState, setTheme } from './utils/themeManager'
 app.provide('themeState', themeState)
 app.provide('setTheme', setTheme)
 
-fetch('/src/configs/themeConfig.json')
+fetch('/configs/themeConfig.json')
     .then((response) => response.json())
     .then((config) => {
         themeState.availableThemes = config.themes
