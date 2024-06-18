@@ -112,7 +112,7 @@
                             <thead>
                                 <tr>
                                     <th class="border px-4 py-2">ID</th>
-                                    <th class="border px-4 py-2">{{ translate('displayName') }}</th>
+                                    <th class="border px-4 py-2">{{ translate('title') }}</th>
                                     <th class="border px-4 py-2">{{ translate('order') }}</th>
                                     <th class="border px-4 py-2">{{ translate('status') }}</th>
                                 </tr>
@@ -120,18 +120,22 @@
                             <tbody>
                                 <tr v-for="meta in metas.categorys" :key="meta.url">
                                     <td class="px-4 py-2">
-                                        <input type="text" class="" disabled v-model="meta.name" />
+                                        <input
+                                            type="text"
+                                            class="bg-transparent"
+                                            disabled
+                                            v-model="meta.name" />
                                     </td>
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
-                                            class="p-2 border rounded-sm w-full"
+                                            class="p-2 border rounded-sm bg-transparent w-full"
                                             v-model="meta.title" />
                                     </td>
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
-                                            class="p-2 border rounded-sm w-full"
+                                            class="p-2 border bg-transparent rounded-sm w-full"
                                             v-model.number="meta.order" />
                                     </td>
                                     <td class="px-4 py-2 text-center">
@@ -148,18 +152,22 @@
                             <tbody>
                                 <tr v-for="meta in metas.documents" :key="meta.url">
                                     <td class="px-4 py-2">
-                                        <input type="text" class="" disabled v-model="meta.name" />
+                                        <input
+                                            type="text"
+                                            class="bg-transparent"
+                                            disabled
+                                            v-model="meta.name" />
                                     </td>
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
-                                            class="p-2 border rounded-sm w-full"
+                                            class="p-2 bg-transparent border rounded-sm w-full"
                                             v-model="meta.title" />
                                     </td>
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
-                                            class="p-2 border rounded-sm w-full"
+                                            class="p-2 bg-transparent border rounded-sm w-full"
                                             v-model.number="meta.order" />
                                     </td>
                                     <td class="px-4 py-2 text-center">
@@ -196,9 +204,6 @@ import { addZero } from '@/utils'
 import { BookData, BookStatistic } from '@/models/book'
 
 import { LocalMetaDatas } from '@/models/base'
-import { Message } from '@/plugins/message'
-
-import VComment from '@/components/common/VComment.vue'
 
 import { BIconBook, BIconFiletypeDoc, BIconGraphUpArrow, BIconJournal } from 'bootstrap-icons-vue'
 
@@ -231,10 +236,6 @@ watch(tabId, async (newVal: number) => {
             metas.value = data['data']
         }
     }
-})
-
-watch(locale, async () => {
-    await refreshBook(route.params)
 })
 
 async function saveMeta() {
@@ -293,6 +294,10 @@ async function refreshBook(params: RouteParams) {
         bookStatistic.value = new BookStatistic()
     }
 }
+
+watch(locale, async () => {
+    await refreshBook(route.params)
+})
 
 watch(route, async (val: RouteLocationNormalizedLoaded) => {
     refreshBook(val.params)

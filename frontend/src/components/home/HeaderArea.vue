@@ -106,7 +106,6 @@ const toggleDark = useToggle(isDark)
 const route = useRoute()
 const router = useRouter()
 
-import { Message } from '@/plugins/message'
 import {
     BIconBook,
     BIconBoxArrowRight,

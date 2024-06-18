@@ -1,8 +1,9 @@
 <template>
-    <div class="fixed h-full w-full left-0 py-64 px-8 z-50">
-        <div class="rounded-lg w-[576px] mx-auto top-36 bg-theme-card dark:bg-dark-light">
+    <div ref="refDom" class="fixed h-full w-full left-0 py-64 px-8 z-50">
+        <div
+            class="rounded-lg w-[576px] mx-auto shadow-2xl top-36 bg-theme-card dark:bg-dark-light">
             <div class="flex flex-col justify-center py-12 relative">
-                <div class="absolute right-4 top-4">
+                <div class="absolute right-4 top-4 text-[1.25rem]">
                     <BIconX @click="showLoginWindow = false"></BIconX>
                 </div>
 
@@ -12,7 +13,7 @@
                         src="https://cdn.yuelili.com/web/assets/logo.webp"
                         alt="Your Company" />
                     <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight">
-                        请登录管理员账号
+                        请登录账号
                     </h2>
                 </div>
 
@@ -67,6 +68,8 @@
 
 <script setup lang="ts">
 import { BIconX } from 'bootstrap-icons-vue'
+
+const refDom = ref<HTMLElement>()
 
 const basic = basicStore()
 let { isAdmin } = storeToRefs(basic)

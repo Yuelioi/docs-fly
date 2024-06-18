@@ -53,7 +53,7 @@ func loopNode(n *html.Node, entries *[]Toc) {
 func generateTOC(htmlContent string) ([]byte, error) {
 	doc, err := html.Parse(strings.NewReader(htmlContent))
 	if err != nil {
-		return nil, err
+		return []byte{'[', ']'}, err
 	}
 
 	var entries []Toc
@@ -94,21 +94,49 @@ func GetPost(c *gin.Context) {
 
 	db := dbContext.(*gorm.DB)
 
-	var documentInfo models.Entry
-	db.Scopes(BasicModel, MatchUrlPath(postPath)).First(&documentInfo)
+	// TODO 没有文章 就尝试切换语言
 
-	htmlContent := string(utils.MarkdownToHTML([]byte(documentInfo.Content)))
+	var entryInfo models.Entry
+	var htmlContent string
+	db.Scopes(BasicModel, MatchUrlPath(postPath)).First(&entryInfo)
 
+	if entryInfo.IsDir && entryInfo.Content == "" {
+
+		var cats []models.Entry
+		db.Scopes(BasicModel, HasPrefixUrlPath(postPath), FindFolder).Where("depth = ?", entryInfo.Depth+1).Find(&cats)
+
+		var docs []models.Entry
+		db.Scopes(BasicModel, HasPrefixUrlPath(postPath), FindFile).Where("depth = ?", entryInfo.Depth+1).Find(&docs)
+
+		htmlContent = "<h2>小节</h2><ul>"
+
+		for _, cat := range cats {
+			htmlContent += fmt.Sprintf("<li><a href=\"#/post/%s\">%s</a></li>", cat.URL, cat.Title)
+		}
+
+		htmlContent += "</ul><h2>文章</h2><ul>"
+
+		// 生成文件部分的 HTML
+		for _, doc := range docs {
+			htmlContent += fmt.Sprintf("<li><a href=\"#/post/%s\">%s</a></li>", doc.URL, doc.Title)
+		}
+
+		htmlContent += "</ul></body></html>"
+
+	} else {
+		htmlContent = string(utils.MarkdownToHTML([]byte(entryInfo.Content)))
+	}
+
+	// 文件没有内容 文件夹没有子级 那就报错吧
 	if htmlContent == "" {
 		sendErrorResponse(c, http.StatusNotFound, clientTime, "No documents found")
-
 		return
 	}
 
 	toc, _ := generateTOC(htmlContent)
 
 	responseData := PostResponseBasicData{
-		ContentMarkdown: documentInfo.Content,
+		ContentMarkdown: entryInfo.Content,
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
 	}
@@ -156,6 +184,8 @@ func SavePost(c *gin.Context) {
 	}
 
 	db := dbContext.(*gorm.DB)
+
+	// TODO 如果保存的是章节, 那么请保存到readme文件
 
 	var documentInfo models.Entry
 	db.Scopes(BasicModel, MatchUrlPath(postPath)).First(&documentInfo)

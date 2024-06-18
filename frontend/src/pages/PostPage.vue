@@ -23,8 +23,6 @@
 import { Chapter, type Toc } from '@/models/post'
 import type { RouteLocationNormalizedLoaded, RouteParams } from 'vue-router'
 
-import { Message } from '@/plugins/message'
-
 const postContent = ref('')
 const postHtml = ref('')
 const toc = ref<Toc[]>([])

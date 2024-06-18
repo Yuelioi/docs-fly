@@ -25,7 +25,7 @@ export const basicStore = defineStore('basic', () => {
             en: 'English',
             zh: '中文'
         },
-        displayName: {
+        title: {
             en: 'Display Name',
             zh: '显示名称'
         },

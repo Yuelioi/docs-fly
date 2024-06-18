@@ -7,7 +7,7 @@
                 cols="30"
                 rows="3"
                 v-model="commentContent"
-                class="w-full py-3 px-4 rounded-br-md min-h-12"
+                class="w-full bg-theme-card py-3 px-4 rounded-br-md min-h-12"
                 :placeholder="poem"></textarea>
         </div>
         <div class="mt-2 flex">

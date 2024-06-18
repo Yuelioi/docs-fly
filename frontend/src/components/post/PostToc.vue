@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { toRefs } from 'vue'
-import type { Toc } from '@/models'
+import type { Toc } from '@/models/post'
 
 const props = defineProps({
     toc: {

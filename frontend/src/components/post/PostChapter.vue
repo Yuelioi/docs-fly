@@ -241,7 +241,7 @@ function init() {
     chapters.value.children.forEach((chapter: Chapter, index: number) => {
         const chapterData = {
             ...chapter,
-            collapsed: chapters.value.children.length > virtual_limit_length,
+            collapsed: false,
             id: index
         } as ChapterData
 

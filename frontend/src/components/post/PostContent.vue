@@ -41,8 +41,6 @@
 <script setup lang="ts">
 import Vditor from 'vditor'
 
-import { Message } from '@/plugins/message'
-
 import { PostStar } from '@/models/star'
 import {
     BIconBookmarkPlus,

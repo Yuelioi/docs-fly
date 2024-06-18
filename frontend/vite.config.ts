@@ -34,13 +34,13 @@ export default defineConfig({
                 }
             ],
             dirs: [
-                './src/stores',
-                './src/services/**',
-                './src/models/**',
-                './src/utils/**',
-                './src/plugins',
+                './src/stores/',
+                './src/services/',
+                './src/models/',
+                './src/utils/',
+                './src/plugins/*',
                 './src/components/**',
-                './src/database/**'
+                './src/database/'
             ]
         }),
 
