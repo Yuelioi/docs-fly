@@ -159,6 +159,9 @@ func refreshItemMeta(metadata *models.MetaData, localMeta *models.MetaData, dbMe
 		if value, ok := assignIfNotZero(localMeta.Order, dbMeta.Order); ok {
 			metadata.Order = value
 		}
+		if value, ok := assignIfNotZero(localMeta.IsDir, dbMeta.IsDir); ok {
+			metadata.IsDir = value
+		}
 		if value, ok := assignIfNotZero(localMeta.Icon, dbMeta.Icon); ok {
 			metadata.Icon = value
 		}

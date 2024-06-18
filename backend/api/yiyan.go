@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -34,7 +34,7 @@ func GetYiYan() (Hitokoto, error) {
 	defer resp.Body.Close()
 
 	// 读取响应体
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("读取响应体失败:", err)
 		return Hitokoto{}, err
