@@ -17,9 +17,9 @@
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import type { MessageType } from './message'
+import type { messageType } from './message'
 defineProps<{
-    type: MessageType
+    type: messageType
     message: string
 }>()
 

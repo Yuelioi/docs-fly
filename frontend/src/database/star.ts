@@ -4,7 +4,7 @@
  * */
 
 import type { DBData } from './model'
-import type { PostStar } from '@/models'
+import type { PostStar } from '@/models/star'
 import { StoreConf } from './model'
 
 import { dbManager } from './manager'

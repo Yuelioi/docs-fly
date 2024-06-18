@@ -3,7 +3,7 @@
  * @route /
  * */
 
-import type { SearchOption, Nav } from '@/models'
+import type { SearchOption, Nav } from '@/models/home'
 import type { DBData } from './model'
 import { StoreConf } from './model'
 

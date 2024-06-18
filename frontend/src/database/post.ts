@@ -4,7 +4,7 @@
  * */
 
 import { dbManager } from './manager'
-import type { Chapter } from '@/models'
+import type { Chapter } from '@/models/post'
 import type { DBData } from './model'
 
 import { StoreConf } from './model'

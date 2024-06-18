@@ -1,4 +1,4 @@
-import type { LocalMetaDatas } from '@/models'
+import type { LocalMetaDatas } from '@/models/base'
 import { fetchContent, fetchContentAdmin } from './utils'
 
 // BookPage

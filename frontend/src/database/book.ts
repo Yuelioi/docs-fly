@@ -3,9 +3,8 @@
  * @route /book
  * */
 
-import type { LocalMetaDatas } from '@/models'
+import type { LocalMetaDatas } from '@/models/base'
 import type { DBData } from './model'
-import type { RouteParams } from 'vue-router'
 
 import { dbManager } from './manager'
 import { StoreConf } from './model'
