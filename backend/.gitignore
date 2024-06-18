@@ -1,3 +1,5 @@
 *.exe
 test
 tmp
+
+config.toml

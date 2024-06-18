@@ -11,7 +11,7 @@ import (
 
 func WriteConfigToFile(configName string) error {
 	// 打开文件以进行读操作
-	file, err := os.OpenFile("conf/app.toml", os.O_RDWR, 0644)
+	file, err := os.OpenFile("conf/config.toml", os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}

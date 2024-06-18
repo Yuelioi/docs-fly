@@ -27,7 +27,7 @@ var AppConfig Config
 
 func init() {
 	// 解析配置文件
-	if _, err := toml.DecodeFile("conf/app.toml", &AppConfig); err != nil {
+	if _, err := toml.DecodeFile("conf/config.toml", &AppConfig); err != nil {
 		log.Fatal(err)
 	}
 
