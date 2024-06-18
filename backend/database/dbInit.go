@@ -257,9 +257,6 @@ func DBInit(db *gorm.DB) error {
 		// 本地当前元数据表缓存 用于更新
 		var localMetasCache *LocalMetaDatasCache
 
-		// Entry
-		var entry models.Entry
-
 		// 初始化一些路径
 		path = utils.ReplaceSlash(path)
 		relative_path := strings.ReplaceAll(path, root+"/", "")
@@ -286,6 +283,19 @@ func DBInit(db *gorm.DB) error {
 
 		localMetasCache = findLocalMetas(metaMaps, relative_parent)
 
+		var entry models.Entry
+
+		// 初始化entry 查找数据库 有就直接用数据库的
+		if value, exists := metaMaps.DB.Store[relative_path]; exists {
+			entry = value
+			dbMeta = &entry.MetaData
+
+		} else {
+			entry = models.Entry{
+				ModTime: info.ModTime(),
+			}
+		}
+
 		// 查找当前本地元数据
 		if value, exists := metaMaps.Local.Store[relative_path]; exists {
 			localMeta = &value
@@ -294,26 +304,23 @@ func DBInit(db *gorm.DB) error {
 		// 根据文件信息先初始化一个
 		metaData = createMetaData(info, relative_path)
 
-		// 查找数据库的信息
-		searchDBMetaDatas(metaMaps.DB.Store, relative_path, dbMeta)
-
-		// 刷新Metadata
+		// 基于本地 以及数据库的 更新Metadata
+		// 可以根据是否有数据库信息 是否有本地信息提前判断
+		// 但是常态是本地数据库都有信息,因此忽略
 		refreshItemMeta(&metaData, localMeta, dbMeta)
+
+		// 数据库 当前 本地值 三值合一
+		entry.MetaData = metaData
 
 		// 检查数据库内容是否变动
 		dbNeedUpdate := compare(&metaData, dbMeta)
 
 		// 检查本地数据是否变动
-		metaNeedUpdate := compare(localMeta, dbMeta)
+		metaNeedUpdate := compare(&metaData, localMeta)
 
 		if metaNeedUpdate {
 			localMetasCache.ParentFolder = relative_parent
 			localMetasCache.NeedWrite = true
-		}
-
-		entry = models.Entry{
-			MetaData: metaData,
-			ModTime:  info.ModTime(),
 		}
 
 		if entry.Order == 0 {
@@ -322,7 +329,7 @@ func DBInit(db *gorm.DB) error {
 
 		if info.IsDir() {
 			entry.IsDir = true
-			// 追加真实分类内容
+			// 追加真实(本地要用的)分类内容
 			localMetasCache.Categorys = append(localMetasCache.Categorys, entry.MetaData)
 
 		} else {
@@ -335,10 +342,15 @@ func DBInit(db *gorm.DB) error {
 		if value, exists := metaMaps.DB.Store[relative_path]; exists {
 			delete(metaMaps.DB.Remain, relative_path)
 
-			// 文件变动或者数据变动 => 更新
-			// 文件夹数据变动 或者文件夹下的README变动(注意文件夹下文件内容变化,并不会使文件夹修改时间变化)
-			if !value.ModTime.Equal(info.ModTime()) || dbNeedUpdate || checkReadme(*metaMaps, info.IsDir(), relative_path) {
+			// 文件  	数据变动 => 更新
+			// 文件夹	文件夹下文件增删变动 (注意: 文件内容变化,不会使父级文件夹修改时间变化)
+			if !value.ModTime.Equal(info.ModTime()) || dbNeedUpdate || (info.IsDir() && checkReadme(*metaMaps, relative_path)) {
+				fmt.Printf("info.ModTime(): %v\n", info.ModTime())
+				fmt.Println(value.ModTime)
+				fmt.Println(value.ModTime.Equal(info.ModTime()))
+
 				entry.ModTime = info.ModTime()
+
 				dbDatas.Updates = append(dbDatas.Updates, entry)
 			}
 
@@ -382,6 +394,7 @@ func DBInit(db *gorm.DB) error {
 		Deletes: dbDatas.Deletes,
 	}
 
+	// 第一次初始化会新增meta.json,导致父级文件夹修改时间变化
 	err = DBUpdate(db, collections)
 
 	if err != nil {

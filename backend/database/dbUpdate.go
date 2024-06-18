@@ -4,7 +4,6 @@ import (
 	"docsfly/models"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // 数据库数据管理
@@ -40,12 +39,19 @@ func BatchCD(tx *gorm.DB, datas []models.Entry, batchSize int, method string) (e
 
 		if method == "Create" {
 			if err = tx.Create(&batch).Error; err != nil {
-				return err
+				return
 			}
-		} else if method == "Delete" {
+		} else if method == "Update" {
+			for _, b := range batch {
+				if err = tx.Save(b).Error; err != nil {
+					return
+				}
+
+			}
+		} else {
 			for _, entry := range batch {
 				if err = tx.Where("filepath = ?", entry.Filepath).Delete(&entry).Error; err != nil {
-					return err
+					return
 				}
 			}
 		}
@@ -59,14 +65,9 @@ func BatchCD(tx *gorm.DB, datas []models.Entry, batchSize int, method string) (e
 //
 //	db         *gorm.DB        - 数据库连接对象
 //	collection DBCollections     - 包含要批量创建、更新和删除的数据集合
-//
-// d
-// 返回:
-//
-//	err        error           - 如果操作过程中出现错误，则返回错误，否则返回nil
 func DBUpdate(db *gorm.DB, collection DBCollections) (err error) {
 
-	// 无变换 直接跳过
+	// 无变化 直接跳过
 	if len(collection.Creates) == 0 && len(collection.Updates) == 0 && len(collection.Deletes) == 0 {
 		return nil
 	}
@@ -97,22 +98,12 @@ func DBUpdate(db *gorm.DB, collection DBCollections) (err error) {
 		}
 		if len(collection.Updates) > 0 {
 			// 批量更新
-
-			for i := 0; i < len(collection.Updates); i += batchSize {
-				end := i + batchSize
-				if end > len(collection.Updates) {
-					end = len(collection.Updates)
-				}
-				batch := collection.Updates[i:end]
-
-				// 使用
-				// https://gorm.io/docs/create.html#Upsert-x2F-On-Conflict
-				db.Clauses(clause.OnConflict{
-					Columns:   []clause.Column{{Name: "filepath"}},
-					UpdateAll: true,
-				}).Create(&batch)
-
+			err = BatchCD(tx, collection.Updates, batchSize, "Update")
+			if err != nil {
+				return err
 			}
+			// 使用原生 SQL 批量更新
+
 		}
 		if len(collection.Deletes) > 0 {
 			err = BatchCD(tx, collection.Deletes, batchSize, "Delete")

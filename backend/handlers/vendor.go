@@ -1,10 +1,13 @@
-package api
+package handlers
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Hitokoto struct {
@@ -22,7 +25,7 @@ type Hitokoto struct {
 	Length     int    `json:"length"`
 }
 
-func GetYiYan() (Hitokoto, error) {
+func yiyan() (Hitokoto, error) {
 	url := "https://v1.hitokoto.cn/?c=b"
 
 	// 发送 GET 请求
@@ -45,4 +48,9 @@ func GetYiYan() (Hitokoto, error) {
 
 	// 输出响应体
 	return hitokoto, nil
+}
+
+func GetYiYan(c *gin.Context) {
+	hitokoto, _ := yiyan()
+	sendSuccessResponse(c, time.Now(), hitokoto)
 }

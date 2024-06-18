@@ -30,7 +30,8 @@
         "fullpath",
         "Hitokoto",
         "metas",
-        "url"
+        "url",
+        "yiyan"
     ],
     "git.ignoreLimitWarning": true
 }

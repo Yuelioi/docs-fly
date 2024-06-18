@@ -74,13 +74,6 @@ func WriteContentToDocsData(datas ...*[]models.Entry) {
 	wg.Wait()
 }
 
-// 在数据库Map中搜索元数据
-func searchDBMetaDatas(cache map[string]models.Entry, relative_path string, dbMeta *models.MetaData) {
-	if value, exists := cache[relative_path]; exists {
-		*dbMeta = value.MetaData
-	}
-}
-
 // compare 比较本地元数据和数据库元数据
 // 不相等或者有nil 返回false  相等返回false
 func compare(localMeta *models.MetaData, dbMeta *models.MetaData) bool {
@@ -147,12 +140,7 @@ func WriteMetaData(
 
 // 检查是否有README 并且README是否变动
 // 返回是否需要更新
-func checkReadme(metaMaps MetaMaps, IsDir bool, relative_path string) bool {
-
-	// 不是文件夹直接跳过
-	if !IsDir {
-		return false
-	}
+func checkReadme(metaMaps MetaMaps, relative_path string) bool {
 
 	relative_READMEPath := relative_path + "/" + "README.md"
 
