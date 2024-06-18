@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { getImageUrl } from '@/utils/divergence'
+
 class Clock {
     pre: string = '1.'
     month: string = '00'
@@ -24,8 +25,6 @@ class Clock {
         return this[propName] as string
     }
 }
-
-import { ref } from 'vue'
 
 const clock = ref<Clock>(new Clock())
 const clockData = ref<string[]>([])

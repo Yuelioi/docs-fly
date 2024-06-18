@@ -180,8 +180,8 @@
 </template>
 
 <script setup lang="ts">
-import { ChapterData, Chapter, MetaData } from '@/models'
-import { ref, computed, watch, onMounted } from 'vue'
+import { ChapterData, Chapter } from '@/models/post'
+import { MetaData } from '@/models/base'
 
 import { addZero } from '@/utils'
 import { BIconCaretLeft, BIconCaretRight, BIconFilterLeft, BIconJustify } from 'bootstrap-icons-vue'

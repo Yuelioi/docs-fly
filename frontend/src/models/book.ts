@@ -7,6 +7,7 @@ export class BookData {
 }
 
 export class BookStatistic {
+    bookCover = ''
     bookTitle = ''
     readCount = 0
     chapterCount = 0

@@ -3,15 +3,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { storeToRefs } from 'pinia'
-import { fetchCheckToken } from '@/services/index'
-
-import { basicStore } from '@/stores/index'
-import { dbManager } from '@/database/manager'
-import { Message } from '@/plugins/message'
-import { getAppVersion } from '@/services/others'
-import { fetchBasic } from '@/utils'
 const basic = basicStore()
 let { isAdmin, locale, nickname } = storeToRefs(basic)
 

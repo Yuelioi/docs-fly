@@ -3,7 +3,7 @@
         <div class="rounded-lg w-[576px] mx-auto top-36 bg-theme-card dark:bg-dark-light">
             <div class="flex flex-col justify-center py-12 relative">
                 <div class="absolute right-4 top-4">
-                    <i class="pi pi-times" @click="showLoginWindow = false" :size="24"></i>
+                    <BIconX @click="showLoginWindow = false"></BIconX>
                 </div>
 
                 <div class="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -66,13 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { fetchAuthLogin } from '@/services'
-import { storeToRefs } from 'pinia'
+import { BIconX } from 'bootstrap-icons-vue'
 
-import { Message } from '@/plugins/message'
-
-import { basicStore } from '@/stores/index'
 const basic = basicStore()
 let { isAdmin } = storeToRefs(basic)
 

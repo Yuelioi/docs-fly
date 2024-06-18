@@ -19,17 +19,39 @@ export default defineConfig({
         VueDevTools(),
         dynamicThemePlugin(),
         AutoImport({
+            dts: 'auto-imports.d.ts',
+
+            imports: [
+                'vue',
+                'vue-router',
+                'pinia',
+                { '@vueuse/core': ['useDark', 'useToggle'] },
+
+                {
+                    from: 'vue-router',
+                    imports: ['RouteParams'],
+                    type: true
+                }
+            ],
             dirs: [
-                './src/handlers',
-                './src/models',
-                './src/utils',
-                './src/plugins/**',
+                './src/stores',
+                './src/services/**',
+                './src/models/**',
+                './src/utils/**',
+                './src/plugins',
                 './src/components/**',
-                './src/database'
+                './src/database/**'
             ]
         }),
+
         Components({
-            dts: true // enabled by default if `typescript` is installed
+            dts: true,
+            types: [
+                {
+                    from: 'bootstrap-icons-vue',
+                    names: ['BootstrapIconsPlugin']
+                }
+            ]
         })
     ],
     resolve: {

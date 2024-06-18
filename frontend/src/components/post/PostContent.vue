@@ -39,17 +39,11 @@
 </template>
 
 <script setup lang="ts">
-import { savePost } from '@/services/index'
-import { basicStore, keyStore } from '@/stores/index'
-import { watch, ref, computed, onMounted, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
-
 import Vditor from 'vditor'
 
 import { Message } from '@/plugins/message'
 
-import { addPostStarData, deletePostStarData, getPostStarData } from '@/database/star'
-import { PostStar } from '@/models'
+import { PostStar } from '@/models/star'
 import {
     BIconBookmarkPlus,
     BIconBookmarkDash,

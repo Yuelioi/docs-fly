@@ -125,12 +125,10 @@
 </template>
 
 <script setup lang="ts">
-import { HomeStatistic, MetaData } from '@/models'
+import { MetaData } from '@/models/base'
+import { HomeStatistic } from '@/models/home'
 import { onMounted, ref } from 'vue'
 import Clock from '@/components/home/VClock.vue'
-import { fetchStatisticHome, fetchYiYan } from '@/services'
-import { fetchBasic } from '@/utils'
-import { getRandPost } from '@/services/others'
 
 const yiyan = ref('')
 

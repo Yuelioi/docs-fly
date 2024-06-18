@@ -20,21 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { Chapter, type Toc } from '@/models'
+import { Chapter, type Toc } from '@/models/post'
 import type { RouteLocationNormalizedLoaded, RouteParams } from 'vue-router'
 
 import { Message } from '@/plugins/message'
-
-import { ref, onBeforeMount, watch } from 'vue'
-import { useRoute } from 'vue-router'
-
-import PostChapter from '@/components/post/PostChapter.vue'
-import PostContent from '@/components/post/PostContent.vue'
-import PostToc from '@/components/post/PostToc.vue'
-
-import { getPostChapterData, addPostChapterData } from '@/database/index'
-import { getPost, getChapter } from '@/services/index'
-import { AddVisitorLog } from '@/services/index'
 
 const postContent = ref('')
 const postHtml = ref('')

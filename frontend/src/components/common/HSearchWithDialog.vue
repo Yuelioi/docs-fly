@@ -138,12 +138,9 @@
 
 <script setup lang="ts">
 // TODO 搜索结果分页
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
-import { useRouter } from 'vue-router'
-
-import { fetchKeyword } from '@/services'
-import { MetaData, SearchData, Nav } from '@/models'
+import { MetaData } from '@/models/base'
+import { SearchData, Nav } from '@/models/home'
 import { BIconBook, BIconLock, BIconSearch, BIconUnlock, BIconX } from 'bootstrap-icons-vue'
 
 // 默认不pin

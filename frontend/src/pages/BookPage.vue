@@ -2,7 +2,7 @@
     <div class="container mx-auto px-16 py-16 md:max-w-screen-md">
         <div class="flex">
             <div class="book-logo md:basis-1/3 lg:basis-1/4">
-                <img src="https://docs.yuelili.com/uploads/202305/1761bef95f7235da.jpg" alt="" />
+                <img :src="bookStatistic.bookCover" alt="" />
             </div>
             <div class="flex flex-col px-6 select-none">
                 <div class="py-3 border-b">
@@ -193,23 +193,13 @@ import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
 
 import { addZero } from '@/utils'
 
-import { BookData, BookStatistic, LocalMetaDatas } from '@/models'
+import { BookData, BookStatistic } from '@/models/book'
+
+import { LocalMetaDatas } from '@/models/base'
 import { Message } from '@/plugins/message'
-import {
-    getBookData,
-    getBookMeta,
-    fetchStatisticBook,
-    saveBookMeta,
-    updateBookMeta
-} from '@/services/index'
 
 import VComment from '@/components/common/VComment.vue'
 
-import { getDBBookData, addDBBookData } from '@/database'
-
-import { ref, onMounted, watch, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { basicStore } from '@/stores/index'
 import { BIconBook, BIconFiletypeDoc, BIconGraphUpArrow, BIconJournal } from 'bootstrap-icons-vue'
 
 const basic = basicStore()
@@ -293,6 +283,8 @@ async function refreshBook(params: RouteParams) {
 
     if (ok2) {
         const statisticData = data2['data']
+
+        bookStatistic.value.bookCover = statisticData['book_cover']
         bookStatistic.value.bookTitle = statisticData['book_title']
         bookStatistic.value.readCount = statisticData['read_count']
         bookStatistic.value.chapterCount = statisticData['chapter_count']

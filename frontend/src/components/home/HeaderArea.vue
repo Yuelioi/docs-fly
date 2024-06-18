@@ -50,7 +50,6 @@
 
                 <!-- 右侧工具 -->
                 <div class="flex items-center">
-                    <!-- pi-sun -->
                     <button @click="toggleDark()">
                         <div
                             class="outline-theme-primary outline-1 hover:outline ml-2 p-2 text-lg rounded-lg">
@@ -98,20 +97,8 @@
 </template>
 
 <script setup lang="ts">
-import { Nav, MetaData } from '@/models'
-import { ref, onMounted, computed } from 'vue'
-import { getNav } from '@/services/index'
-import { getDBNav, addDBNav } from '@/database'
-
-import LoginWindow from '@/components/home/LoginWindow.vue'
-import HSearch from '@/components/common/HSearch.vue'
-import HSearchWithDialog from '@/components/common/HSearchWithDialog.vue'
-
-import { storeToRefs } from 'pinia'
-
-import { useRoute, useRouter, type RouteParams } from 'vue-router'
-
-import { useDark, useToggle } from '@vueuse/core'
+import { Nav } from '@/models/home'
+import { MetaData } from '@/models/base'
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
@@ -119,7 +106,6 @@ const toggleDark = useToggle(isDark)
 const route = useRoute()
 const router = useRouter()
 
-import { basicStore } from '@/stores/index'
 import { Message } from '@/plugins/message'
 import {
     BIconBook,

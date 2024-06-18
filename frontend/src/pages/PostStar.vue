@@ -24,7 +24,7 @@
                                 class="text-sm font-semibold leading-6 text-gray-900 dark:text-slate-200">
                                 {{ index + 1 + '. ' + star.params }}
                             </p>
-                            <i class="pi pi-book pl-4 pr-2"></i>
+                            <BIconBook class="pl-4 pr-2"></BIconBook>
                             <span class="text-sm leading-6">
                                 {{ star.params + ' / ' + star.params }}
                             </span>
@@ -50,12 +50,9 @@
 
 <script setup lang="ts">
 // TODO 星星结果分页
-import { ref, onMounted } from 'vue'
-
-import { Message } from '@/plugins/message'
 
 import { getPostStarsData, deletePostStarData } from '@/database/star'
-import { PostStar } from '@/models'
+import { PostStar } from '@/models/star'
 
 import { formatDate } from '@/utils'
 

@@ -52,10 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { storeToRefs } from 'pinia'
 import { Comment } from '@/models/comment'
-import { getRandNickname, getRandPoem, getComments, postComment } from '@/services/index'
 
 import { BIconArrowClockwise } from 'bootstrap-icons-vue'
 const commentContent = ref('')
@@ -63,10 +60,6 @@ const poem = ref('')
 import { fetchBasic, formatDate } from '@/utils'
 
 const route = useRoute()
-
-import { basicStore } from '@/stores'
-import { useRoute } from 'vue-router'
-import { Message } from '@/plugins/message'
 
 const basic = basicStore()
 const locale = computed(() => basic.locale)

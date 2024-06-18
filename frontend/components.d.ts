@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BackTop: typeof import('./src/components/home/BackTop.vue')['default']
+    BootstrapIconsPlugin: typeof import('bootstrap-icons-vue')['BootstrapIconsPlugin']
     FooterArea: typeof import('./src/components/home/FooterArea.vue')['default']
     HeaderArea: typeof import('./src/components/home/HeaderArea.vue')['default']
     HSearch: typeof import('./src/components/common/HSearch.vue')['default']
@@ -17,8 +18,6 @@ declare module 'vue' {
     PostChapter: typeof import('./src/components/post/PostChapter.vue')['default']
     PostContent: typeof import('./src/components/post/PostContent.vue')['default']
     PostToc: typeof import('./src/components/post/PostToc.vue')['default']
-    RouterLink: typeof import('vue-router')['RouterLink']
-    RouterView: typeof import('vue-router')['RouterView']
     VClock: typeof import('./src/components/home/VClock.vue')['default']
     VComment: typeof import('./src/components/common/VComment.vue')['default']
   }
