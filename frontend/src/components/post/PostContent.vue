@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { savePost } from '@/handlers/index'
+import { savePost } from '@/services/index'
 import { basicStore, keyStore } from '@/stores/index'
 import { watch, ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
@@ -119,11 +119,11 @@ async function save() {
         const [ok, data] = await savePost((params['postPath'] as string[]).join('/'), mdContent)
 
         if (ok) {
-            await Message('已保存', 'success')
+            await Message({ message: '已保存', type: 'success' })
             postContent.value = mdContent
             postHtml.value = data['content_html']
         } else {
-            await Message('保存失败', 'error')
+            await Message({ message: '保存失败', type: 'error' })
         }
     }
 }
@@ -139,14 +139,14 @@ async function starPost() {
     postStar.params = (route.params['postPath'] as string[]).slice(0, 3).join('/')
 
     await addPostStarData(postStar)
-    await Message('收藏成功')
+    await Message({ message: '收藏成功' })
 }
 async function unStarPost() {
     isStared.value = !isStared.value
     const key = route.fullPath
 
     await deletePostStarData(key)
-    await Message('已取消收藏')
+    await Message({ message: '已取消收藏' })
 }
 
 async function refreshStarStatus() {
@@ -242,11 +242,11 @@ watch(isEditing, async () => {
 async function copyCodeBlock(codeBlock: HTMLElement) {
     navigator.clipboard.writeText(codeBlock.innerText).then(
         () => {
-            Message('已复制到剪切板', 'success')
+            Message({ message: '已复制到剪切板', type: 'success' })
         },
         () => {
             console.log('拒绝复制', 'error')
-            Message('复制失败,请手动复制', 'error')
+            Message({ message: '复制失败,请手动复制', type: 'error' })
         }
     )
 }

@@ -28,13 +28,13 @@ import { Message } from '@/plugins/message'
 import { ref, onBeforeMount, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import PostChapter from '@/components/PostChapter.vue'
-import PostContent from '@/components/PostContent.vue'
-import PostToc from '@/components/PostToc.vue'
+import PostChapter from '@/components/post/PostChapter.vue'
+import PostContent from '@/components/post/PostContent.vue'
+import PostToc from '@/components/post/PostToc.vue'
 
 import { getPostChapterData, addPostChapterData } from '@/database/index'
-import { getPost, getChapter } from '@/handlers/index'
-import { AddVisitorLog } from '@/handlers/index'
+import { getPost, getChapter } from '@/services/index'
+import { AddVisitorLog } from '@/services/index'
 
 const postContent = ref('')
 const postHtml = ref('')
@@ -84,7 +84,7 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
         const tocData = JSON.parse(data['data']['toc'])
         toc.value = tocData
     } else {
-        await Message('获取文章失败', 'error')
+        await Message({ message: '获取文章失败', type: 'error' })
         postContent.value = ''
         postHtml.value = ''
         toc.value = []

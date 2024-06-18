@@ -211,9 +211,9 @@ func WalkSkip(root string, info os.FileInfo, path string) error {
 		return filepath.SkipDir
 	}
 
-	if info.IsDir() && strings.ToLower(info.Name()) == "ue" {
-		return filepath.SkipDir
-	}
+	// if info.IsDir() && strings.ToLower(info.Name()) == "ue" {
+	// 	return filepath.SkipDir
+	// }
 
 	if !info.IsDir() && strings.HasPrefix(info.Name(), "_") {
 		return ErrSkip

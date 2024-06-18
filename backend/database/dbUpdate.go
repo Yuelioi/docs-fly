@@ -2,9 +2,9 @@ package database
 
 import (
 	"docsfly/models"
-	"sync"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // 数据库数据管理
@@ -27,7 +27,7 @@ type DBCollections struct {
 //	datas    []models.Entry  - 需要批量处理的数据
 //	batchSize int      - 每批次处理的数据大小
 //	method   string    - 操作方法"Create" / "Delete"
-func Batch(tx *gorm.DB, datas []models.Entry, batchSize int, method string) (err error) {
+func BatchCD(tx *gorm.DB, datas []models.Entry, batchSize int, method string) (err error) {
 	length := len(datas)
 
 	for start := 0; start < length; start += batchSize {
@@ -89,37 +89,33 @@ func DBUpdate(db *gorm.DB, collection DBCollections) (err error) {
 
 		if len(collection.Creates) > 0 {
 
-			err = Batch(tx, collection.Creates, batchSize, "Create")
+			err = BatchCD(tx, collection.Creates, batchSize, "Create")
 			if err != nil {
 				return err
 			}
 
 		}
 		if len(collection.Updates) > 0 {
-			var wg sync.WaitGroup
-			errCh := make(chan error, len(collection.Updates))
-			for _, entry := range collection.Updates {
-				wg.Add(1)
-				// 筛选出 Cats 和 Docs
-				go func(entry models.Entry) {
-					defer wg.Done()
+			// 批量更新
 
-					// 基于路径进行更新
-					if err := tx.Model(models.Entry{}).Where("filepath = ?", entry.Filepath).Updates(entry).Error; err != nil {
-						errCh <- err
-						return
-					}
+			for i := 0; i < len(collection.Updates); i += batchSize {
+				end := i + batchSize
+				if end > len(collection.Updates) {
+					end = len(collection.Updates)
+				}
+				batch := collection.Updates[i:end]
 
-				}(entry)
-			}
-			wg.Wait()
-			close(errCh)
-			if err := <-errCh; err != nil {
-				return err
+				// 使用
+				// https://gorm.io/docs/create.html#Upsert-x2F-On-Conflict
+				db.Clauses(clause.OnConflict{
+					Columns:   []clause.Column{{Name: "filepath"}},
+					UpdateAll: true,
+				}).Create(&batch)
+
 			}
 		}
 		if len(collection.Deletes) > 0 {
-			err = Batch(tx, collection.Deletes, batchSize, "Delete")
+			err = BatchCD(tx, collection.Deletes, batchSize, "Delete")
 			if err != nil {
 				return err
 			}

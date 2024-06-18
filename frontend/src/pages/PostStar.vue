@@ -63,7 +63,7 @@ const stars = ref<PostStar[]>([])
 
 async function deleteData(key: string) {
     await deletePostStarData(key)
-    await Message('删除成功')
+    await Message({ message: '删除成功' })
     refresh()
 }
 async function refresh() {

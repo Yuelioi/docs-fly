@@ -142,7 +142,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 import { useRouter } from 'vue-router'
 
-import { fetchKeyword } from '@/handlers'
+import { fetchKeyword } from '@/services'
 import { MetaData, SearchData, Nav } from '@/models'
 import { BIconBook, BIconLock, BIconSearch, BIconUnlock, BIconX } from 'bootstrap-icons-vue'
 

@@ -90,62 +90,7 @@
                 </div>
 
                 <div class="tab-item" v-if="tabId == 2">
-                    <div class="comment-top">
-                        <div class="w-full">
-                            <textarea
-                                name=""
-                                id=""
-                                cols="30"
-                                rows="3"
-                                v-model="commentContent"
-                                class="w-full py-3 px-4 rounded-br-md min-h-12"
-                                :placeholder="poem"></textarea>
-                        </div>
-                        <div class="mt-2 flex">
-                            <div
-                                type="text"
-                                class="items-center ml-auto flex gap-2 py-2 text-right">
-                                <span class="select-none text-sm">昵称:</span>
-                                <span class="select-none text-sm">{{ nickname }}</span>
-                                <BIconArrowClockwise @click="refreshNickname">
-                                </BIconArrowClockwise>
-                            </div>
-                            <button
-                                class="btn bg-theme-primary-base hover:bg-theme-primary-hover ml-4 px-2 py-0"
-                                @click="postNewComment">
-                                发布
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="comment-body">
-                        <div
-                            class="border-b border-theme-text-muted"
-                            v-for="comment in comments"
-                            :key="comment.id">
-                            <div class="my-4">
-                                <div class="flex">
-                                    <div class="font-bold">{{ comment.nickname }}</div>
-                                    <div class="ml-4">{{ comment.content }}</div>
-                                    <div class="ml-auto text-theme-text-muted">
-                                        {{ formatDate(comment.createdAt) }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="" v-for="reply in comment.replies" :key="reply.id">
-                                <div class="my-4 ml-8">
-                                    <div class="flex">
-                                        <div class="font-bold">{{ reply.nickname }}</div>
-                                        <div class="ml-4">{{ reply.content }}</div>
-                                        <div class="ml-auto text-theme-text-muted">
-                                            {{ formatDate(reply.createdAt) }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <VComment></VComment>
                 </div>
                 <div class="tab-item" v-if="tabId == 3">
                     <div class="toolbar flex pb-4">
@@ -233,15 +178,9 @@
 
                 <div class="tab-item" v-if="tabId == 4">
                     <div class="toolbar flex pb-4">
-                        <button class="btn primary px-3 py-1 ml-auto" @click="postNewComment">
-                            更新
-                        </button>
-                        <button class="btn warn px-3 py-1 ml-3" @click="postNewComment">
-                            禁用
-                        </button>
-                        <button class="btn danger px-3 py-1 ml-3" @click="postNewComment">
-                            删除
-                        </button>
+                        <button class="btn primary px-3 py-1 ml-auto">更新</button>
+                        <button class="btn warn px-3 py-1 ml-3">禁用</button>
+                        <button class="btn danger px-3 py-1 ml-3">删除</button>
                     </div>
                 </div>
             </div>
@@ -252,7 +191,7 @@
 <script setup lang="ts">
 import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
 
-import { addZero, fetchBasic } from '@/utils'
+import { addZero } from '@/utils'
 
 import { BookData, BookStatistic, LocalMetaDatas } from '@/models'
 import { Message } from '@/plugins/message'
@@ -261,35 +200,21 @@ import {
     getBookMeta,
     fetchStatisticBook,
     saveBookMeta,
-    updateBookMeta,
-    getRandNickname,
-    getRandPoem,
-    getComments,
-    postComment
-} from '@/handlers/index'
+    updateBookMeta
+} from '@/services/index'
+
+import VComment from '@/components/common/VComment.vue'
 
 import { getDBBookData, addDBBookData } from '@/database'
 
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { basicStore } from '@/stores/index'
-import {
-    BIconArrowClockwise,
-    BIconBook,
-    BIconFiletypeDoc,
-    BIconGraphUpArrow,
-    BIconJournal
-} from 'bootstrap-icons-vue'
-import { storeToRefs } from 'pinia'
-import { Comment } from '@/models/comment'
-
-import { formatDate } from '@/utils'
+import { BIconBook, BIconFiletypeDoc, BIconGraphUpArrow, BIconJournal } from 'bootstrap-icons-vue'
 
 const basic = basicStore()
 const locale = computed(() => basic.locale)
 const isAdmin = computed(() => basic.isAdmin)
-
-let { nickname } = storeToRefs(basic)
 
 const metas = ref<LocalMetaDatas>(new LocalMetaDatas())
 
@@ -299,11 +224,6 @@ const tabId = ref(1)
 
 const route = useRoute()
 const bookStatistic = ref<BookStatistic>(new BookStatistic())
-
-const poem = ref('')
-const commentContent = ref('')
-
-const comments = ref<Comment[]>([])
 
 const bookDatas = ref<BookData[]>([])
 const sortedBookDatas = computed(() => {
@@ -334,33 +254,9 @@ async function saveMeta() {
         metas.value
     )
     if (ok) {
-        Message('保存成功')
+        Message({ message: '保存成功' })
     } else {
-        Message('保存失败', 'warn')
-    }
-}
-
-async function postNewComment() {
-    const comment = new Comment()
-    comment.nickname = nickname.value
-    comment.parent = 0
-    comment.url = (route.params['bookPath'] as string[]).join('/') + '/' + locale.value
-    comment.content = commentContent.value
-
-    // fetchHandler(comments,[],getComments,"data",await Message('发布成功'),await Message('发布失败', 'warn')
-
-    const [ok, data] = await postComment(comment)
-
-    if (ok) {
-        await fetchBasic(
-            comments,
-            [],
-            getComments,
-            (route.params['bookPath'] as string[]).join('/') + '/' + locale.value
-        )
-        await Message('发布成功')
-    } else {
-        await Message('发布失败', 'warn')
+        Message({ message: '保存失败', type: 'warn' })
     }
 }
 
@@ -386,7 +282,7 @@ async function refreshBook(params: RouteParams) {
             await addDBBookData(params['bookPath'] as string[], locale.value, data['data'])
         } else {
             bookDatas.value = []
-            await Message('未找到书籍数据', 'warn')
+            await Message({ message: '未找到书籍数据', type: 'warn' })
         }
     }
 
@@ -404,32 +300,13 @@ async function refreshBook(params: RouteParams) {
     } else {
         bookStatistic.value = new BookStatistic()
     }
-
-    await fetchBasic(
-        comments,
-        [],
-        getComments,
-        (route.params['bookPath'] as string[]).join('/') + '/' + locale.value
-    )
 }
 
 watch(route, async (val: RouteLocationNormalizedLoaded) => {
     refreshBook(val.params)
 })
 
-async function refreshNickname() {
-    await fetchBasic(nickname, nickname.value, getRandNickname)
-    localStorage.setItem('nickname', nickname.value)
-}
-
 onMounted(async () => {
     refreshBook(route.params)
-
-    await fetchBasic(poem, '山重水复疑无路，柳暗花明又一村。', getRandPoem)
-
-    if (nickname.value == '') {
-        await fetchBasic(nickname, '匿名用户', getRandNickname)
-        localStorage.setItem('nickname', nickname.value)
-    }
 })
 </script>

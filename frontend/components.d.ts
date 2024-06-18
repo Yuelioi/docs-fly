@@ -7,18 +7,19 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    BackTop: typeof import('./src/components/BackTop.vue')['default']
-    FooterArea: typeof import('./src/components/FooterArea.vue')['default']
-    HeaderArea: typeof import('./src/components/HeaderArea.vue')['default']
-    HSearch: typeof import('./src/components/HSearch.vue')['default']
-    HSearchWithDialog: typeof import('./src/components/HSearchWithDialog.vue')['default']
-    LoginWindow: typeof import('./src/components/LoginWindow.vue')['default']
-    PComment: typeof import('./src/components/PComment.vue')['default']
-    PostChapter: typeof import('./src/components/PostChapter.vue')['default']
-    PostContent: typeof import('./src/components/PostContent.vue')['default']
-    PostToc: typeof import('./src/components/PostToc.vue')['default']
+    BackTop: typeof import('./src/components/home/BackTop.vue')['default']
+    FooterArea: typeof import('./src/components/home/FooterArea.vue')['default']
+    HeaderArea: typeof import('./src/components/home/HeaderArea.vue')['default']
+    HSearch: typeof import('./src/components/common/HSearch.vue')['default']
+    HSearchWithDialog: typeof import('./src/components/common/HSearchWithDialog.vue')['default']
+    LoginWindow: typeof import('./src/components/home/LoginWindow.vue')['default']
+    PComment: typeof import('./src/components/post/PComment.vue')['default']
+    PostChapter: typeof import('./src/components/post/PostChapter.vue')['default']
+    PostContent: typeof import('./src/components/post/PostContent.vue')['default']
+    PostToc: typeof import('./src/components/post/PostToc.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    VClock: typeof import('./src/components/VClock.vue')['default']
+    VClock: typeof import('./src/components/home/VClock.vue')['default']
+    VComment: typeof import('./src/components/common/VComment.vue')['default']
   }
 }

@@ -20,10 +20,10 @@ fetch('/configs/themeConfig.json')
     .then((response) => response.json())
     .then((config) => {
         themeState.availableThemes = config.themes
-        return import(`./theme/${themeState.currentTheme}/main.css`)
+        return import(`./themes/${themeState.currentTheme}/main.css`)
     })
     .then(() => {
-        return import(`./theme/${themeState.currentTheme}/dark.css`)
+        return import(`./themes/${themeState.currentTheme}/dark.css`)
     })
     .then(() => {
         app.mount('#app')

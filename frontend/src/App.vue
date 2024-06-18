@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import HeaderArea from '@/components/HeaderArea.vue'
-import BackTop from '@/components/BackTop.vue'
-import Footer from '@/components/FooterArea.vue'
+import HeaderArea from '@/components/home/HeaderArea.vue'
+import BackTop from '@/components/home/BackTop.vue'
+import Footer from '@/components/home/FooterArea.vue'
 
 import { themeState } from './utils/themeManager'
 </script>

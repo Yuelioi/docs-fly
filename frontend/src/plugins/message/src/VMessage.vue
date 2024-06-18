@@ -4,10 +4,10 @@
             v-show="show"
             ref="dialog"
             :key="Date.now().toString()"
-            :class="data[severity as keyof typeof data].main"
+            :class="data[type as keyof typeof data].main"
             class="relative font-bold border text-wrap flex min-w-60 max-w-[24rem] rounded-lg items-center">
             <div class="flex items-center w-full">
-                <i class="ml-4 pi" :class="data[severity as keyof typeof data].icon"></i>
+                <i class="ml-4 pi" :class="data[type as keyof typeof data].icon"></i>
                 <span class="pl-4 w-4/5 py-2 break-words">{{ message }}</span>
                 <i class="pi pi-times absolute right-3" @click="close"></i>
             </div>
@@ -17,9 +17,9 @@
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import type { MessageType } from './'
+import type { MessageType } from './message'
 defineProps<{
-    severity: MessageType
+    type: MessageType
     message: string
 }>()
 

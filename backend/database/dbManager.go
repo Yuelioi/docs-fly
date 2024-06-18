@@ -39,6 +39,12 @@ func (m *SQLiteManager) Init(db *gorm.DB) error {
 	return DBInit(db)
 }
 
+var ns = schema.NamingStrategy{
+	TablePrefix:   "db_",
+	SingularTable: false, // 表名后面加s
+	NoLowerCase:   false, // 字段转小写
+}
+
 // Connect 连接 SQLite 数据库并返回 *gorm.DB 对象
 //
 // 该函数首先检查是否已经存在数据库连接，如果存在则返回现有连接。
@@ -99,12 +105,8 @@ func (m *SQLiteManager) Connect() (*gorm.DB, error) {
 	)
 
 	db, err := gorm.Open(sqlite.Open(m.DbFile), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "db_",
-			SingularTable: false, // 表名后面加s
-			NoLowerCase:   false, //字段转小写
-		},
-		Logger: customLogger,
+		NamingStrategy: ns,
+		Logger:         customLogger,
 	})
 
 	if err != nil {

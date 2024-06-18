@@ -6,7 +6,7 @@ export default function generateThemeConfigPlugin(): Plugin {
     return {
         name: 'generate-theme-config-plugin',
         buildStart() {
-            const themeDir = path.join(process.cwd(), 'src/theme')
+            const themeDir = path.join(process.cwd(), 'src/themes')
             const themes = fs
                 .readdirSync(themeDir, { withFileTypes: true })
                 .filter((dirent) => dirent.isDirectory())

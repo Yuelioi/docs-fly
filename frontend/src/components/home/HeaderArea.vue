@@ -100,12 +100,12 @@
 <script setup lang="ts">
 import { Nav, MetaData } from '@/models'
 import { ref, onMounted, computed } from 'vue'
-import { getNav } from '@/handlers/index'
+import { getNav } from '@/services/index'
 import { getDBNav, addDBNav } from '@/database'
 
-import LoginWindow from '@/components/LoginWindow.vue'
-import HSearch from '@/components/HSearch.vue'
-import HSearchWithDialog from '@/components/HSearchWithDialog.vue'
+import LoginWindow from '@/components/home/LoginWindow.vue'
+import HSearch from '@/components/common/HSearch.vue'
+import HSearchWithDialog from '@/components/common/HSearchWithDialog.vue'
 
 import { storeToRefs } from 'pinia'
 
@@ -155,7 +155,7 @@ async function changeLocale() {
         locale.value = 'en'
     }
 
-    await Message(`已切换为${translate('locale')}`)
+    await Message({ message: `已切换为${translate('locale')}` })
     localStorage.setItem('locale', locale.value)
 
     const routeParams = route.params
@@ -184,7 +184,7 @@ async function changeLocale() {
 async function logout() {
     isAdmin.value = false
     localStorage.removeItem('token')
-    await Message('已成功登出', 'success')
+    await Message({ message: '已成功登出', type: 'success' })
 }
 
 function sortMeta(data: MetaData[]) {

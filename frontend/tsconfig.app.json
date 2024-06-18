@@ -1,51 +1,23 @@
 {
     "extends": "@vue/tsconfig/tsconfig.dom.json",
-    "include": [
-        "env.d.ts",
-        "src/**/*",
-        "src/**/*.vue",
-        "src/**/*.ts",
-        "src/**/**/*.ts"
-    ],
-    "exclude": [
-        "src/**/__tests__/*"
-    ],
+    "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/**/*.ts", "src/**/**/*.ts"],
+    "exclude": ["src/**/__tests__/*"],
     "compilerOptions": {
         "composite": true,
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
         "baseUrl": ".",
         "types": [],
         "paths": {
-            "@/*": [
-                "./src/*"
-            ],
-            "@/models/*": [
-                "src/models/*"
-            ],
-            "@/components/*": [
-                "./src/components/*"
-            ],
-            "@/utils/*": [
-                "./src/utils/*"
-            ],
-            "@/handlers/*": [
-                "src/handlers/*"
-            ],
-            "@/database/*": [
-                "src/database/*"
-            ],
-            "@/stores/*": [
-                "./src/stores/*"
-            ],
-            "@/icons/*": [
-                "./src/assets/icons/*"
-            ],
-            "@images/*": [
-                "./src/assets/images/*"
-            ],
-            "@/plugins/*": [
-                "./src/plugins/*"
-            ]
+            "@/*": ["./src/*"],
+            "@/models/*": ["src/models/*"],
+            "@/components/*": ["./src/components/*"],
+            "@/utils/*": ["./src/utils/*"],
+            "@/handlers/*": ["src/services/*"],
+            "@/database/*": ["src/database/*"],
+            "@/stores/*": ["./src/stores/*"],
+            "@/icons/*": ["./src/assets/icons/*"],
+            "@images/*": ["./src/assets/images/*"],
+            "@/plugins/*": ["./src/plugins/*"]
         }
     }
 }

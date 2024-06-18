@@ -5,12 +5,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { fetchCheckToken } from '@/handlers/index'
+import { fetchCheckToken } from '@/services/index'
 
 import { basicStore } from '@/stores/index'
 import { dbManager } from '@/database/manager'
 import { Message } from '@/plugins/message'
-import { getAppVersion } from '@/handlers/others'
+import { getAppVersion } from '@/services/others'
 import { fetchBasic } from '@/utils'
 const basic = basicStore()
 let { isAdmin, locale, nickname } = storeToRefs(basic)
@@ -21,10 +21,10 @@ async function refreshDB() {
     try {
         localStorage.setItem('appVersion', appVersion.value)
         await dbManager.clearDatabase()
-        await Message('Database refresh successfully')
+        await Message({ message: 'Database refresh successfully' })
         console.log('Database refresh successfully')
     } catch (error) {
-        Message('Failed to clear database', 'warn')
+        Message({ message: 'Failed to clear database', type: 'warn' })
         console.error('Failed to clear database:', error)
     }
 }

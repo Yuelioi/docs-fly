@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { fetchAuthLogin } from '@/handlers'
+import { fetchAuthLogin } from '@/services'
 import { storeToRefs } from 'pinia'
 
 import { Message } from '@/plugins/message'
@@ -88,9 +88,9 @@ async function login() {
             localStorage.setItem('token', data['data'])
             showLoginWindow.value = false
             isAdmin.value = true
-            await Message('登录成功', 'success')
+            await Message({ message: '登录成功', type: 'success' })
         } else {
-            await Message('登录失败', 'error')
+            await Message({ message: '登录失败', type: 'error' })
         }
     }
 }
