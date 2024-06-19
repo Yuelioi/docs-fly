@@ -4,20 +4,20 @@
             <div class="book-logo md:basis-1/3 lg:basis-1/4">
                 <img :src="bookStatistic.bookCover" alt="" />
             </div>
-            <div class="flex flex-col px-6 select-none">
-                <div class="py-3 border-b">
+            <div class="flex flex-col space-y-6 *:border-b-2 select-none">
+                <div class="border-b-2 border-theme-base">
                     <BIconBook class="inline-block"></BIconBook>
                     <span class="pl-2">书籍名称: {{ bookStatistic.bookTitle }}</span>
                 </div>
-                <div class="py-3 border-b">
+                <div>
                     <BIconGraphUpArrow class="inline-block"></BIconGraphUpArrow
                     ><span class="pl-2">阅读次数: {{ bookStatistic.readCount }}</span>
                 </div>
-                <div class="py-3 border-b">
+                <div>
                     <BIconJournal class="inline-block"></BIconJournal>
                     <span class="pl-2">章节数量: {{ bookStatistic.chapterCount }}</span>
                 </div>
-                <div class="py-3 border-b">
+                <div>
                     <BIconFiletypeDoc class="inline-block"></BIconFiletypeDoc>
                     <span class="pl-2">文章数量: {{ bookStatistic.documentCount }}</span>
                 </div>
@@ -68,7 +68,7 @@
             <div class="mt-4">
                 <div class="tab-item" v-if="tabId == 1">
                     <div class="flex flex-col">
-                        <div class="" v-if="bookDatas.length == 0">
+                        <div v-if="bookDatas.length == 0">
                             本书尚未有{{ translate('locale') }}版本
                         </div>
                         <router-link
@@ -110,35 +110,38 @@
                     <div>
                         <table class="w-full border-collapse table-auto">
                             <thead>
-                                <tr>
-                                    <th class="px-4 py-2 border">ID</th>
-                                    <th class="px-4 py-2 border">{{ translate('title') }}</th>
-                                    <th class="px-4 py-2 border">{{ translate('order') }}</th>
-                                    <th class="px-4 py-2 border">{{ translate('status') }}</th>
+                                <tr class="*:px-4 *:py-2 *:border">
+                                    <th class="border">ID</th>
+                                    <th>{{ translate('title') }}</th>
+                                    <th>{{ translate('order') }}</th>
+                                    <th>{{ translate('status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="meta in metas.categorys" :key="meta.url">
-                                    <td class="px-4 py-2">
+                                <tr
+                                    class="*:px-4 *:py-2"
+                                    v-for="meta in metas.categorys"
+                                    :key="meta.url">
+                                    <td>
                                         <input
                                             type="text"
                                             class="bg-transparent"
                                             disabled
                                             v-model="meta.name" />
                                     </td>
-                                    <td class="px-4 py-2">
+                                    <td>
                                         <input
                                             type="text"
                                             class="w-full p-2 bg-transparent border rounded-sm"
                                             v-model="meta.title" />
                                     </td>
-                                    <td class="px-4 py-2">
+                                    <td>
                                         <input
                                             type="text"
                                             class="w-full p-2 bg-transparent border rounded-sm"
                                             v-model.number="meta.order" />
                                     </td>
-                                    <td class="px-4 py-2 text-center">
+                                    <td class="text-center">
                                         <input
                                             type="checkbox"
                                             id="checkbox"
@@ -150,27 +153,30 @@
                             </tbody>
 
                             <tbody>
-                                <tr v-for="meta in metas.documents" :key="meta.url">
-                                    <td class="px-4 py-2">
+                                <tr
+                                    class="*:px-4 *:py-2"
+                                    v-for="meta in metas.documents"
+                                    :key="meta.url">
+                                    <td>
                                         <input
                                             type="text"
                                             class="bg-transparent"
                                             disabled
                                             v-model="meta.name" />
                                     </td>
-                                    <td class="px-4 py-2">
+                                    <td>
                                         <input
                                             type="text"
                                             class="w-full p-2 bg-transparent border rounded-sm"
                                             v-model="meta.title" />
                                     </td>
-                                    <td class="px-4 py-2">
+                                    <td>
                                         <input
                                             type="text"
                                             class="w-full p-2 bg-transparent border rounded-sm"
                                             v-model.number="meta.order" />
                                     </td>
-                                    <td class="px-4 py-2 text-center">
+                                    <td class="text-center">
                                         <input
                                             type="checkbox"
                                             id="checkbox"
@@ -185,10 +191,10 @@
                 </div>
 
                 <div class="tab-item" v-if="tabId == 4">
-                    <div class="flex pb-4 toolbar">
-                        <button class="px-3 py-1 ml-auto btn">更新</button>
-                        <button class="px-3 py-1 ml-3 btn">禁用</button>
-                        <button class="px-3 py-1 ml-3 btn">删除</button>
+                    <div class="flex pb-4 toolbar *:bg-red-300 *:px-3 *:py-1">
+                        <button class="ml-auto btn">更新</button>
+                        <button class="ml-3 btn">禁用</button>
+                        <button class="ml-3 btn">删除</button>
                     </div>
                 </div>
             </div>

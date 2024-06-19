@@ -92,22 +92,22 @@
                             alt=""
                             class="relative inset-0 object-cover object-right w-full h-full -translate-y-1/4 -z-10 md:object-center" />
                     </div>
-                    <div class="flex text-center shadow-2xl sm:rounded-3xl">
-                        <div class="py-6 border-2 border-r-0 rounded-es-lg basis-1/4">
+                    <div class="flex space-y-6 text-center shadow-2xl sm:rounded-3xl">
+                        <div class="border-2 border-r-0 rounded-es-lg basis-1/4">
                             <div class="text-sm">书籍数量</div>
                             <div class="text-lg font-bold">{{ statistic?.book_count }}</div>
                         </div>
-                        <div class="p-6 border-2 border-r-0 basis-1/4">
+                        <div class="border-2 border-r-0 basis-1/4">
                             <div class="text-sm">文章数量</div>
                             <div class="text-lg font-bold">{{ statistic?.document_count }}</div>
                         </div>
-                        <div class="p-6 border-2 border-r-0 basis-1/4">
+                        <div class="border-2 border-r-0 basis-1/4">
                             <div class="text-sm">历史访问人数</div>
                             <div class="text-lg font-bold">
                                 {{ statistic?.historical_visitor_count }}
                             </div>
                         </div>
-                        <div class="p-6 border-2 rounded-lg rounded-tr-none basis-1/4">
+                        <div class="border-2 rounded-lg rounded-tr-none basis-1/4">
                             <div class="text-sm">今日访问人数</div>
                             <div class="text-lg font-bold">
                                 {{ statistic?.today_visitor_count }}

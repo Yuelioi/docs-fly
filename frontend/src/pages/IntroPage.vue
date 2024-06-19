@@ -1,6 +1,6 @@
 <template>
     <!--container divide space -->
-    <div class="container w-20 space-y-4 divide-y-8 divide-yellow-400">
+    <div class="container w-20 space-y-0 divide-y-8 divide-yellow-400">
         <div class="bg-slate-600 size-24"></div>
         <div class="bg-slate-600 size-24"></div>
         <div class="bg-slate-600 size-24"></div>
