@@ -1,18 +1,18 @@
 <template>
-    <div ref="refDom" class="fixed h-full w-full left-0 py-64 px-8 z-50">
+    <div ref="refDom" class="fixed left-0 z-50 w-full h-full px-8 py-64">
         <div
             class="rounded-lg w-[576px] mx-auto shadow-2xl top-36 bg-theme-card dark:bg-dark-light">
-            <div class="flex flex-col justify-center py-12 relative">
+            <div class="relative flex flex-col justify-center py-12">
                 <div class="absolute right-4 top-4 text-[1.25rem]">
                     <BIconX @click="showLoginWindow = false"></BIconX>
                 </div>
 
                 <div class="sm:mx-auto sm:w-full sm:max-w-sm">
                     <img
-                        class="mx-auto h-10 w-auto"
+                        class="w-auto h-10 mx-auto"
                         src="https://cdn.yuelili.com/web/assets/logo.webp"
                         alt="Your Company" />
-                    <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight">
+                    <h2 class="mt-10 text-2xl font-bold leading-9 tracking-tight text-center">
                         请登录账号
                     </h2>
                 </div>

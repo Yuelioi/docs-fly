@@ -39,7 +39,7 @@ export default {
 
                     primary: 'var(--color-primary)',
                     secondary: 'var(--color-secondary)',
-                    danger: 'var(--color-danger)',
+                    error: 'var(--color-error)',
                     warn: 'var(--color-warn)',
                     success: 'var(--color-success)',
                     info: 'var(--color-info)'
@@ -64,33 +64,33 @@ export default {
                     footer: 'var(--color-bg-footer)',
 
                     primary: {
-                        base: 'var(--color-bg-primary)',
+                        base: 'var(--color-bg-primary-base)',
                         hover: 'var(--color-bg-primary-hover)'
                     },
                     secondary: {
-                        base: 'var(--color-bg-secondary)',
+                        base: 'var(--color-bg-secondary-base)',
                         hover: 'var(--color-bg-secondary-hover)'
                     },
-                    danger: {
-                        base: 'var(--color-bg-danger)',
-                        hover: 'var(--color-bg-danger-hover)'
+                    error: {
+                        base: 'var(--color-bg-error-base)',
+                        hover: 'var(--color-bg-error-hover)'
                     },
                     warn: {
-                        base: 'var(--color-bg-warn)',
+                        base: 'var(--color-bg-warn-base)',
                         hover: 'var(--color-bg-warn-hover)'
                     },
                     success: {
-                        base: 'var(--color-bg-success)',
+                        base: 'var(--color-bg-success-base)',
                         hover: 'var(--color-bg-success-hover)'
                     },
                     info: {
-                        base: 'var(--color-bg-info)',
+                        base: 'var(--color-bg-info-base-base)',
                         hover: 'var(--color-bg-info-hover)'
                     },
 
                     tooltip: 'var(--color-tooltip-bg)',
                     backToTop: {
-                        base: 'var(--color-bg-back-top)',
+                        base: 'var(--color-bg-back-top-base)',
                         hover: 'var(--color-bg-back-top-hover)'
                     }
                 }

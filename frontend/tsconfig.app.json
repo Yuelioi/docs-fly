@@ -6,7 +6,8 @@
         "src/**/*.vue",
         "src/**/*.ts",
         "src/**/**/*.ts",
-        "auto-imports.d.ts"
+        "auto-imports.d.ts",
+        "node_modules/bootstrap-icons-vue/dist/icons.d.ts"
     ],
     "exclude": [
         "src/**/__tests__/*"

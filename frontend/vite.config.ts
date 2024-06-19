@@ -39,13 +39,13 @@ export default defineConfig({
                 './src/models/',
                 './src/utils/',
                 './src/plugins/*',
-                './src/components/**',
                 './src/database/'
             ]
         }),
 
         Components({
             dts: true,
+            dirs: ['src/components'],
             types: [
                 {
                     from: 'bootstrap-icons-vue',

@@ -25,7 +25,7 @@ export function Message(msgProps: Partial<MessageProps>) {
             mask = document.createElement('div')
             mask.setAttribute(
                 'style',
-                'position: fixed; top:4rem;  width: 100%; display: flex; flex-direction: column; center; align-items: center'
+                'position: fixed; top:4rem;  width: 100%; display: flex; flex-direction: column; center; align-items: center;z-index:51;'
             )
             mask.setAttribute('key', Date.now().toString())
             mask.setAttribute('id', 'message-dialog')

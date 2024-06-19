@@ -1,7 +1,7 @@
 // import { createVNode, render } from 'vue'
 // import VNotification from './VMessage.vue'
 
-import type { AppContext, ExtractPropTypes } from 'vue'
+import type { ExtractPropTypes } from 'vue'
 
 export const messageTypes = ['success', 'info', 'warn', 'error', 'secondary', 'contrast'] as const
 

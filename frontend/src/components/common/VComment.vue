@@ -7,17 +7,17 @@
                 cols="30"
                 rows="3"
                 v-model="commentContent"
-                class="w-full bg-theme-card py-3 px-4 rounded-br-md min-h-12"
+                class="w-full px-4 py-3 bg-theme-card rounded-br-md min-h-12"
                 :placeholder="poem"></textarea>
         </div>
-        <div class="mt-2 flex">
-            <div type="text" class="items-center ml-auto flex gap-2 py-2 text-right">
-                <span class="select-none text-sm">昵称:</span>
-                <span class="select-none text-sm">{{ nickname }}</span>
+        <div class="flex mt-2">
+            <div type="text" class="flex items-center gap-2 py-2 ml-auto text-right">
+                <span class="text-sm select-none">昵称:</span>
+                <span class="text-sm select-none">{{ nickname }}</span>
                 <BIconArrowClockwise @click="refreshNickname"> </BIconArrowClockwise>
             </div>
             <button
-                class="btn bg-theme-primary-base hover:bg-theme-primary-hover ml-4 px-2 py-0"
+                class="px-2 py-0 ml-4 btn bg-theme-primary-base hover:bg-theme-primary-hover"
                 @click="postNewComment">
                 发布
             </button>

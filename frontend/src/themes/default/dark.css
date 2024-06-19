@@ -7,24 +7,27 @@
 
     --color-primary: rgb(28, 110, 183);
     --color-secondary: rgb(75, 0, 150);
-    --color-danger: rgb(207, 48, 38);
-    --color-warn: rgb(207, 127, 8);
-    --color-success: rgb(42, 159, 71);
     --color-info: rgb(72, 160, 200);
+    --color-success: rgb(42, 159, 71);
+    --color-warn: rgb(207, 127, 8);
+    --color-error: rgb(207, 48, 38);
 
-    --color-bg-primary: rgb(28, 110, 183);
-    --color-bg-secondary: rgb(75, 0, 150);
-    --color-bg-danger: rgb(207, 48, 38);
-    --color-bg-warn: rgb(207, 127, 8);
-    --color-bg-success: rgb(42, 159, 71);
-    --color-bg-info: rgb(72, 160, 200);
+
+    --color-bg-primary-base: rgb(28, 110, 183);
+    --color-bg-secondary-base: rgb(75, 0, 150);
+    --color-bg-info-base: rgb(72, 160, 200);
+    --color-bg-success-base: rgb(42, 159, 71);
+    --color-bg-warn-base: rgb(207, 127, 8);
+    --color-bg-error-base: rgb(207, 48, 38);
+
 
     --color-bg-primary-hover: rgba(28, 110, 183, 0.8);
     --color-bg-secondary-hover: rgba(75, 0, 150, 0.8);
-    --color-bg-danger-hover: rgba(207, 48, 38, 0.8);
-    --color-bg-warn-hover: rgba(207, 127, 8, 0.8);
-    --color-bg-success-hover: rgba(42, 159, 71, 0.8);
     --color-bg-info-hover: rgba(72, 160, 200, 0.8);
+    --color-bg-success-hover: rgba(42, 159, 71, 0.8);
+    --color-bg-warn-hover: rgba(207, 127, 8, 0.8);
+    --color-bg-error-hover: rgba(207, 48, 38, 0.8);
+
 
     --color-text-base: rgb(229, 229, 229);
     --color-text-muted: rgb(153, 153, 153);
@@ -38,6 +41,6 @@
 
     --color-tooltip-bg: rgb(44, 44, 46);
 
-    --color-bg-back-top: rgb(174, 174, 174);
+    --color-bg-back-top-base: rgb(174, 174, 174);
     --color-bg-back-top-hover: rgb(50, 50, 50);
 }

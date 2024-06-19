@@ -1,9 +1,9 @@
 <template>
-    <div class="h-16 w-full">
+    <div class="w-full h-16">
         <div
             class="flex flex-row h-16 items-center justify-around sm:mx-[2rem] md:mx-[3rem] lg:mx-[5rem] xl:mx-[7.5rem] 2xl:mx-[10rem]">
-            <div class="left flex cat-menu">
-                <div class="justify-start h-16 hidden lg:block">
+            <div class="flex left cat-menu">
+                <div class="justify-start hidden h-16 lg:block">
                     <a rel="home" href="#"
                         ><img
                             class="h-full"
@@ -14,15 +14,15 @@
                 <!-- 分类 Start -->
                 <div class="flex flex-row">
                     <div
-                        class="relative group items-center flex rounded-lg h-full p-1 pl-4 pr-4"
+                        class="relative flex items-center h-full p-1 pl-4 pr-4 rounded-lg group"
                         v-for="(nav, index_nav) in filteredNavs"
                         :key="index_nav">
                         <span class="font-bold cursor-default">{{ nav.metadata.title }}</span>
 
                         <ul
-                            class="absolute top-16 rounded-lg bg-theme-card scale-0 group-hover:scale-100 ease-in-out duration-300 origin-top-left z-50">
+                            class="absolute z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-lg top-16 bg-theme-card group-hover:scale-100">
                             <router-link
-                                class="px-6 py-3 flex items-center last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover w-full whitespace-nowrap"
+                                class="flex items-center w-full px-6 py-3 last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
                                 v-for="(child, index_item) in sortMeta(nav.children)"
                                 :key="index_item"
                                 :to="{
@@ -41,7 +41,7 @@
                 <!-- 分类 End-->
             </div>
             <div
-                class="header-banner-item header-banner-right items-center justify-center flex h-full">
+                class="flex items-center justify-center h-full header-banner-item header-banner-right">
                 <!-- 搜索 Start -->
                 <div class="search">
                     <HSearch v-model:showSearchDialog="showSearchDialog" />
@@ -52,7 +52,7 @@
                 <div class="flex items-center">
                     <button @click="toggleDark()">
                         <div
-                            class="outline-theme-primary outline-1 hover:outline ml-2 p-2 text-lg rounded-lg">
+                            class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline">
                             <BIconSun v-if="isDark"></BIconSun> <BIconMoon v-else></BIconMoon>
                         </div>
                     </button>
@@ -60,26 +60,26 @@
                     <button>
                         <router-link :to="{ name: 'star' }" :key="'star'">
                             <div
-                                class="outline-theme-primary outline-1 hover:outline ml-2 fontsize p-2 text-lg rounded-lg">
+                                class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
                                 <BIconStar></BIconStar>
                             </div>
                         </router-link>
                     </button>
                     <button @click="changeLocale">
                         <div
-                            class="outline-theme-primary outline-1 hover:outline ml-2 fontsize p-2 text-lg rounded-lg">
+                            class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
                             <BIconTranslate></BIconTranslate>
                         </div>
                     </button>
                     <button v-if="!isAdmin" @click="showLoginWindow = true">
                         <div
-                            class="outline-theme-primary outline-1 hover:outline ml-2 fontsize p-2 text-lg rounded-lg">
+                            class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
                             <BIconPerson></BIconPerson>
                         </div>
                     </button>
                     <button v-else @click="logout">
                         <div
-                            class="outline-theme-primary outline-1 hover:outline ml-2 fontsize p-2 text-lg rounded-lg">
+                            class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
                             <BIconBoxArrowRight></BIconBoxArrowRight>
                         </div>
                     </button>

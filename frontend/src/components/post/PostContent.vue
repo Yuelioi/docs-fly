@@ -2,7 +2,7 @@
     <div
         id="content"
         ref="fullElement"
-        class="max-w-6xl m-auto relative mb-12 bg-theme-card p-16 rounded-2xl">
+        class="relative max-w-6xl p-16 m-auto mb-12 bg-theme-card rounded-2xl">
         <div
             class="toolbar py-4 fixed flex-col top-16 text-[1.25rem] right-[2rem] lg:right-[17rem] xl:right-[21rem]">
             <div class="p-2">

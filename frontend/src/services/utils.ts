@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import type { InternalAxiosRequestConfig, AxiosResponse, AxiosRequestConfig } from 'axios'
 
-export const baseurl = 'http://localhost:8088/api/v1'
+const baseurl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8088/api/v1'
 
 const apiClient = axios.create({
     baseURL: baseurl, // API基础URL

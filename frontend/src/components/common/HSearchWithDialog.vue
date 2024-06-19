@@ -3,18 +3,18 @@
         <div
             v-if="showSearchDialog"
             ref="searchDialogRef"
-            class="search fixed w-screen h-full pt-8 z-50 flex flex-col align-center">
+            class="fixed z-50 flex flex-col w-screen h-full pt-8 search align-center">
             <div
                 @click.stop
                 class="shadow-2xl dialog relative bg-theme-card dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] md:w-[80%] md:left-[10%] lg:w-1/2 lg:left-1/4 max-h-1/2 z-50 top-18">
                 <!-- 顶部工具 -->
-                <div class="w-full flex-col h-16 z-50">
-                    <div class="flex justify-around items-center border-b-2 mt-4 pb-4">
+                <div class="z-50 flex-col w-full h-16">
+                    <div class="flex items-center justify-around pb-4 mt-4 border-b-2">
                         <!-- 书籍设置 -->
-                        <div class="pl-4 md:pl-8 lg:pl-16 flex flex-col select-none">
+                        <div class="flex flex-col pl-4 select-none md:pl-8 lg:pl-16">
                             <div
                                 @mouseover="showSearchDropdown = true"
-                                class="h-10 flex relative justify-center items-center text-center text-nowrap w-32 bg-transparent text-sm font-semibold">
+                                class="relative flex items-center justify-center w-32 h-10 text-sm font-semibold text-center bg-transparent text-nowrap">
                                 <div class="pr-2">
                                     <BIconBook></BIconBook>
                                 </div>
@@ -32,10 +32,10 @@
                                     class="absolute z-[100] top-[3rem] rounded h-32">
                                     <ul
                                         @mouseleave="showSearchDropdown = false"
-                                        class="bg-theme-base dark:bg-dark-light overflow-y-scroll mt-1 max-h-56 w-full rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                        class="w-full py-1 mt-1 overflow-y-scroll text-base rounded-md shadow-lg bg-theme-base dark:bg-dark-light max-h-56 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                         <li
                                             v-for="(option, index) in options"
-                                            class="px-6 py-3 last:pb-4 hover:bg-theme-primary-hover hover:rounded-lg w-full whitespace-normal"
+                                            class="w-full px-6 py-3 whitespace-normal last:pb-4 hover:bg-theme-primary-hover hover:rounded-lg"
                                             :key="index"
                                             @click="select(option)">
                                             <span>{{ option.title }}</span>
@@ -45,21 +45,21 @@
                             </div>
                         </div>
                         <!-- 搜索框 -->
-                        <div class="pl-8 flex-1 flex items-center">
-                            <div class="relative flex ml-4 h-10 w-full">
+                        <div class="flex items-center flex-1 pl-8">
+                            <div class="relative flex w-full h-10 ml-4">
                                 <div
-                                    class="absolute top-2/4 -mt-2 left-3 text-surface-400 dark:text-surface-600">
+                                    class="absolute -mt-2 top-2/4 left-3 text-surface-400 dark:text-surface-600">
                                     <BIconSearch></BIconSearch>
                                 </div>
                                 <input
                                     v-model="search"
                                     placeholder="搜索..."
                                     @keydown.enter="handleSearch"
-                                    class="pl-10 bg-transparent flex-1" />
+                                    class="flex-1 pl-10 bg-transparent" />
                             </div>
                         </div>
 
-                        <div class="toolbar ml-4 flex">
+                        <div class="flex ml-4 toolbar">
                             <div class="pr-2 lg:pr-4">
                                 <div
                                     class="text-[1.25rem]"
@@ -89,11 +89,11 @@
                     <transition name="result">
                         <div
                             v-if="searchResult.length"
-                            class="h-full w-full overflow-scroll p-6 first:pt-2">
+                            class="w-full h-full p-6 overflow-scroll first:pt-2">
                             <div v-for="(data, index) in searchResult" :key="data.url">
                                 <div class="p-2">
                                     <div
-                                        class="hover:bg-theme-primary-hover relative border-b rounded-lg hover:rounded-lg p-4">
+                                        class="relative p-4 border-b rounded-lg hover:bg-theme-primary-hover hover:rounded-lg">
                                         <a
                                             class="relative max-w-[1/2]"
                                             v-bind:href="conventLink(data)"
@@ -104,7 +104,7 @@
                                                         >{{ index + 1 + '.' }}
                                                         {{ data.document_title }}</span
                                                     >
-                                                    <div class="absolute right-4 top-0">
+                                                    <div class="absolute top-0 right-4">
                                                         <BIconBook class="pr-2"></BIconBook>
 
                                                         <span class="">
@@ -118,7 +118,7 @@
                                                 </div>
 
                                                 <div
-                                                    class="description pt-6"
+                                                    class="pt-6 description"
                                                     v-html="highLight(data.content)"></div>
                                             </div>
                                         </a>
@@ -128,7 +128,7 @@
                     ></transition>
                     <div v-if="searchResult.length == 0" class="">没有找到任何文章~</div>
                 </div>
-                <div v-if="searchResult.length > 0" class="text-center border-t-4 pt-4">
+                <div v-if="searchResult.length > 0" class="pt-4 text-center border-t-4">
                     {{ '搜索耗时: ' + searchConsume }}
                 </div>
             </div>

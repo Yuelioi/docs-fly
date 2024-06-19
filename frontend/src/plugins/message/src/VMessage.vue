@@ -7,9 +7,9 @@
             :class="data[type as keyof typeof data].main"
             class="relative font-bold border text-wrap flex min-w-60 max-w-[24rem] rounded-lg items-center">
             <div class="flex items-center w-full">
-                <i class="ml-4 pi" :class="data[type as keyof typeof data].icon"></i>
-                <span class="pl-4 w-4/5 py-2 break-words">{{ message }}</span>
-                <i class="pi pi-times absolute right-3" @click="close"></i>
+                <component class="pl-4" :is="data[type as messageType].icon"></component>
+                <span class="w-4/5 py-2 pl-4 break-words">{{ message }}</span>
+                <BIconX @click="close"></BIconX>
             </div>
         </div>
     </transition>
@@ -18,6 +18,15 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 import type { messageType } from './message'
+
+import {
+    BIconCheck2Circle,
+    BIconInfoCircle,
+    BIconExclamationCircle,
+    BIconXCircle,
+    BIconX
+} from 'bootstrap-icons-vue'
+
 defineProps<{
     type: messageType
     message: string
@@ -25,26 +34,26 @@ defineProps<{
 
 const show = ref(false)
 const dialog = ref<HTMLElement | null>(null)
-const data = {
+const data: Record<messageType, { main: string; icon: any }> = {
     success: {
-        main: 'bg-green-50 border-green-300 text-green-600',
-        icon: 'pi-check-circle'
+        main: 'bg-theme-success-base border-green-300 text-green-600',
+        icon: BIconCheck2Circle
+    },
+    secondary: {
+        main: 'bg-black border-slate-300 text-slate-200',
+        icon: BIconCheck2Circle
     },
     info: {
         main: 'bg-blue-50 border-blue--300 text-blue-600',
-        icon: 'pi-info-circle'
+        icon: BIconInfoCircle
     },
     warn: {
         main: 'bg-yellow-50 border-yellow-300 text-yellow-600',
-        icon: 'pi-exclamation-triangle'
+        icon: BIconExclamationCircle
     },
     error: {
         main: 'bg-red-50 border-red-300 text-red-600',
-        icon: 'pi-times-circle'
-    },
-    secondary: {
-        main: 'bg-slate-50 border-slate-300 text-slate-600',
-        icon: ''
+        icon: BIconXCircle
     },
     contrast: {
         main: 'bg-black border-slate-300 text-slate-200',

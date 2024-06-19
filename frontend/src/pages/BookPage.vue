@@ -1,5 +1,5 @@
 <template>
-    <div class="container mx-auto px-16 py-16 md:max-w-screen-md">
+    <div class="container px-16 py-16 mx-auto md:max-w-screen-md">
         <div class="flex">
             <div class="book-logo md:basis-1/3 lg:basis-1/4">
                 <img :src="bookStatistic.bookCover" alt="" />
@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="tab pt-16">
+        <div class="pt-16 tab">
             <div class="border-b-2 border-theme-muted">
                 <div class="text-sm font-medium text-center">
                     <ul class="flex flex-wrap -mb-px select-none">
@@ -75,7 +75,7 @@
                             v-else
                             v-for="(chapter, index) in sortedBookDatas"
                             :key="index"
-                            class="py-2 px-4 border-b hover:bg-theme-card border-dashed rounded-md flex items-center"
+                            class="flex items-center px-4 py-2 border-b border-dashed rounded-md hover:bg-theme-card"
                             :to="{
                                 name: 'post',
                                 params: {
@@ -93,28 +93,28 @@
                     <VComment></VComment>
                 </div>
                 <div class="tab-item" v-if="tabId == 3">
-                    <div class="toolbar flex pb-4">
+                    <div class="flex pb-4 toolbar">
                         <button
                             type="button"
-                            class="btn bg-theme-primary-base hover:bg-theme-primary-hover ml-auto px-3 py-1"
+                            class="px-3 py-1 ml-auto btn bg-theme-primary-base hover:bg-theme-primary-hover"
                             @click="updateMeta">
                             更新
                         </button>
                         <button
                             type="button"
-                            class="btn bg-theme-primary-base hover:bg-theme-primary-hover ml-3 px-3 py-1"
+                            class="px-3 py-1 ml-3 btn bg-theme-primary-base hover:bg-theme-primary-hover"
                             @click="saveMeta">
                             保存
                         </button>
                     </div>
                     <div>
-                        <table class="table-auto w-full border-collapse">
+                        <table class="w-full border-collapse table-auto">
                             <thead>
                                 <tr>
-                                    <th class="border px-4 py-2">ID</th>
-                                    <th class="border px-4 py-2">{{ translate('title') }}</th>
-                                    <th class="border px-4 py-2">{{ translate('order') }}</th>
-                                    <th class="border px-4 py-2">{{ translate('status') }}</th>
+                                    <th class="px-4 py-2 border">ID</th>
+                                    <th class="px-4 py-2 border">{{ translate('title') }}</th>
+                                    <th class="px-4 py-2 border">{{ translate('order') }}</th>
+                                    <th class="px-4 py-2 border">{{ translate('status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -129,13 +129,13 @@
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
-                                            class="p-2 border rounded-sm bg-transparent w-full"
+                                            class="w-full p-2 bg-transparent border rounded-sm"
                                             v-model="meta.title" />
                                     </td>
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
-                                            class="p-2 border bg-transparent rounded-sm w-full"
+                                            class="w-full p-2 bg-transparent border rounded-sm"
                                             v-model.number="meta.order" />
                                     </td>
                                     <td class="px-4 py-2 text-center">
@@ -161,13 +161,13 @@
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
-                                            class="p-2 bg-transparent border rounded-sm w-full"
+                                            class="w-full p-2 bg-transparent border rounded-sm"
                                             v-model="meta.title" />
                                     </td>
                                     <td class="px-4 py-2">
                                         <input
                                             type="text"
-                                            class="p-2 bg-transparent border rounded-sm w-full"
+                                            class="w-full p-2 bg-transparent border rounded-sm"
                                             v-model.number="meta.order" />
                                     </td>
                                     <td class="px-4 py-2 text-center">
@@ -185,10 +185,10 @@
                 </div>
 
                 <div class="tab-item" v-if="tabId == 4">
-                    <div class="toolbar flex pb-4">
-                        <button class="btn primary px-3 py-1 ml-auto">更新</button>
-                        <button class="btn warn px-3 py-1 ml-3">禁用</button>
-                        <button class="btn danger px-3 py-1 ml-3">删除</button>
+                    <div class="flex pb-4 toolbar">
+                        <button class="px-3 py-1 ml-auto btn primary">更新</button>
+                        <button class="px-3 py-1 ml-3 btn warn">禁用</button>
+                        <button class="px-3 py-1 ml-3 btn error">删除</button>
                     </div>
                 </div>
             </div>

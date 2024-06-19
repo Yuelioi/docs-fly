@@ -185,12 +185,17 @@ func SavePost(c *gin.Context) {
 
 	db := dbContext.(*gorm.DB)
 
-	// TODO 如果保存的是章节, 那么请保存到readme文件
-
 	var documentInfo models.Entry
 	db.Scopes(BasicModel, MatchUrlPath(postPath)).First(&documentInfo)
 
-	documentPath := global.AppConfig.Resource + "/" + documentInfo.Filepath
+	var documentPath string
+
+	if documentInfo.IsDir {
+		documentPath = global.AppConfig.Resource + "/" + documentInfo.Filepath + "/" + "README.md"
+	} else {
+		documentPath = global.AppConfig.Resource + "/" + documentInfo.Filepath
+
+	}
 
 	// 写入本地文件
 	err_write := os.WriteFile(documentPath, []byte(content), 0644)
@@ -227,14 +232,21 @@ func SavePost(c *gin.Context) {
 func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry) {
 	folder.Documents = make([]models.MetaData, 0)
 	folder.Children = make([]Chapter, 0)
-	// TODO 可以优化 添加后删除该categories documents条目
+
+	// 过滤一下数据
+	remainingDocuments := make([]models.Entry, 0)
+	remainingCategories := make([]models.Entry, 0)
 
 	// 添加文件到当前文件夹
 	for _, doc := range documents {
 		if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == folder.MetaData.Depth+1 {
 			folder.Documents = append(folder.Documents, doc.MetaData)
+		} else {
+			remainingDocuments = append(remainingDocuments, doc)
+
 		}
 	}
+	documents = remainingDocuments
 
 	// 添加子文件夹到当前文件夹
 	for _, cat := range categories {
@@ -245,8 +257,12 @@ func buildFolderTree(folder *Chapter, categories []models.Entry, documents []mod
 			}
 			buildFolderTree(&childFolder, categories, documents)
 			folder.Children = append(folder.Children, childFolder)
+		} else {
+			remainingCategories = append(remainingCategories, cat)
 		}
 	}
+
+	categories = remainingCategories
 }
 
 // 获取当前书籍章节信息,没有章节则直接获取文档信息

@@ -1,6 +1,6 @@
 <template>
     <div
-        class="w-screen h-36 pb-8 mb-2 animated-clock meters mt-6 justify-center items-center flex mx-auto">
+        class="flex items-center justify-center w-screen pb-8 mx-auto mt-6 mb-2 h-36 animated-clock meters">
         <img
             class="h-full"
             v-for="(data, index) in clockData"

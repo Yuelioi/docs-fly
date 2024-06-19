@@ -1,5 +1,5 @@
 <template>
-    <div class=""><div class="text-center py-2">Copyright © 2024 月离万事屋</div></div>
+    <div class=""><div class="py-2 text-center">Copyright © 2024 月离万事屋</div></div>
 </template>
 
 <script setup lang="ts">

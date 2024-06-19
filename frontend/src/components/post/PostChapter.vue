@@ -1,13 +1,13 @@
 <template>
-    <div id="nav" class="my-3 lg:text-sm lg:leading-6 h-full">
-        <div class="toolbar w-full flex">
+    <div id="nav" class="h-full my-3 lg:text-sm lg:leading-6">
+        <div class="flex w-full toolbar">
             <div v-if="chaptersData.length > virtual_limit_length">
                 <nav
-                    class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                    class="inline-flex -space-x-px rounded-md shadow-sm isolate"
                     aria-label="Pagination">
                     <a
                         @click.prevent="(currentPage -= 1), (isNavCollapsed = true)"
-                        class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                        class="relative inline-flex items-center px-2 py-2 text-gray-400 rounded-l-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">Previous</span>
                         <div class="text-[1.25rem]"><BIconCaretLeft></BIconCaretLeft></div>
                     </a>
@@ -16,7 +16,7 @@
                         :class="
                             currentPage == 1 ? 'bg-theme-primary-hover text-theme-text-inverse' : ''
                         "
-                        class="relative select-none inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        class="relative inline-flex items-center px-4 py-2 text-sm font-semibold select-none ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
                         >1</a
                     >
                     <a
@@ -44,7 +44,7 @@
                             (currentPage = Math.ceil(chaptersData.length / virtual_limit_length)),
                                 (isNavCollapsed = true)
                         "
-                        class="relative select-none inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        class="relative inline-flex items-center px-4 py-2 text-sm font-semibold select-none ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
                         >{{ Math.ceil(chaptersData.length / virtual_limit_length) }}</a
                     >
                     <a
@@ -59,21 +59,21 @@
             <div
                 @click="handleCollapse"
                 class="inline-flex ml-auto text-[1.25rem] items-center justify-center ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                <div v-if="isNavCollapsed" class="rounded-r-md px-2 py-2">
+                <div v-if="isNavCollapsed" class="px-2 py-2 rounded-r-md">
                     <BIconFilterLeft></BIconFilterLeft>
                 </div>
-                <div v-else class="rounded-r-md px-2 py-2">
+                <div v-else class="px-2 py-2 rounded-r-md">
                     <BIconJustify></BIconJustify>
                 </div>
             </div>
         </div>
 
         <div class="relative h-full overflow-y-scroll">
-            <div class="list mb-3 absolute py-3 pb-12 pl-1 w-full text-ellipsis text-nowrap">
+            <div class="absolute w-full py-3 pb-12 pl-1 mb-3 list text-ellipsis text-nowrap">
                 <ul
                     v-for="(chapter, chapter_index) in filteredChapters"
                     :key="chapter.id"
-                    class="scroll-item mt-2 overflow-hidden"
+                    class="mt-2 overflow-hidden scroll-item"
                     :class="chapter.metadata.status ? '' : 'hidden'"
                     :data-index="chapter.id">
                     <!-- 1. 没有章节 speedTree -->
@@ -88,7 +88,7 @@
                             :data-index="chapter.id"
                             :key="chapter.metadata.url"
                             class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-theme-text-base hover:rounded dark:hover:bg-slate-800">
-                            <h5 class="select-none text-lg mb-2 lg:mb-3 text-theme-text-base">
+                            <h5 class="mb-2 text-lg select-none lg:mb-3 text-theme-text-base">
                                 {{ chapter.metadata.title }}
                             </h5></router-link
                         >
@@ -106,7 +106,7 @@
                                 }
                             }"
                             :key="chapter.metadata.url">
-                            <h5 class="text-lg font-bold mb-4 lg:mb-3 text-theme-text-base">
+                            <h5 class="mb-4 text-lg font-bold lg:mb-3 text-theme-text-base">
                                 {{ chapter_index + 1 + '. ' + chapter.metadata.title }}
                             </h5>
                         </router-link>

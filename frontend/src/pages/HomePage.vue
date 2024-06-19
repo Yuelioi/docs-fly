@@ -1,17 +1,18 @@
 <template>
     <div class="w-full">
+        <button @click="addNotify">添加事件</button>
         <div class="flex flex-col -mt-1">
             <!-- 主页手风琴 -->
             <div class="w-full h-[50vh] relative">
-                <div class="flex justify-center items-center h-full select-none">
+                <div class="flex items-center justify-center h-full select-none">
                     <span
-                        class="animated-text absolute z-20 text-slate-200 top-1/3 md:text-2xl text-xl lg:text-3xl"
+                        class="absolute z-20 text-xl animated-text text-slate-200 top-1/3 md:text-2xl lg:text-3xl"
                         >{{ yiyan }}</span
                     >
                 </div>
 
                 <img
-                    class="absolute top-0 w-full h-full object-cover"
+                    class="absolute top-0 object-cover w-full h-full"
                     src="https://cdn.yuelili.com/docs/web/assert/banner-anime-girl-roller.jpg"
                     alt="" />
             </div>
@@ -19,9 +20,9 @@
 
             <!--  -->
             <div class="md:mt-[-14rem]">
-                <div class="mx-auto max-w-7xl py-12 sm:px-8 sm:py-24 lg:px-8">
+                <div class="py-12 mx-auto max-w-7xl sm:px-8 sm:py-24 lg:px-8">
                     <div
-                        class="relative isolate overflow-hidden bg-theme-base px-8 pt-16 shadow-2xl sm:rounded md:pt-24 lg:flex lg:gap-x-20 lg:px-24 sm:px-0 lg:pt-0">
+                        class="relative px-8 pt-16 overflow-hidden shadow-2xl isolate bg-theme-base sm:rounded md:pt-24 lg:flex lg:gap-x-20 lg:px-24 sm:px-0 lg:pt-0">
                         <svg
                             viewBox="0 0 1024 1024"
                             class="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)] sm:left-full sm:-ml-80 lg:left-1/2 lg:ml-0 lg:-translate-x-1/2 lg:translate-y-0"
@@ -40,7 +41,7 @@
                             </defs>
                         </svg>
                         <div
-                            class="mx-auto text-center lg:mx-0 lg:flex-auto py-12 lg:py-24 lg:text-left">
+                            class="py-12 mx-auto text-center lg:mx-0 lg:flex-auto lg:py-24 lg:text-left">
                             <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
                                 欢迎来到月离文档站.<br />Welcome to Yueli Docs
                             </h2>
@@ -49,7 +50,7 @@
                                 Largest CG Documentation Site(X).
                             </p>
                             <div
-                                class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
+                                class="flex items-center justify-center mt-10 gap-x-6 lg:justify-start">
                                 <router-link
                                     class="btn bg-theme-primary-base hover:bg-theme-primary-hover px-3.5 py-2.5"
                                     :to="{
@@ -66,8 +67,8 @@
                                 >
                             </div>
                         </div>
-                        <div class="mt-8 relative lg:w-1/2 h-80 lg:-mt-8">
-                            <div class="h-80 w-full lg:-mt-8 absolute">
+                        <div class="relative mt-8 lg:w-1/2 h-80 lg:-mt-8">
+                            <div class="absolute w-full h-80 lg:-mt-8">
                                 <img
                                     class="absolute left-0 top-8 w-full lg:w-[60rem] max-w-none rounded-md ring-1 ring-white/10"
                                     src="https://cdn.yuelili.com/docs/web/assert/anime-girl.jpg"
@@ -85,28 +86,28 @@
             <div class="">
                 <div class="mx-auto max-w-7xl py-18 sm:px-6 sm:py-32 lg:px-8">
                     <div
-                        class="max-h-96 relative rounded-b-none rounded-3xl border-radius isolate overflow-hidden py-24 sm:py-32">
+                        class="relative py-24 overflow-hidden rounded-b-none max-h-96 rounded-3xl border-radius isolate sm:py-32">
                         <img
                             src="https://cdn.yuelili.com/docs/web/assert/anime-girl-dream.jpg"
                             alt=""
-                            class="relative -translate-y-1/4 inset-0 -z-10 h-full w-full object-cover object-right md:object-center" />
+                            class="relative inset-0 object-cover object-right w-full h-full -translate-y-1/4 -z-10 md:object-center" />
                     </div>
                     <div class="flex text-center shadow-2xl sm:rounded-3xl">
-                        <div class="rounded-es-lg border-2 border-r-0 basis-1/4 py-6">
+                        <div class="py-6 border-2 border-r-0 rounded-es-lg basis-1/4">
                             <div class="text-sm">书籍数量</div>
                             <div class="text-lg font-bold">{{ statistic?.book_count }}</div>
                         </div>
-                        <div class="border-2 border-r-0 basis-1/4 p-6">
+                        <div class="p-6 border-2 border-r-0 basis-1/4">
                             <div class="text-sm">文章数量</div>
                             <div class="text-lg font-bold">{{ statistic?.document_count }}</div>
                         </div>
-                        <div class="border-2 border-r-0 basis-1/4 p-6">
+                        <div class="p-6 border-2 border-r-0 basis-1/4">
                             <div class="text-sm">历史访问人数</div>
                             <div class="text-lg font-bold">
                                 {{ statistic?.historical_visitor_count }}
                             </div>
                         </div>
-                        <div class="rounded-lg border-2 rounded-tr-none basis-1/4 p-6">
+                        <div class="p-6 border-2 rounded-lg rounded-tr-none basis-1/4">
                             <div class="text-sm">今日访问人数</div>
                             <div class="text-lg font-bold">
                                 {{ statistic?.today_visitor_count }}
@@ -135,6 +136,15 @@ const yiyan = ref('')
 const statistic = ref<HomeStatistic>()
 
 const rndPostUrl = ref<string[]>(['intro'])
+
+function addNotify() {
+    Message({ message: '111', type: 'success', duration: 9999999 })
+    Message({ message: '112', type: 'secondary', duration: 9999999 })
+    Message({ message: '113', type: 'info', duration: 9999999 })
+    Message({ message: '114', type: 'warn', duration: 9999999 })
+    Message({ message: '115', type: 'error', duration: 9999999 })
+    Message({ message: '116', type: 'contract', duration: 9999999 })
+}
 
 onMounted(async () => {
     await fetchBasic(statistic, new HomeStatistic(), fetchStatisticHome)

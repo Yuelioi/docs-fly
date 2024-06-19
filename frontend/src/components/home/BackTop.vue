@@ -3,7 +3,7 @@
         <button
             v-show="show"
             id="scrollToTop"
-            class="fixed right-12 duration-200 transition-opacity ease-in-out bottom-12 w-8 h-8 bg-theme-backToTop-base hover:bg-theme-backToTop-hover p-3 rounded-full flex items-center justify-center"
+            class="fixed flex items-center justify-center w-8 h-8 p-3 transition-opacity duration-200 ease-in-out rounded-full right-12 bottom-12 bg-theme-backToTop-base hover:bg-theme-backToTop-hover"
             @click="scrollToTop()">
             <div class="text-[1.25rem]"><BIconCaretUp></BIconCaretUp></div></button
     ></transition>
