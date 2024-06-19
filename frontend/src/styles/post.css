@@ -1,34 +1,4 @@
 /* post页面样式 */
-.main h1,
-.main h2 {
-    padding-top: 0.5rem;
-    padding-bottom: 0.3rem;
-    border-bottom: 1px solid #eaecef;
-}
-
-.main h1 {
-    font-size: 1.85rem;
-}
-
-.main h2 {
-    font-size: 1.55rem;
-}
-
-.main h3 {
-    font-size: 1.2rem;
-}
-
-.main h1,
-.main h2,
-.main h3,
-.main h4,
-.main h5,
-.main h6 {
-    margin-top: 24px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    line-height: 1.25;
-}
 
 .main h1:before {
     content: 'H1';
@@ -67,14 +37,6 @@
     font-size: 0.85rem;
     font-weight: normal;
     color: rgba(88, 96, 105, 0.36);
-}
-
-.main p {
-    margin: 0.75rem 0;
-}
-
-.main a {
-    color: #18a8ff;
 }
 
 .main img {

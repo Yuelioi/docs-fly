@@ -31,7 +31,7 @@
             <div
                 v-show="!isEditing"
                 ref="postContainer"
-                class="main sm:mx-[1rem] md:mx-[2rem] lg:mx-[2.5rem] xl:mx-[3.5rem] 2xl:mx-[5rem]"
+                class="container w-full prose main max-w-none dark:prose-invert"
                 v-html="postHtml"></div>
             <div v-show="isEditing" id="vditor" class="w-6xl"></div>
         </div>

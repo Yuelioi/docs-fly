@@ -1,5 +1,5 @@
 import plugin from 'tailwindcss/plugin'
-
+import typography from '@tailwindcss/typography'
 /** @type {import('tailwindcss').Config} */
 
 function withOpacity(variableName) {
@@ -15,6 +15,16 @@ export default {
     darkMode: 'selector',
     content: ['./index.html', './src/**/*.{js,ts,vue}'],
     theme: {
+        container: {
+            center: true,
+            padding: {
+                DEFAULT: '1rem',
+                sm: '2rem',
+                lg: '4rem',
+                xl: '5rem',
+                '2xl': '6rem'
+            }
+        },
         extend: {
             screens: {
                 sm: '576px',
@@ -107,6 +117,7 @@ export default {
     plugins: [
         plugin(function ({ addComponents, addBase, theme }) {
             addBase({})
-        })
+        }),
+        typography
     ]
 }

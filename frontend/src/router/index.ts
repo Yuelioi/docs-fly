@@ -3,6 +3,7 @@ import Home from '@/pages/HomePage.vue'
 import Post from '@/pages/PostPage.vue'
 import Book from '@/pages/BookPage.vue'
 import PostStar from '@/pages/PostStar.vue'
+import Intro from '@/pages/IntroPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 
 const routes = [
@@ -21,6 +22,11 @@ const routes = [
         path: '/star',
         name: 'star',
         component: PostStar
+    },
+    {
+        path: '/intro',
+        name: 'intro',
+        component: Intro
     },
     {
         path: '/post/:postPath+',
