@@ -186,9 +186,9 @@
 
                 <div class="tab-item" v-if="tabId == 4">
                     <div class="flex pb-4 toolbar">
-                        <button class="px-3 py-1 ml-auto btn primary">更新</button>
-                        <button class="px-3 py-1 ml-3 btn warn">禁用</button>
-                        <button class="px-3 py-1 ml-3 btn error">删除</button>
+                        <button class="px-3 py-1 ml-auto btn">更新</button>
+                        <button class="px-3 py-1 ml-3 btn">禁用</button>
+                        <button class="px-3 py-1 ml-3 btn">删除</button>
                     </div>
                 </div>
             </div>
