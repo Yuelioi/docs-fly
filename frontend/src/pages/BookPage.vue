@@ -1,7 +1,7 @@
 <template>
-    <div class="container px-16 py-16 mx-auto md:max-w-screen-md">
+    <div class="container px-16 py-16 mx-auto">
         <div class="flex">
-            <div class="book-logo md:basis-1/3 lg:basis-1/4">
+            <div class="book-logo">
                 <img :src="bookStatistic.bookCover" alt="" />
             </div>
             <div class="flex flex-col space-y-6 *:border-b-2 select-none">

@@ -1,5 +1,5 @@
 <template>
-    <div id="nav" class="h-full my-3 lg:text-sm lg:leading-6">
+    <div id="nav" class="h-full my-3">
         <div class="flex w-full toolbar">
             <div v-if="chaptersData.length > virtual_limit_length">
                 <nav
@@ -88,7 +88,7 @@
                             :data-index="chapter.id"
                             :key="chapter.metadata.url"
                             class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-theme-text-base hover:rounded dark:hover:bg-slate-800">
-                            <h5 class="mb-2 text-lg select-none lg:mb-3 text-theme-text-base">
+                            <h5 class="mb-2 text-lg select-none text-theme-text-base">
                                 {{ chapter.metadata.title }}
                             </h5></router-link
                         >
@@ -106,7 +106,7 @@
                                 }
                             }"
                             :key="chapter.metadata.url">
-                            <h5 class="mb-4 text-lg font-bold lg:mb-3 text-theme-text-base">
+                            <h5 class="mb-4 text-lg font-bold text-theme-text-base">
                                 {{ chapter_index + 1 + '. ' + chapter.metadata.title }}
                             </h5>
                         </router-link>

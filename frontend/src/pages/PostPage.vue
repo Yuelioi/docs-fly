@@ -2,18 +2,17 @@
     <div class="">
         <!-- 书籍章节大纲 Chapter -->
         <aside
-            class="hidden mt-1 lg:block fixed lg:w-[15rem] xl:w-[18rem] z-20 top-[3.8125rem] border-r-2 right-auto pb-16 pl-8 h-full">
+            class="hidden mt-1 fixed z-20 top-[3.8125rem] border-r-2 right-auto pb-16 pl-8 h-full">
             <PostChapter v-model:chapters="chapters" />
         </aside>
 
         <!-- 文章 Document Content-->
-        <article class="sm:w-full sm:px-[2rem] lg:px-[15rem] xl:px-[20rem] my-8">
+        <article class="my-8">
             <PostContent v-model:postContent="postContent" v-model:postHtml="postHtml" />
         </article>
 
         <!-- 文章目录 Toc -->
-        <div
-            class="pl-6 mt-1 hidden lg:block fixed lg:w-[15rem] xl:w-[20rem] right-2 border-l-2 w-[14rem] top-[3.8125rem] h-full">
+        <div class="pl-6 mt-1 hidden fixed right-2 border-l-2 w-[14rem] top-[3.8125rem] h-full">
             <PostToc :toc="toc" />
         </div>
     </div>

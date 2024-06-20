@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex items-center justify-center w-screen pb-8 mx-auto mt-6 mb-2 h-36 animated-clock meters">
+        class="container flex items-center justify-center w-screen pb-8 mx-auto mt-6 mb-2 h-36 animated-clock meters">
         <img
             class="h-full"
             v-for="(data, index) in clockData"
@@ -54,7 +54,10 @@ setInterval(() => {
     refreshClock()
 }, 999)
 </script>
-<style>
+<style scoped>
+img {
+    width: calc(100% / 12);
+}
 .animated-clock {
     animation: fadeInOut 3s ease-in-out;
 }

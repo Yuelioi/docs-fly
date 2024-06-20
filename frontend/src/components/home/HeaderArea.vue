@@ -1,9 +1,10 @@
 <template>
-    <div class="w-full h-16">
-        <div
-            class="flex flex-row h-16 items-center justify-around sm:mx-[2rem] md:mx-[3rem] lg:mx-[5rem] xl:mx-[7.5rem] 2xl:mx-[10rem]">
+    <div class="container h-16">
+        <div class="flex flex-row items-center justify-around h-16">
+            <!-- 左侧菜单 -->
             <div class="flex left cat-menu">
-                <div class="justify-start hidden h-16 lg:block">
+                <!-- LOGO -->
+                <div class="justify-start h-16">
                     <a rel="home" href="#"
                         ><img
                             class="h-full"
@@ -11,7 +12,7 @@
                             src="https://cdn.yuelili.com/web/assets/logo.webp"
                     /></a>
                 </div>
-                <!-- 分类 Start -->
+                <!-- 分类 -->
                 <div class="flex flex-row">
                     <div
                         class="relative flex items-center h-full p-1 pl-4 pr-4 rounded-lg group"
@@ -38,10 +39,9 @@
                         </ul>
                     </div>
                 </div>
-                <!-- 分类 End-->
             </div>
-            <div
-                class="flex items-center justify-center h-full header-banner-item header-banner-right">
+            <!-- 右侧菜单 -->
+            <div class="items-center justify-center">
                 <!-- 搜索 Start -->
                 <div class="search">
                     <HSearch v-model:showSearchDialog="showSearchDialog" />
@@ -49,7 +49,7 @@
                 <!-- 搜索 End -->
 
                 <!-- 右侧工具 -->
-                <div class="flex items-center">
+                <div class="items-center">
                     <button @click="toggleDark()">
                         <div
                             class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline">
