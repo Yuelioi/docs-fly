@@ -4,7 +4,7 @@
             <!-- 左侧菜单 -->
             <div class="flex left cat-menu">
                 <!-- LOGO -->
-                <div class="justify-start h-16">
+                <div class="justify-start hidden h-16">
                     <a rel="home" href="#"
                         ><img
                             class="h-full"
@@ -15,15 +15,17 @@
                 <!-- 分类 -->
                 <div class="flex flex-row">
                     <div
-                        class="relative flex items-center h-full p-1 pl-4 pr-4 rounded-lg group"
+                        class="relative flex items-center h-16 px-2 rounded-lg group"
                         v-for="(nav, index_nav) in filteredNavs"
                         :key="index_nav">
-                        <span class="font-bold cursor-default">{{ nav.metadata.title }}</span>
+                        <span class="text-sm font-bold cursor-default">{{
+                            nav.metadata.title
+                        }}</span>
 
                         <ul
-                            class="absolute z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-lg top-16 bg-theme-card group-hover:scale-100">
+                            class="absolute top-[calc(100%-1px)] z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
                             <router-link
-                                class="flex items-center w-full px-6 py-3 last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
+                                class="flex items-center w-full px-3 py-2 last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
                                 v-for="(child, index_item) in sortMeta(nav.children)"
                                 :key="index_item"
                                 :to="{
@@ -41,7 +43,7 @@
                 </div>
             </div>
             <!-- 右侧菜单 -->
-            <div class="items-center justify-center">
+            <div class="items-center justify-center hidden">
                 <!-- 搜索 Start -->
                 <div class="search">
                     <HSearch v-model:showSearchDialog="showSearchDialog" />
@@ -52,7 +54,7 @@
                 <div class="items-center">
                     <button @click="toggleDark()">
                         <div
-                            class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline">
+                            class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline">
                             <BIconSun v-if="isDark"></BIconSun> <BIconMoon v-else></BIconMoon>
                         </div>
                     </button>
@@ -60,7 +62,7 @@
                     <button>
                         <router-link :to="{ name: 'star' }" :key="'star'">
                             <div
-                                class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                                class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
                                 <BIconStar></BIconStar>
                             </div>
                         </router-link>

@@ -22,11 +22,23 @@
     <!-- ring 使用box-shadow的伪边框 -->
     <button class="w-24 h-12 bg-sky-600 ring-4 ring-red-600">Tex</button>
 
-    <div class="prose">
-        <h1>你好</h1>
-    </div>
+    <AsyncComp></AsyncComp>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+const AsyncComp = defineAsyncComponent({
+    // the loader function
+    loader: () => new Promise((res, rej) => h('div', ['<span>Loading</span>'])),
+
+    // A component to use while the async component is loading
+    loadingComponent: h('div', ['<span>Loading</span>']),
+    // Delay before showing the loading component. Default: 200ms.
+    delay: 200,
+
+    // A component to use if the load fails
+    errorComponent: h('div', ['<span>Loading</span>']),
+    // The error component will be displayed if a timeout is
+    // provided and exceeded. Default: Infinity.
+    timeout: 3000
+})
 </script>
