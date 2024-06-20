@@ -1,6 +1,6 @@
 <template>
     <div class="w-full">
-        <button @click="addNotify">添加事件</button>
+        <!-- <button @click="addNotify">添加事件</button> -->
         <div class="flex flex-col -mt-1">
             <!-- 主页手风琴 -->
             <div class="w-full h-[50vh] relative">
