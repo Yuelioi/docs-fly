@@ -6,12 +6,12 @@
             class="fixed z-50 flex flex-col w-screen h-full pt-8 search align-center">
             <div
                 @click.stop
-                class="shadow-2xl dialog relative bg-theme-card dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] md:w-[80%] md:left-[10%] lg:w-1/2 lg:left-1/4 max-h-1/2 z-50 top-18">
+                class="shadow-2xl dialog relative bg-theme-card dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] max-h-1/2 z-50 top-18">
                 <!-- 顶部工具 -->
                 <div class="z-50 flex-col w-full h-16">
                     <div class="flex items-center justify-around pb-4 mt-4 border-b-2">
                         <!-- 书籍设置 -->
-                        <div class="flex flex-col pl-4 select-none md:pl-8 lg:pl-16">
+                        <div class="flex flex-col pl-4 select-none">
                             <div
                                 @mouseover="showSearchDropdown = true"
                                 class="relative flex items-center justify-center w-32 h-10 text-sm font-semibold text-center bg-transparent text-nowrap">
@@ -21,6 +21,7 @@
                                 <span class="group" @mouseleave="showSearchDropdown = false">{{
                                     currentOption.name ? currentOption.name : '全站搜索'
                                 }}</span>
+                                <BIconCaretDown class="ml-1"></BIconCaretDown>
                                 <div
                                     v-show="currentOption.name.length > 0"
                                     class="pl-2 text-sm/[12px]"
@@ -32,7 +33,7 @@
                                     class="absolute z-[100] top-[3rem] rounded h-32">
                                     <ul
                                         @mouseleave="showSearchDropdown = false"
-                                        class="w-full py-1 mt-1 overflow-y-scroll text-base rounded-md shadow-lg bg-theme-base dark:bg-dark-light max-h-56 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                        class="w-full py-1 mt-1 overflow-y-scroll text-base rounded-md shadow-lg bg-theme-base dark:bg-dark-light max-h-56 ring-1 ring-black ring-opacity-5 focus:outline-none">
                                         <li
                                             v-for="(option, index) in options"
                                             class="w-full px-6 py-3 whitespace-normal last:pb-4 hover:bg-theme-primary-hover hover:rounded-lg"
@@ -60,7 +61,7 @@
                         </div>
 
                         <div class="flex ml-4 toolbar">
-                            <div class="pr-2 lg:pr-4">
+                            <div class="pr-2">
                                 <div
                                     class="text-[1.25rem]"
                                     v-show="!pinSearchResult"
@@ -141,7 +142,14 @@
 
 import { MetaData } from '@/models/base'
 import { SearchData, Nav } from '@/models/home'
-import { BIconBook, BIconLock, BIconSearch, BIconUnlock, BIconX } from 'bootstrap-icons-vue'
+import {
+    BIconBook,
+    BIconLock,
+    BIconSearch,
+    BIconUnlock,
+    BIconX,
+    BIconCaretDown
+} from 'bootstrap-icons-vue'
 
 // 默认不pin
 const pinSearchResult = ref(false)

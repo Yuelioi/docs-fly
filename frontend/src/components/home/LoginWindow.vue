@@ -7,7 +7,7 @@
                     <BIconX @click="showLoginWindow = false"></BIconX>
                 </div>
 
-                <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+                <div class="">
                     <img
                         class="w-auto h-10 mx-auto"
                         src="https://cdn.yuelili.com/web/assets/logo.webp"
@@ -17,7 +17,7 @@
                     </h2>
                 </div>
 
-                <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                <div class="mt-10">
                     <form class="space-y-6" action="#" method="POST">
                         <div>
                             <label for="username" class="block text-sm font-medium leading-6"
@@ -30,7 +30,7 @@
                                     type="username"
                                     autocomplete="username"
                                     required
-                                    class="px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 bg-theme-base placeholder:text-gray-400 focus:ring-2 focus:ring-inset !focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                                    class="px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 bg-theme-base placeholder:text-gray-400 focus:ring-2 focus:ring-inset !focus:ring-indigo-600" />
                             </div>
                         </div>
 
@@ -47,7 +47,7 @@
                                     type="password"
                                     autocomplete="current-password"
                                     required
-                                    class="bg-theme-base px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-200 sm:text-sm sm:leading-6" />
+                                    class="bg-theme-base px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-200" />
                             </div>
                         </div>
 

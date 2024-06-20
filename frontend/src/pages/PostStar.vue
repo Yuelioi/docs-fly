@@ -36,7 +36,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="shrink-0 sm:flex sm:flex-col sm:items-end">
+                <div class="shrink-0">
                     <i class="pi pi-times text-sm/[18px]" @click.prevent="deleteData(star.key)"></i>
                     <p class="mt-1 text-xs leading-5 text-gray-500">
                         收藏日期
