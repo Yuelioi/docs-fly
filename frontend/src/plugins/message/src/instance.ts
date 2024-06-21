@@ -6,17 +6,11 @@
 import { createVNode, render } from 'vue'
 import VMessage from './VMessage.vue'
 import type { MessageProps } from './message'
-import { messageDefaults } from './message'
 
-export function Message(msgProps: Partial<MessageProps>) {
-    const props = {
-        message: msgProps.message ?? messageDefaults.message,
-        type: msgProps.type ?? messageDefaults.type,
-        duration: msgProps.duration ?? messageDefaults.duration
-    }
-    return new Promise((resolve, reject) => {
+export function Message(props: Partial<MessageProps>) {
+    return new Promise((resolve) => {
         let mask
-        const current = document.getElementById('message-dialog')
+        const current = document.getElementById('message-dialogs')
 
         // 创建/获取消息元素
         if (current) {
@@ -28,7 +22,7 @@ export function Message(msgProps: Partial<MessageProps>) {
                 'position: fixed; top:4rem;  width: 100%; display: flex; flex-direction: column; center; align-items: center;z-index:51;'
             )
             mask.setAttribute('key', Date.now().toString())
-            mask.setAttribute('id', 'message-dialog')
+            mask.setAttribute('id', 'message-dialogs')
             document.body.appendChild(mask)
         }
 
@@ -52,3 +46,5 @@ export function Message(msgProps: Partial<MessageProps>) {
         render(VNode, mask.appendChild(child))
     })
 }
+
+export const instances: MessageContext[] = shallowReactive([])
