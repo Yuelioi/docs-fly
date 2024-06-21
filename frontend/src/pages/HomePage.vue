@@ -3,11 +3,12 @@
         <!-- <button @click="addNotify">添加事件</button> -->
         <div class="flex flex-col -mt-1">
             <!-- 主页手风琴 -->
-            <div class="w-full h-[50vh] relative">
+            <div class="w-full h-[33vh] relative">
                 <div class="flex items-center justify-center h-full select-none">
-                    <span class="absolute z-20 text-xl animated-text text-slate-200 top-1/3">{{
-                        yiyan
-                    }}</span>
+                    <span
+                        class="absolute z-20 text-sm sm:text-base animated-text text-slate-200 top-1/3"
+                        >{{ yiyan }}</span
+                    >
                 </div>
 
                 <img
@@ -18,13 +19,13 @@
             <!-- 主页手风琴结束 -->
 
             <!--  -->
-            <div class="container">
-                <div class="px-8 py-12 mx-auto max-w-7xl">
+            <div class="container mx-auto -mt-[15vh] max-w-7xl">
+                <div class="w-full">
                     <div
-                        class="relative px-8 pt-16 overflow-hidden shadow-2xl isolate bg-theme-base">
+                        class="relative mt-4 overflow-hidden rounded-lg shadow-2xl sm:flex isolate bg-theme-base">
                         <svg
                             viewBox="0 0 1024 1024"
-                            class="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"
+                            class="absolute left-1/2 top-1/2 sm:left-1/4 sm:-translate-y-4 -z-10 size-[64rem] sm:size-[32rem] -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"
                             aria-hidden="true">
                             <circle
                                 cx="512"
@@ -39,13 +40,13 @@
                                 </radialGradient>
                             </defs>
                         </svg>
-                        <div class="py-12 mx-auto text-center">
-                            <h2 class="text-3xl font-bold tracking-tight">
+                        <div class="w-1/2 py-6 mx-auto text-center">
+                            <h2 class="font-bold tracking-tight sm:text-lg sm:py-4">
                                 欢迎来到月离文档站.<br />Welcome to Yueli Docs
                             </h2>
-                            <p class="mt-6 text-lg leading-8 text-black-300">
-                                国内最大CG文档网站(不是)<br />
-                                Largest CG Documentation Site(X).
+                            <p class="mt-6 leading-1 text-black-300">
+                                国内最大CG文档网站<br />
+                                Largest CG Documentation Site.
                             </p>
                             <div class="flex items-center justify-center mt-10 gap-x-6">
                                 <router-link
@@ -64,15 +65,13 @@
                                 >
                             </div>
                         </div>
-                        <div class="relative mt-8">
-                            <div class="absolute w-full h-80">
-                                <img
-                                    class="absolute left-0 w-full rounded-md top-8 max-w-none ring-1 ring-white/10"
-                                    src="https://cdn.yuelili.com/docs/web/assert/anime-girl.jpg"
-                                    alt="App screenshot"
-                                    width="1824"
-                                    height="1080" />
-                            </div>
+                        <div class="relative hidden w-1/2 sm:block">
+                            <img
+                                class="object-cover w-full h-full ring-1 ring-white/10"
+                                src="https://cdn.yuelili.com/docs/web/assert/anime-girl.jpg"
+                                alt="App screenshot"
+                                width="1824"
+                                height="1080" />
                         </div>
                     </div>
                 </div>
@@ -80,42 +79,39 @@
             <!--  -->
 
             <!-- 主页信息统计区域 -->
-            <div class="container">
-                <div class="mx-auto max-w-7xl py-18">
-                    <div
-                        class="relative py-24 overflow-hidden rounded-b-none max-h-96 rounded-3xl border-radius isolate">
-                        <img
-                            src="https://cdn.yuelili.com/docs/web/assert/anime-girl-dream.jpg"
-                            alt=""
-                            class="relative inset-0 object-cover object-right w-full h-full -translate-y-1/4 -z-10" />
+            <div class="container mx-auto my-8 max-w-7xl">
+                <div class="relative rounded-b-none rounded-3xl border-radius isolate">
+                    <img
+                        src="https://cdn.yuelili.com/docs/web/assert/anime-girl-dream.jpg"
+                        alt=""
+                        class="relative inset-0 object-cover object-right w-full h-full -translate-y-0 sm:h-64 sm:mt-16 -z-10" />
+                </div>
+                <div class="flex text-sm text-center shadow-2xl *:pt-2">
+                    <div class="border-2 border-r-0 rounded-es-lg basis-1/4">
+                        <div class="">书籍数量</div>
+                        <div class="font-bold">{{ statistic?.book_count }}</div>
                     </div>
-                    <div class="flex space-y-6 text-center shadow-2xl">
-                        <div class="border-2 border-r-0 rounded-es-lg basis-1/4">
-                            <div class="text-sm">书籍数量</div>
-                            <div class="text-lg font-bold">{{ statistic?.book_count }}</div>
+                    <div class="border-2 border-r-0 basis-1/4">
+                        <div class="">文章数量</div>
+                        <div class="font-bold">{{ statistic?.document_count }}</div>
+                    </div>
+                    <div class="border-2 border-r-0 basis-1/4">
+                        <div class="text-sm">历史访问</div>
+                        <div class="font-bold">
+                            {{ statistic?.historical_visitor_count }}
                         </div>
-                        <div class="border-2 border-r-0 basis-1/4">
-                            <div class="text-sm">文章数量</div>
-                            <div class="text-lg font-bold">{{ statistic?.document_count }}</div>
-                        </div>
-                        <div class="border-2 border-r-0 basis-1/4">
-                            <div class="text-sm">历史访问人数</div>
-                            <div class="text-lg font-bold">
-                                {{ statistic?.historical_visitor_count }}
-                            </div>
-                        </div>
-                        <div class="border-2 rounded-lg rounded-tr-none basis-1/4">
-                            <div class="text-sm">今日访问人数</div>
-                            <div class="text-lg font-bold">
-                                {{ statistic?.today_visitor_count }}
-                            </div>
+                    </div>
+                    <div class="border-2 basis-1/4">
+                        <div class="text-sm">今日访问</div>
+                        <div class="text-lg font-bold">
+                            {{ statistic?.today_visitor_count }}
                         </div>
                     </div>
                 </div>
             </div>
             <!-- 主页信息统计区域结束 -->
             <!-- 时间 -->
-            <VClock />
+            <VClock class="max-w-[48rem]" />
 
             <!-- 时间结束 -->
         </div>
