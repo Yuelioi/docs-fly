@@ -3,6 +3,8 @@ import HeaderArea from '@/components/home/HeaderArea.vue'
 import BackTop from '@/components/home/BackTop.vue'
 import Footer from '@/components/home/FooterArea.vue'
 
+import FooterScript from '@/components/common/FooterScript.vue'
+
 import { themeState } from './utils/themeManager'
 </script>
 
@@ -26,6 +28,7 @@ import { themeState } from './utils/themeManager'
             <!--  页脚结束  -->
         </div>
     </div>
+    <FooterScript></FooterScript>
     <BackTop />
 </template>
 

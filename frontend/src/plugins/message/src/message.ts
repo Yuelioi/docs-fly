@@ -15,7 +15,7 @@ export const messageDefaults = {
 
 export const messageProps = {
     message: {
-        type: <string | VNode | (() => VNode)>(<any>[String, Object, Function]),
+        type: [String, Object, Function] as PropType<string | VNode | (() => VNode)>,
         default: messageDefaults.message
     },
     type: {

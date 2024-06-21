@@ -1,16 +1,16 @@
 <template>
     <div class="container h-16">
-        <div class="flex flex-row items-center justify-around h-16">
+        <div class="flex flex-row items-center justify-around sm:justify-between">
             <!-- 左侧菜单 -->
-            <div class="flex left cat-menu">
+            <div class="flex">
                 <!-- LOGO -->
-                <div class="justify-start hidden h-16">
-                    <a rel="home" href="#"
-                        ><img
-                            class="h-full"
+                <div class="flex items-center">
+                    <a rel="home" href="#">
+                        <img
+                            class="hidden h-16"
                             itemprop="logo"
-                            src="https://cdn.yuelili.com/web/assets/logo.webp"
-                    /></a>
+                            src="https://cdn.yuelili.com/web/assets/logo.webp" />
+                    </a>
                 </div>
                 <!-- 分类 -->
                 <div class="flex flex-row">
@@ -43,7 +43,7 @@
                 </div>
             </div>
             <!-- 右侧菜单 -->
-            <div class="items-center justify-center hidden">
+            <div class="items-center justify-center hidden sm:flex">
                 <!-- 搜索 Start -->
                 <div class="search">
                     <HSearch v-model:showSearchDialog="showSearchDialog" />

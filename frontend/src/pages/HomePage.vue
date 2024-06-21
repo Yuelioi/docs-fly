@@ -19,7 +19,7 @@
             <!-- 主页手风琴结束 -->
 
             <!--  -->
-            <div class="container mx-auto -mt-[15vh] max-w-7xl">
+            <div class="container -mt-[15vh]">
                 <div class="w-full">
                     <div
                         class="relative mt-4 overflow-hidden rounded-lg shadow-2xl sm:flex isolate bg-theme-base">
@@ -40,7 +40,7 @@
                                 </radialGradient>
                             </defs>
                         </svg>
-                        <div class="w-1/2 py-6 mx-auto text-center">
+                        <div class="py-6 mx-auto text-center sm:w-1/2">
                             <h2 class="font-bold tracking-tight sm:text-lg sm:py-4">
                                 欢迎来到月离文档站.<br />Welcome to Yueli Docs
                             </h2>
@@ -79,12 +79,12 @@
             <!--  -->
 
             <!-- 主页信息统计区域 -->
-            <div class="container mx-auto my-8 max-w-7xl">
-                <div class="relative rounded-b-none rounded-3xl border-radius isolate">
+            <div class="container my-8">
+                <div class="rounded-b-none rounded-3xl border-radius isolate">
                     <img
                         src="https://cdn.yuelili.com/docs/web/assert/anime-girl-dream.jpg"
                         alt=""
-                        class="relative inset-0 object-cover object-right w-full h-full -translate-y-0 sm:h-64 sm:mt-16 -z-10" />
+                        class="relative inset-0 object-cover object-top w-full h-full -translate-y-0 sm:h-64 sm:mt-16 -z-10" />
                 </div>
                 <div class="flex text-sm text-center shadow-2xl *:pt-2">
                     <div class="border-2 border-r-0 rounded-es-lg basis-1/4">

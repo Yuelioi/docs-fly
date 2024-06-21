@@ -24,6 +24,13 @@ export default {
                 lg: '4rem',
                 xl: '5rem',
                 '2xl': '6rem'
+            },
+            screens: {
+                sm: '100%',
+                md: '100%',
+                lg: '100%',
+                xl: '100%',
+                '2xl': '100%'
             }
         },
         extend: {
