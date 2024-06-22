@@ -11,7 +11,7 @@ import { fetchContent, fetchContentAdmin } from './utils'
  *      toc"
  * }
  */
-export const getPost = async (postPath: string, document: string) => {
+export const getPost = async ({ postPath, document }: { postPath: string; document: string }) => {
     return fetchContent('/post', {
         postPath: postPath,
         document: document

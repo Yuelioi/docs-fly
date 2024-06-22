@@ -55,17 +55,19 @@
 import { Comment } from '@/models/comment'
 
 import { BIconArrowClockwise } from 'bootstrap-icons-vue'
+
+import { formatDate } from '@/utils'
+
 const commentContent = ref('')
 const poem = ref('')
-import { fetchBasic, formatDate } from '@/utils'
 
 const route = useRoute()
-
 const basic = basicStore()
 const locale = computed(() => basic.locale)
 
 let { nickname } = storeToRefs(basic)
 const comments = ref<Comment[]>([])
+
 async function postNewComment() {
     const comment = new Comment()
     comment.nickname = nickname.value
@@ -73,12 +75,10 @@ async function postNewComment() {
     comment.url = (route.params['bookPath'] as string[]).join('/') + '/' + locale.value
     comment.content = commentContent.value
 
-    // fetchHandler(comments,[],getComments,"data",await Message('发布成功'),await Message('发布失败', 'warn')
-
     const [ok] = await postComment(comment)
 
     if (ok) {
-        await fetchBasic(
+        await fetchHandleBasic(
             comments,
             [],
             getComments,
@@ -94,21 +94,22 @@ watch(route, () => {
 })
 
 async function refreshNickname() {
-    await fetchBasic(nickname, nickname.value, getRandNickname)
+    await fetchHandleBasic(nickname, nickname.value, getRandNickname)
     localStorage.setItem('nickname', nickname.value)
 }
 
 async function refresh() {
-    await fetchBasic(
+    await fetchHandleBasic(
         comments,
         [],
         getComments,
         (route.params['bookPath'] as string[]).join('/') + '/' + locale.value
     )
-    await fetchBasic(poem, '山重水复疑无路，柳暗花明又一村。', getRandPoem)
+
+    await fetchHandleBasic(poem, '山重水复疑无路，柳暗花明又一村。', getRandPoem)
 
     if (nickname.value == '') {
-        await fetchBasic(nickname, '匿名用户', getRandNickname)
+        await fetchHandleBasic(nickname, '匿名用户', getRandNickname)
         localStorage.setItem('nickname', nickname.value)
     }
 }

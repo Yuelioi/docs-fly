@@ -24,9 +24,9 @@ export const fetchKeyword = async (
 
 // 获取顶部导航栏
 export const getNav = async () => {
-    return await fetchContent('/nav', {})
+    return await fetchContent('/nav')
 }
 // 获取顶部导航栏
 export const fetchSearchOptions = async () => {
-    return await fetchContent('/search_options', {})
+    return await fetchContent('/search_options')
 }

@@ -26,32 +26,37 @@ export default defineConfig({
                 'vue-router',
                 'pinia',
                 { '@vueuse/core': ['useDark', 'useToggle'] },
-
                 {
                     from: 'vue-router',
-                    imports: ['RouteParams'],
+                    imports: ['RouteParams', 'RouteLocationNormalizedLoaded'],
                     type: true
                 }
             ],
             dirs: [
                 './src/stores/',
                 './src/services/',
-                './src/models/',
-                './src/utils/',
+                './src/utils/**',
                 './src/plugins/*',
                 './src/database/'
             ]
         }),
 
         Components({
-            dts: true,
             dirs: ['src/components'],
-            types: [
-                {
-                    from: 'bootstrap-icons-vue',
-                    names: ['BootstrapIconsPlugin']
-                }
-            ]
+            extensions: ['vue', 'md'],
+            include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
+            exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/],
+            dts: 'components.d.ts'
+
+            // dts: true
+            // deep: true
+
+            // types: [
+            //     {
+            //         from: 'bootstrap-icons-vue',
+            //         names: ['BootstrapIconsPlugin']
+            //     }
+            // ]
         })
     ],
     resolve: {

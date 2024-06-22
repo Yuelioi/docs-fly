@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import type { InternalAxiosRequestConfig, AxiosResponse, AxiosRequestConfig } from 'axios'
 
-const baseurl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8088/api/v1'
+const baseurl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8088/v1'
 
 const apiClient = axios.create({
     baseURL: baseurl, // API基础URL
@@ -28,9 +28,9 @@ apiClient.interceptors.request.use(
 // 通用请求函数
 const makeRequest = async (
     query: string,
-    params: any,
+    params: any = {},
     method: 'get' | 'post' | 'put' | 'delete' = 'get',
-    base: string = '',
+
     withCookie: boolean = false,
     data: any = ''
 ): Promise<[boolean, any]> => {
@@ -41,7 +41,7 @@ const makeRequest = async (
 
         const config: AxiosRequestConfig = {
             method: method,
-            url: base ? `${base}${query}` : `${baseurl}${query}`,
+            url: `${baseurl}${query}`,
             params: params,
             withCredentials: withCookie,
             data: data
@@ -76,20 +76,53 @@ const makeRequest = async (
 // 不需要cookie的请求
 export const fetchContent = (
     query: string,
-    params: any = '',
+    params: any = {},
     method: 'get' | 'post' | 'put' | 'delete' = 'get',
-    base: string = '',
     data: any = ''
 ): Promise<[boolean, any]> => {
-    return makeRequest(query, params, method, base, false, data)
+    return makeRequest(query, params, method, false, data)
 }
 
 // 需要cookie的请求
 export const fetchContentAdmin = (
     query: string,
     params: any = '',
-    method: 'get' | 'post' | 'put' | 'delete' = 'get',
-    base: string = ''
+    method: 'get' | 'post' | 'put' | 'delete' = 'get'
 ): Promise<[boolean, any]> => {
-    return makeRequest(query, params, method, base, true)
+    return makeRequest(query, params, method, true)
+}
+
+import type { Ref } from 'vue'
+
+// 基础异步请求api 并根据状态赋值/初始化
+export async function fetchHandleBasic(
+    refValue: Ref<any>,
+    defaultValue: any,
+    fetchFunction: any,
+    params: any = {},
+    prop: string = 'data'
+) {
+    const [ok, data] = await fetchFunction(params)
+    if (ok) {
+        refValue.value = data[prop]
+    } else {
+        refValue.value = defaultValue
+    }
+}
+
+export async function fetchHandleBasicCallback(
+    refValue: Ref<any>,
+    defaultValue: any,
+    fetchFunction: any,
+    params: any = {},
+    prop: string = 'data',
+    success_callback: () => Promise<void>,
+    error_callback: () => Promise<void> = async () => {}
+) {
+    const [ok, data] = await fetchFunction(params)
+    if (ok) {
+        ;(refValue.value = data[prop]), await success_callback()
+    } else {
+        ;(refValue.value = defaultValue), await error_callback()
+    }
 }

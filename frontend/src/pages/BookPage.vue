@@ -1,40 +1,22 @@
 <template>
     <div class="container px-16 py-16 mx-auto">
-        <div class="flex">
-            <div class="book-logo">
-                <img :src="bookStatistic.bookCover" alt="" />
-            </div>
-            <div class="flex flex-col space-y-6 *:border-b-2 select-none">
-                <div class="border-b-2 border-theme-base">
-                    <BIconBook class="inline-block"></BIconBook>
-                    <span class="pl-2">书籍名称: {{ bookStatistic.bookTitle }}</span>
-                </div>
-                <div>
-                    <BIconGraphUpArrow class="inline-block"></BIconGraphUpArrow
-                    ><span class="pl-2">阅读次数: {{ bookStatistic.readCount }}</span>
-                </div>
-                <div>
-                    <BIconJournal class="inline-block"></BIconJournal>
-                    <span class="pl-2">章节数量: {{ bookStatistic.chapterCount }}</span>
-                </div>
-                <div>
-                    <BIconFiletypeDoc class="inline-block"></BIconFiletypeDoc>
-                    <span class="pl-2">文章数量: {{ bookStatistic.documentCount }}</span>
-                </div>
-            </div>
-        </div>
+        <BookHeader></BookHeader>
 
         <div class="pt-16 tab">
             <div class="border-b-2 border-theme-muted">
                 <div class="text-sm font-medium text-center">
                     <ul class="flex flex-wrap -mb-px select-none">
-                        <li :class="['me-2', 'group', { active: tabId === 1 }]" @click="tabId = 1">
+                        <li
+                            :class="['me-2', 'group', { active: currentTab == BookTabChapter }]"
+                            @click="currentTab = BookTabChapter">
                             <span
                                 class="inline-block p-4 group-[.active]:text-theme-primary group-[.active]:border-theme-primary group-[.active]:border-b-2 rounded-t-lg"
                                 >章节</span
                             >
                         </li>
-                        <li :class="['me-2', 'group', { active: tabId === 2 }]" @click="tabId = 2">
+                        <li
+                            :class="['me-2', 'group', { active: currentTab == VComment }]"
+                            @click="currentTab = VComment">
                             <span
                                 class="inline-block p-4 group-[.active]:text-theme-primary group-[.active]:border-theme-primary group-[.active]:border-b-2 rounded-t-lg"
                                 aria-current="page"
@@ -43,22 +25,12 @@
                         </li>
                         <li
                             v-if="isAdmin"
-                            :class="['me-2', 'group', { active: tabId === 3 }]"
-                            @click="tabId = 3">
+                            :class="['me-2', 'group', { active: currentTab == BookTabMeta }]"
+                            @click="currentTab = BookTabMeta">
                             <span
                                 class="inline-block p-4 group-[.active]:text-theme-primary group-[.active]:border-theme-primary group-[.active]:border-b-2 rounded-t-lg"
                                 aria-current="page"
                                 >编辑元数据</span
-                            >
-                        </li>
-                        <li
-                            v-if="isAdmin"
-                            @click="tabId = 4"
-                            :class="['me-2', 'group', { active: tabId === 4 }]">
-                            <span
-                                class="inline-block p-4 group-[.active]:text-theme-primary group-[.active]:border-theme-primary group-[.active]:border-b-2 rounded-t-lg"
-                                aria-current="page"
-                                >书籍设置</span
                             >
                         </li>
                     </ul>
@@ -66,250 +38,19 @@
             </div>
 
             <div class="mt-4">
-                <div class="tab-item" v-if="tabId == 1">
-                    <div class="flex flex-col">
-                        <div v-if="bookDatas.length == 0">
-                            本书尚未有{{ translate('locale') }}版本
-                        </div>
-                        <router-link
-                            v-else
-                            v-for="(chapter, index) in sortedBookDatas"
-                            :key="index"
-                            class="flex items-center px-4 py-2 border-b border-dashed rounded-md hover:bg-theme-card"
-                            :to="{
-                                name: 'post',
-                                params: {
-                                    postPath: chapter.url.split('/')
-                                }
-                            }">
-                            <span class="pl-2">{{
-                                addZero(chapter.metadata.order, 3) + '. ' + chapter.metadata.title
-                            }}</span></router-link
-                        >
-                    </div>
-                </div>
-
-                <div class="tab-item" v-if="tabId == 2">
-                    <VComment></VComment>
-                </div>
-                <div class="tab-item" v-if="tabId == 3">
-                    <div class="flex pb-4 toolbar">
-                        <button
-                            type="button"
-                            class="px-3 py-1 ml-auto btn bg-theme-primary-base hover:bg-theme-primary-hover"
-                            @click="updateMeta">
-                            更新
-                        </button>
-                        <button
-                            type="button"
-                            class="px-3 py-1 ml-3 btn bg-theme-primary-base hover:bg-theme-primary-hover"
-                            @click="saveMeta">
-                            保存
-                        </button>
-                    </div>
-                    <div>
-                        <table class="w-full border-collapse table-auto">
-                            <thead>
-                                <tr class="*:px-4 *:py-2 *:border">
-                                    <th class="border">ID</th>
-                                    <th>{{ translate('title') }}</th>
-                                    <th>{{ translate('order') }}</th>
-                                    <th>{{ translate('status') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    class="*:px-4 *:py-2"
-                                    v-for="meta in metas.categorys"
-                                    :key="meta.url">
-                                    <td>
-                                        <input
-                                            type="text"
-                                            class="bg-transparent"
-                                            disabled
-                                            v-model="meta.name" />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="text"
-                                            class="w-full p-2 bg-transparent border rounded-sm"
-                                            v-model="meta.title" />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="text"
-                                            class="w-full p-2 bg-transparent border rounded-sm"
-                                            v-model.number="meta.order" />
-                                    </td>
-                                    <td class="text-center">
-                                        <input
-                                            type="checkbox"
-                                            id="checkbox"
-                                            v-model="meta.status"
-                                            :true-value="false"
-                                            :false-value="true" />
-                                    </td>
-                                </tr>
-                            </tbody>
-
-                            <tbody>
-                                <tr
-                                    class="*:px-4 *:py-2"
-                                    v-for="meta in metas.documents"
-                                    :key="meta.url">
-                                    <td>
-                                        <input
-                                            type="text"
-                                            class="bg-transparent"
-                                            disabled
-                                            v-model="meta.name" />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="text"
-                                            class="w-full p-2 bg-transparent border rounded-sm"
-                                            v-model="meta.title" />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="text"
-                                            class="w-full p-2 bg-transparent border rounded-sm"
-                                            v-model.number="meta.order" />
-                                    </td>
-                                    <td class="text-center">
-                                        <input
-                                            type="checkbox"
-                                            id="checkbox"
-                                            v-model="meta.status"
-                                            :true-value="false"
-                                            :false-value="true" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="tab-item" v-if="tabId == 4">
-                    <div class="flex pb-4 toolbar *:bg-red-300 *:px-3 *:py-1">
-                        <button class="ml-auto btn">更新</button>
-                        <button class="ml-3 btn">禁用</button>
-                        <button class="ml-3 btn">删除</button>
-                    </div>
-                </div>
+                <keep-alive> <div class="tab-item" is="vue:currentTab"></div> </keep-alive>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
-
-import { addZero } from '@/utils'
-
-import { BookData, BookStatistic } from '@/models/book'
-
-import { LocalMetaDatas } from '@/models/base'
-
-import { BIconBook, BIconFiletypeDoc, BIconGraphUpArrow, BIconJournal } from 'bootstrap-icons-vue'
-
 const basic = basicStore()
-const locale = computed(() => basic.locale)
 const isAdmin = computed(() => basic.isAdmin)
 
-const metas = ref<LocalMetaDatas>(new LocalMetaDatas())
+import VComment from '@/components/common/VComment.vue'
+import BookTabChapter from '@/components/book/BookTabChapter.vue'
+import BookTabMeta from '@/components/book/BookTabMeta.vue'
 
-const translate = basic.translate
-
-const tabId = ref(1)
-
-const route = useRoute()
-const bookStatistic = ref<BookStatistic>(new BookStatistic())
-
-const bookDatas = ref<BookData[]>([])
-const sortedBookDatas = computed(() => {
-    return bookDatas.value.slice().sort((pre, next) => pre.metadata.order - next.metadata.order)
-})
-
-watch(tabId, async (newVal: number) => {
-    if (newVal == 3) {
-        let [ok, data] = await getBookMeta(
-            (route.params['bookPath'] as string[]).join('/'),
-            locale.value
-        )
-
-        if (ok) {
-            metas.value = data['data']
-        }
-    }
-})
-
-async function saveMeta() {
-    const [ok, data] = await saveBookMeta(
-        (route.params['bookPath'] as string[]).join('/'),
-        locale.value,
-        metas.value
-    )
-    if (ok) {
-        Message({ message: '保存成功' })
-    } else {
-        Message({ message: '保存失败', type: 'warn' })
-    }
-}
-
-async function updateMeta() {
-    await updateBookMeta()
-}
-
-async function refreshBook(params: RouteParams) {
-    // /book/Ae/basic
-
-    const db_data = await getDBBookData(params['bookPath'] as string[], locale.value)
-
-    if (db_data) {
-        bookDatas.value = db_data.data
-    } else {
-        const [ok, data] = await getBookData(
-            (params['bookPath'] as string[]).join('/'),
-            locale.value
-        )
-
-        if (ok) {
-            bookDatas.value = data['data']
-            await addDBBookData(params['bookPath'] as string[], locale.value, data['data'])
-        } else {
-            bookDatas.value = []
-            await Message({ message: '未找到书籍数据', type: 'warn' })
-        }
-    }
-
-    const [ok2, data2] = await fetchStatisticBook(
-        (route.params['bookPath'] as string[]).join('/'),
-        locale.value
-    )
-
-    if (ok2) {
-        const statisticData = data2['data']
-
-        bookStatistic.value.bookCover = statisticData['book_cover']
-        bookStatistic.value.bookTitle = statisticData['book_title']
-        bookStatistic.value.readCount = statisticData['read_count']
-        bookStatistic.value.chapterCount = statisticData['chapter_count']
-        bookStatistic.value.documentCount = statisticData['document_count']
-    } else {
-        bookStatistic.value = new BookStatistic()
-    }
-}
-
-watch(locale, async () => {
-    await refreshBook(route.params)
-})
-
-watch(route, async (val: RouteLocationNormalizedLoaded) => {
-    refreshBook(val.params)
-})
-
-onMounted(async () => {
-    refreshBook(route.params)
-})
+const currentTab = shallowRef<Component>(BookTabChapter)
 </script>

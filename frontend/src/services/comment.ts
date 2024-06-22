@@ -7,5 +7,5 @@ export async function getComments(url: string) {
 }
 
 export async function postComment(data: any) {
-    return await fetchContent('/comment', {}, 'post', '', data)
+    return await fetchContent('/comment', {}, 'post', data)
 }

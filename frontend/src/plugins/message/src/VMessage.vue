@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import type { messageType } from './message'
+import type { messageType } from './model'
 
 import {
     BIconCheck2Circle,
@@ -61,11 +61,10 @@ const data: Record<messageType, { main: string; icon: any }> = {
     }
 }
 
-onBeforeUnmount(() => {
-    show.value = false
-})
+onBeforeUnmount(() => {})
 onMounted(() => {
-    show.value = true
+    // 定时删除子元素
+    setTimeout(() => {}, 3000)
 })
 
 function close() {

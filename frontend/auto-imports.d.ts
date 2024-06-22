@@ -6,25 +6,11 @@
 export {}
 declare global {
   const AddVisitorLog: typeof import('./src/services/visitor')['AddVisitorLog']
-  const BookData: typeof import('./src/models/book')['BookData']
-  const BookStatistic: typeof import('./src/models/book')['BookStatistic']
-  const Chapter: typeof import('./src/models/post')['Chapter']
-  const ChapterData: typeof import('./src/models/post')['ChapterData']
-  const Comment: typeof import('./src/models/comment')['Comment']
   const DBConf: typeof import('./src/database/model')['DBConf']
   const DBData: typeof import('./src/database/model')['DBData']
   const EffectScope: typeof import('vue')['EffectScope']
-  const HomeStatistic: typeof import('./src/models/home')['HomeStatistic']
-  const LocalMetaDatas: typeof import('./src/models/base')['LocalMetaDatas']
   const Message: typeof import('./src/plugins/message/index')['Message']
-  const MetaData: typeof import('./src/models/base')['MetaData']
-  const Nav: typeof import('./src/models/home')['Nav']
-  const PostStar: typeof import('./src/models/star')['PostStar']
-  const ResponseData: typeof import('./src/models/base')['ResponseData']
-  const SearchData: typeof import('./src/models/home')['SearchData']
-  const SearchOption: typeof import('./src/models/home')['SearchOption']
   const StoreConf: typeof import('./src/database/model')['StoreConf']
-  const Toc: typeof import('./src/models/post')['Toc']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const addDBBookData: typeof import('./src/database/book')['addDBBookData']
   const addDBNav: typeof import('./src/database/home')['addDBNav']
@@ -32,7 +18,6 @@ declare global {
   const addPostChapterData: typeof import('./src/database/post')['addPostChapterData']
   const addPostStarData: typeof import('./src/database/star')['addPostStarData']
   const addZero: typeof import('./src/utils/index')['addZero']
-  const baseurl: typeof import('./src/services/utils')['baseurl']
   const basicStore: typeof import('./src/stores/basic')['basicStore']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
@@ -45,10 +30,11 @@ declare global {
   const deletePostStarData: typeof import('./src/database/star')['deletePostStarData']
   const effectScope: typeof import('vue')['effectScope']
   const fetchAuthLogin: typeof import('./src/services/auth')['fetchAuthLogin']
-  const fetchBasic: typeof import('./src/utils/index')['fetchBasic']
   const fetchCheckToken: typeof import('./src/services/auth')['fetchCheckToken']
   const fetchContent: typeof import('./src/services/utils')['fetchContent']
   const fetchContentAdmin: typeof import('./src/services/utils')['fetchContentAdmin']
+  const fetchHandleBasic: typeof import('./src/services/utils')['fetchHandleBasic']
+  const fetchHandleBasicCallback: typeof import('./src/services/utils')['fetchHandleBasicCallback']
   const fetchKeyword: typeof import('./src/services/home')['fetchKeyword']
   const fetchPostHtml: typeof import('./src/services/post')['fetchPostHtml']
   const fetchSearchOptions: typeof import('./src/services/home')['fetchSearchOptions']
@@ -148,6 +134,6 @@ declare global {
   export type { Component, ComponentPublicInstance, ComputedRef, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
-  export type { RouteParams } from 'vue-router'
+  export type { RouteParams, RouteLocationNormalizedLoaded } from 'vue-router'
   import('vue-router')
 }

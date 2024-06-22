@@ -51,7 +51,6 @@
 <script setup lang="ts">
 // TODO 星星结果分页
 
-import { getPostStarsData, deletePostStarData } from '@/database/star'
 import { PostStar } from '@/models/star'
 
 import { formatDate } from '@/utils'

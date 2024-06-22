@@ -10,6 +10,8 @@
 </template>
 
 <script lang="ts" setup>
+import { BIconCaretUp } from 'bootstrap-icons-vue'
+
 function scrollToTop() {
     window.scrollTo({
         top: 0,

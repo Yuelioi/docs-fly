@@ -20,47 +20,50 @@ async function refreshDB() {
     }
 }
 
+function initLocalStorageParam(refValue: Ref, defaultValue: any, prop: string) {
+    const localData = localStorage.getItem(prop)
+    if (localData) {
+        refValue.value = localData
+    } else {
+        refValue.value = defaultValue
+    }
+}
+
 onMounted(async () => {
     // 初始化token
     const localToken = localStorage.getItem('token')
     if (localToken) {
-        const [ok, result] = await fetchCheckToken(localToken)
-        if (ok) {
-            isAdmin.value = true
-        } else {
-            isAdmin.value = false
-            localStorage.removeItem('token')
-        }
+        await fetchHandleBasicCallback(
+            isAdmin,
+            false,
+            fetchCheckToken,
+            localToken,
+            'data',
+            async () => {
+                isAdmin.value = true
+            },
+            async () => {
+                isAdmin.value = false
+                localStorage.removeItem('token')
+            }
+        )
     } else {
         localStorage.removeItem('token')
     }
 
-    // 初始化语言
-    const localeLocal = localStorage.getItem('locale')
-    if (localeLocal) {
-        locale.value = localeLocal
-    } else {
-        locale.value = 'zh'
-    }
+    // 读取本地语言/昵称
+    initLocalStorageParam(locale, 'zh', 'locale')
+    initLocalStorageParam(nickname, 'zh', '看书大王')
 
-    // 初始化nickname
-    const nicknameLocal = localStorage.getItem('nickname')
-    if (nicknameLocal) {
-        nickname.value = nicknameLocal
-    } else {
-        nickname.value = ''
-    }
-
-    // 初始化数据库
-
+    // 读取本地数据库
     const appVersionLocal = localStorage.getItem('appVersion')
     if (appVersionLocal) {
-        await fetchBasic(appVersion, '', getAppVersion)
+        await fetchHandleBasic(appVersion, '', getAppVersion)
         if (appVersionLocal != appVersion.value) {
             await refreshDB()
         }
     } else {
-        await fetchBasic(appVersion, '', getAppVersion)
+        await fetchHandleBasic(appVersion, '', getAppVersion)
         await refreshDB()
     }
 })

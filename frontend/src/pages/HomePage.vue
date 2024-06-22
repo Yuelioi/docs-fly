@@ -123,7 +123,6 @@ import { MetaData } from '@/models/base'
 import { HomeStatistic } from '@/models/home'
 
 const yiyan = ref('')
-
 const statistic = ref<HomeStatistic>()
 
 const rndPostUrl = ref<string[]>(['intro'])
@@ -138,8 +137,8 @@ function addNotify() {
 }
 
 onMounted(async () => {
-    await fetchBasic(statistic, new HomeStatistic(), fetchStatisticHome)
-    await fetchBasic(yiyan, '最短的捷径就是绕远路。', fetchYiYan, '', 'hitokoto')
+    await fetchHandleBasic(statistic, new HomeStatistic(), fetchStatisticHome)
+    await fetchHandleBasic(yiyan, '最短的捷径就是绕远路。', fetchYiYan, '', 'hitokoto')
 
     const [ok, data] = await getRandPost()
     if (ok) {
