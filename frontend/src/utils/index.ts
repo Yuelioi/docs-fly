@@ -1,4 +1,12 @@
-// 补零
+/**
+ * Adds leading zeros to a number to reach a specified length.
+ *
+ * @param num The number to add leading zeros to.
+ * @param length The desired length of the resulting string.
+ * @returns A string representation of the number with leading zeros.
+ *
+ * Example: `addZero(5, 3)` returns `"005"`
+ */
 export function addZero(num: number, length: number) {
     let str = num.toString()
     while (str.length < length) {
@@ -8,9 +16,12 @@ export function addZero(num: number, length: number) {
 }
 
 /**
- *  日期转字符串
- * @param date_string
- * @returns
+ * Formats a Date object into a string in the format "YYYY-MM-DD HH:mm:ss".
+ *
+ * @param date_string The Date object to format.
+ * @returns A string representation of the date in the format "YYYY-MM-DD HH:mm:ss".
+ *
+ * Example: `formatDate(new Date('2022-07-25T14:30:00.000Z'))` returns `"2022-07-25 14:30:00"`
  */
 export function formatDate(date_string: Date): string {
     const date = new Date(date_string)
