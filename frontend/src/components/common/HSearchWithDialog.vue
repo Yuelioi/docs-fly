@@ -3,80 +3,80 @@
         <div
             v-if="showSearchDialog"
             ref="searchDialogRef"
-            class="fixed z-50 flex flex-col w-screen h-full pt-8 search align-center">
+            class="fixed z-50 flex flex-col w-screen h-full pt-8 align-center">
             <div
                 @click.stop
-                class="shadow-2xl dialog relative bg-theme-card dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] max-h-1/2 z-50 top-18">
+                class="shadow-2xl relative bg-theme-card dark:bg-dark-extra rounded-lg min-h-[16rem] max-h-[75%] w-[90%] left-[5%] max-h-1/2 z-50 top-18">
                 <!-- 顶部工具 -->
                 <div class="z-50 flex-col w-full h-16">
                     <div class="flex items-center justify-around pb-4 mt-4 border-b-2">
                         <!-- 书籍设置 -->
-                        <div class="flex flex-col pl-4 select-none">
+                        <div class="flex flex-col w-1/2 pl-2 select-none">
                             <div
-                                @mouseover="showSearchDropdown = true"
-                                class="relative flex items-center justify-center w-32 h-10 text-sm font-semibold text-center bg-transparent text-nowrap">
-                                <div class="pr-2">
-                                    <BIconBook></BIconBook>
+                                class="relative flex items-center justify-center h-10 text-sm font-semibold text-center bg-transparent text-nowrap">
+                                <div class="group">
+                                    <span class="truncate">{{
+                                        currentOption.name ? currentOption.name : '筛选'
+                                    }}</span>
+                                    <BIconCaretDown
+                                        v-if="currentOption.name == ''"
+                                        class="ml-1"></BIconCaretDown>
+                                    <div
+                                        v-show="currentOption.name.length > 0"
+                                        class="pl-2 text-sm/[12px]"
+                                        @click="currentOption.name = ''">
+                                        <BIconX></BIconX>
+                                    </div>
                                 </div>
-                                <span class="group" @mouseleave="showSearchDropdown = false">{{
-                                    currentOption.name ? currentOption.name : '全站搜索'
-                                }}</span>
-                                <BIconCaretDown class="ml-1"></BIconCaretDown>
+
                                 <div
-                                    v-show="currentOption.name.length > 0"
-                                    class="pl-2 text-sm/[12px]"
-                                    @click="currentOption.name = ''">
-                                    <BIconX></BIconX>
-                                </div>
-                                <div
-                                    v-if="showSearchDropdown"
-                                    class="absolute z-[100] top-[3rem] rounded h-32">
+                                    class="absolute duration-300 ease-in-out origin-top-left z-[100] top-[3rem] rounded h-32">
                                     <ul
-                                        @mouseleave="showSearchDropdown = false"
-                                        class="w-full py-1 mt-1 overflow-y-scroll text-base rounded-md shadow-lg bg-theme-base dark:bg-dark-light max-h-56 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                        class="w-40 py-1 mt-1 overflow-y-scroll text-base scale-0 rounded-md shadow-lg group-hover:scale-100 bg-theme-base dark:bg-dark-light max-h-56 ring-1 ring-black ring-opacity-5 focus:outline-none">
                                         <li
                                             v-for="(option, index) in options"
-                                            class="w-full px-6 py-3 whitespace-normal last:pb-4 hover:bg-theme-primary-hover hover:rounded-lg"
+                                            class="flex items-center px-4 py-3 whitespace-normal last:pb-4 hover:bg-theme-primary-hover hover:rounded-lg"
                                             :key="index"
                                             @click="select(option)">
-                                            <span>{{ option.title }}</span>
+                                            <BIconBook class="mr-2 text-icon-sm"></BIconBook>
+                                            <span class="w-24 text-sm truncate">{{
+                                                option.title
+                                            }}</span>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <!-- 搜索框 -->
-                        <div class="flex items-center flex-1 pl-8">
+                        <div class="flex items-center w-1/3">
                             <div class="relative flex w-full h-10 ml-4">
-                                <div
-                                    class="absolute -mt-2 top-2/4 left-3 text-surface-400 dark:text-surface-600">
-                                    <BIconSearch></BIconSearch>
-                                </div>
                                 <input
                                     v-model="search"
                                     placeholder="搜索..."
                                     @keydown.enter="handleSearch"
-                                    class="flex-1 pl-10 bg-transparent" />
+                                    class="flex-1 bg-transparent" />
+
+                                <BIconSearch></BIconSearch>
                             </div>
                         </div>
 
                         <div class="flex ml-4 toolbar">
                             <div class="pr-2">
                                 <div
-                                    class="text-[1.25rem]"
+                                    class="text-icon-md"
                                     v-show="!pinSearchResult"
                                     @click="pinSearchResult = !pinSearchResult">
                                     <BIconLock></BIconLock>
                                 </div>
                                 <div
-                                    class="text-[1.25rem]"
+                                    class="text-icon-md"
                                     v-show="pinSearchResult"
                                     @click="pinSearchResult = !pinSearchResult">
                                     <BIconUnlock></BIconUnlock>
                                 </div>
                             </div>
                             <div class="pr-4">
-                                <div class="text-[1.25rem]" @click="closeDialog(undefined)">
+                                <div class="text-icon-md" @click="closeDialog(undefined)">
                                     <BIconX></BIconX>
                                 </div>
                             </div>
@@ -164,7 +164,6 @@ const searchResult = ref<SearchData[]>([])
 const searchDialogRef = ref(null)
 const route = useRouter()
 
-const showSearchDropdown = ref(false)
 const showSearchDialog = defineModel('showSearchDialog', {
     type: Boolean,
     required: true
@@ -258,7 +257,6 @@ async function handleSearch() {
 }
 
 function select(option: MetaData) {
-    showSearchDropdown.value = false
     currentOption.value = option
 }
 

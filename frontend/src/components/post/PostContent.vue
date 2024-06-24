@@ -3,7 +3,7 @@
         id="content"
         ref="fullElement"
         class="relative max-w-6xl p-16 m-auto mb-12 bg-theme-card rounded-2xl">
-        <div class="toolbar py-4 fixed flex-col top-16 text-[1.25rem] right-[2rem]">
+        <div class="toolbar py-4 fixed flex-col top-16 text-icon-md right-[2rem]">
             <div class="p-2">
                 <BIconArrowsFullscreen
                     v-if="!isFullscreen"

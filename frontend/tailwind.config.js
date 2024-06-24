@@ -119,6 +119,12 @@ export default {
                     primary: 'var(--color-primary)',
                     muted: 'var(--color-border-muted)'
                 }
+            },
+            fontSize: {
+                'icon-sm': '0.75rem', // 12px
+                'icon-base': '1rem', // 16px
+                'icon-md': '1.2rem', // 20px
+                'icon-lg': '1.35rem' // 20px
             }
         }
     },

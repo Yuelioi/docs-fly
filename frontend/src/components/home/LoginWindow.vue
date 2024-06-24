@@ -3,7 +3,7 @@
         <div
             class="rounded-lg w-[576px] mx-auto shadow-2xl top-36 bg-theme-card dark:bg-dark-light">
             <div class="relative flex flex-col justify-center py-12">
-                <div class="absolute right-4 top-4 text-[1.25rem]">
+                <div class="absolute right-4 top-4 text-icon-md">
                     <BIconX @click="showLoginWindow = false"></BIconX>
                 </div>
 

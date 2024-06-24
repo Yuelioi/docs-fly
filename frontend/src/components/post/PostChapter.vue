@@ -9,7 +9,7 @@
                         @click.prevent="(currentPage -= 1), (isNavCollapsed = true)"
                         class="relative inline-flex items-center px-2 py-2 text-gray-400 rounded-l-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">Previous</span>
-                        <div class="text-[1.25rem]"><BIconCaretLeft></BIconCaretLeft></div>
+                        <div class="text-icon-md"><BIconCaretLeft></BIconCaretLeft></div>
                     </a>
                     <a
                         @click="(currentPage = 1), (isNavCollapsed = true)"
@@ -51,14 +51,14 @@
                         @click.prevent="(currentPage += 1), (isNavCollapsed = true)"
                         class="relative inline-flex items-center px-2 py-2 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
                         <span class="sr-only">Next</span>
-                        <div class="text-[1.25rem]"><BIconCaretRight></BIconCaretRight></div>
+                        <div class="text-icon-md"><BIconCaretRight></BIconCaretRight></div>
                     </a>
                 </nav>
             </div>
 
             <div
                 @click="handleCollapse"
-                class="inline-flex ml-auto text-[1.25rem] items-center justify-center ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                class="inline-flex ml-auto text-icon-md items-center justify-center ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
                 <div v-if="isNavCollapsed" class="px-2 py-2 rounded-r-md">
                     <BIconFilterLeft></BIconFilterLeft>
                 </div>

@@ -27,13 +27,13 @@ export function register(
 ) {
     render(null, container)
 
-    // // 挂载到父元素
-    // const VNode = createVNode(component, {
-    //     type: props.type,
-    //     message: props.message
-    // })
+    // 挂载到父元素
+    const VNode = createVNode(component, {
+        type: props.type,
+        message: props.message
+    })
 
-    // render(VNode, container.appendChild(child))
+    render(VNode, container.appendChild(child))
 }
 
 export function getInstance() {}

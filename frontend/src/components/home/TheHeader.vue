@@ -7,11 +7,12 @@
                 <div class="flex items-center">
                     <a rel="home" href="#">
                         <img
-                            class="hidden h-16"
+                            class="h-8"
                             itemprop="logo"
                             src="https://cdn.yuelili.com/web/assets/logo.webp" />
                     </a>
                 </div>
+
                 <!-- 分类 -->
                 <div class="flex flex-row">
                     <div
@@ -94,6 +95,55 @@
         </div>
     </div>
 
+    <!-- 手机端底部导航 -->
+    <div
+        class="fixed bottom-0 flex items-center justify-between w-full h-12 mt-12 md:hidden bg-theme-card">
+        <div class="flex items-center justify-around flex-1">
+            <div>
+                <a href="#" class="flex flex-col items-center">
+                    <BIconHouseHeart class="text-icon-base"></BIconHouseHeart
+                    ><span class="text-xs">首页</span></a
+                >
+            </div>
+            <div>
+                <div class="flex flex-col items-center">
+                    <BIconSearch></BIconSearch>
+                    <span
+                        @click="showSearchDialog = true"
+                        class="flex items-center text-sm bg-transparent">
+                        搜索
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="center">中间</div>
+        <div class="flex items-center justify-around flex-1">
+            <button>
+                <router-link :to="{ name: 'star' }" :key="'star'">
+                    <div
+                        class="flex flex-col items-center p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                        <BIconStar class="text-icon-base"></BIconStar>
+                        <span class="text-xs">收藏</span>
+                    </div>
+                </router-link>
+            </button>
+            <button v-if="!isAdmin" @click="showLoginWindow = true">
+                <div
+                    class="flex flex-col items-center p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                    <BIconPerson class="text-icon-base"></BIconPerson>
+                    <span class="text-xs">登录</span>
+                </div>
+            </button>
+            <button v-else @click="logout">
+                <div
+                    class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                    <BIconBoxArrowRight class="text-icon-base"></BIconBoxArrowRight>
+                    <span class="text-xs">注销</span>
+                </div>
+            </button>
+        </div>
+    </div>
+
     <HSearchWithDialog v-model:showSearchDialog="showSearchDialog" v-model:navs="filteredNavs">
     </HSearchWithDialog>
 </template>
@@ -115,7 +165,10 @@ import {
     BIconPerson,
     BIconStar,
     BIconSun,
-    BIconTranslate
+    BIconTranslate,
+    BIconList,
+    BIconSearch,
+    BIconHouseHeart
 } from 'bootstrap-icons-vue'
 const basic = basicStore()
 const { locale, isAdmin } = storeToRefs(basic)

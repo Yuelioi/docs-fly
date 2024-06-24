@@ -47,16 +47,6 @@ export default defineConfig({
             include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
             exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/],
             dts: 'components.d.ts'
-
-            // dts: true
-            // deep: true
-
-            // types: [
-            //     {
-            //         from: 'bootstrap-icons-vue',
-            //         names: ['BootstrapIconsPlugin']
-            //     }
-            // ]
         })
     ],
     resolve: {
@@ -66,13 +56,7 @@ export default defineConfig({
             '@': fileURLToPath(new URL('./src', import.meta.url)),
             '@/models': fileURLToPath(new URL('./src/models', import.meta.url)),
             '@/components': fileURLToPath(new URL('./src/components', import.meta.url)),
-            '@/database': fileURLToPath(new URL('./src/database', import.meta.url)),
-            '@/stores': fileURLToPath(new URL('./src/stores', import.meta.url)),
-            '@/utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
-            '@/handlers': fileURLToPath(new URL('./src/handlers', import.meta.url)),
-            '@/icons': fileURLToPath(new URL('./src/assets/icons', import.meta.url)),
-            '@images': fileURLToPath(new URL('./src/assets/images', import.meta.url)),
-            '@/plugins': fileURLToPath(new URL('./src/plugins', import.meta.url))
+            '@/utils': fileURLToPath(new URL('./src/utils', import.meta.url))
         }
     },
     css: {
