@@ -10,14 +10,17 @@ import img6 from '@/assets/images/divergence/6.jpg'
 import img7 from '@/assets/images/divergence/7.jpg'
 import img8 from '@/assets/images/divergence/8.jpg'
 import img9 from '@/assets/images/divergence/9.jpg'
-import img11 from '@/assets/images/divergence/11.jpg'
+import img10 from '@/assets/images/divergence/10.jpg'
 
-const imagePaths = [img0, img1, img2, img3, img4, img5, img6, img7, img8, img9, img11]
-
-export function getImageUrl(n: string) {
-    if (n === '.') {
-        return `${imagePaths[10]}`
-    } else {
-        return `${imagePaths[parseInt(n)]}`
+export function getImages() {
+    const imgList = [img0, img1, img2, img3, img4, img5, img6, img7, img8, img9, img10]
+    const imageCache: { [key: string]: string } = {}
+    for (let i = 0; i < 11; i++) {
+        if (i === 10) {
+            imageCache['.'] = imgList[i]
+        } else {
+            imageCache[i] = imgList[i]
+        }
     }
+    return imageCache
 }

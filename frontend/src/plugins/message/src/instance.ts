@@ -6,7 +6,6 @@
 import { createVNode, render } from 'vue'
 import VMessage from './VMessage.vue'
 import type { MessageProps } from './model'
-import { createContainer } from './functions'
 
 type MessageContext = {
     id: string
@@ -17,9 +16,9 @@ export function Message(props: Partial<MessageProps>) {
         // 创建子元素
         const child = document.createElement('div')
         child.setAttribute('style', 'margin-top:1rem')
-
-        const container = createContainer()
     })
+
+    render(VMessage, null)
 }
 
 export const instances: MessageContext[] = shallowReactive([])

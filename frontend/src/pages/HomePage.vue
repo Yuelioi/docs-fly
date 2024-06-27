@@ -111,8 +111,9 @@
             </div>
             <!-- 主页信息统计区域结束 -->
             <!-- 时间 -->
-            <VClock class="max-w-[48rem]" />
-
+            <keep-alive>
+                <VClock class="max-w-[48rem]" />
+            </keep-alive>
             <!-- 时间结束 -->
         </div>
     </div>

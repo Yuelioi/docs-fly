@@ -1,18 +1,19 @@
 <template>
-    <transition name="bounce">
-        <div
-            v-show="show"
-            ref="dialog"
-            :key="Date.now().toString()"
-            :class="data[type as keyof typeof data].main"
-            class="relative font-bold border text-wrap flex min-w-60 max-w-[24rem] rounded-lg items-center">
-            <div class="flex items-center w-full">
-                <component class="pl-4" :is="data[type as messageType].icon"></component>
-                <span class="w-4/5 py-2 pl-4 break-words">{{ message }}</span>
-                <BIconX @click="close"></BIconX>
-            </div>
-        </div>
-    </transition>
+    <Teleport to="body">
+        <transition name="bounce">
+            <div
+                v-show="show"
+                ref="dialog"
+                :key="Date.now().toString()"
+                :class="data[type as keyof typeof data].main"
+                class="relative font-bold border text-wrap flex min-w-60 max-w-[24rem] rounded-lg items-center">
+                <div class="flex items-center w-full">
+                    <component class="pl-4" :is="data[type as messageType].icon"></component>
+                    <span class="w-4/5 py-2 pl-4 break-words">{{ message }}</span>
+                    <BIconX @click="close"></BIconX>
+                </div>
+            </div> </transition
+    ></Teleport>
 </template>
 
 <script setup lang="ts">

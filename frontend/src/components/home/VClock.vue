@@ -5,13 +5,13 @@
             class="h-full"
             v-for="(data, index) in clockData"
             :key="index"
-            :src="getImageUrl(data)"
+            :src="imageCache[data]"
             alt="" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { getImageUrl } from '@/utils/divergence'
+import { getImages } from '@/utils/divergence'
 
 class Clock {
     pre: string = '1.'
@@ -28,6 +28,8 @@ class Clock {
 
 const clock = ref<Clock>(new Clock())
 const clockData = ref<string[]>([])
+
+const imageCache = ref<{ [key: string]: string }>({})
 
 function refreshClock() {
     const date = new Date()
@@ -51,6 +53,12 @@ function refreshClock() {
 }
 
 setInterval(() => {
+    if (Object.keys(imageCache.value).length === 0) {
+        imageCache.value = getImages()
+    }
+
+    console.log(111)
+
     refreshClock()
 }, 999)
 </script>
