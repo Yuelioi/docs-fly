@@ -56,9 +56,6 @@ setInterval(() => {
     if (Object.keys(imageCache.value).length === 0) {
         imageCache.value = getImages()
     }
-
-    console.log(111)
-
     refreshClock()
 }, 999)
 </script>

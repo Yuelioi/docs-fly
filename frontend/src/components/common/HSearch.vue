@@ -14,6 +14,6 @@
 <script setup lang="ts">
 import { BIconSearch } from 'bootstrap-icons-vue'
 
-const showSearchDialog = defineModel('showSearchDialog')
+const showSearchDialog = defineModel<boolean>()
 </script>
 <style scoped></style>

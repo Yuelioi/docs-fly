@@ -3,22 +3,22 @@
  * 样式参考: https://primevue.org/message/ 不过用的是tailwind自带的
  * 本来用的element-ui的 但是好丑
  */
-import { createVNode, render } from 'vue'
-import VMessage from './VMessage.vue'
+
 import type { MessageProps } from './model'
 
-type MessageContext = {
-    id: string
-}
+import { messageDefaults } from './model'
+import { registerMessageContainer, registerMessage } from './functions'
 
-export function Message(props: Partial<MessageProps>) {
-    return new Promise((resolve) => {
-        // 创建子元素
-        const child = document.createElement('div')
-        child.setAttribute('style', 'margin-top:1rem')
+export function Message(msgProps: Partial<MessageProps>) {
+    return new Promise(() => {
+        const props = {
+            message: msgProps.message ?? messageDefaults.message,
+            type: msgProps.type ?? messageDefaults.type,
+            duration: msgProps.duration ?? messageDefaults.duration,
+            showClose: msgProps.showClose ?? messageDefaults.showClose
+        }
+
+        const container = registerMessageContainer()
+        registerMessage(container, props)
     })
-
-    render(VMessage, null)
 }
-
-export const instances: MessageContext[] = shallowReactive([])

@@ -10,7 +10,7 @@ export const messageDefaults = {
     message: '',
     type: 'info',
     duration: 3000,
-    showClose: false
+    showClose: true
 } as const
 
 export const messageProps = {

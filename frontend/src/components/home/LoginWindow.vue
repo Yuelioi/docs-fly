@@ -74,7 +74,7 @@ const refDom = ref<HTMLElement>()
 const basic = basicStore()
 let { isAdmin } = storeToRefs(basic)
 
-const showLoginWindow = defineModel('showLoginWindow')
+const showLoginWindow = defineModel<boolean>()
 
 const username = ref('')
 const password = ref('')
