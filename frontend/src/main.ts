@@ -6,25 +6,31 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import { VDialogPlugin } from './plugins/dialog'
+import { useTheme } from './hooks/useTheme'
 
 const app = createApp(App)
 app.use(router)
 app.use(createPinia())
 
-import { themeState, setTheme } from './utils/themeManager'
+app.use(VDialogPlugin)
 
-app.provide('themeState', themeState)
-app.provide('setTheme', setTheme)
-
-fetch('/configs/themeConfig.json')
+fetch('/configs/config.json')
     .then((response) => response.json())
-    .then((config) => {
-        themeState.availableThemes = config.themes
-        return import(`./themes/${themeState.currentTheme}/main.css`)
-    })
-    .then(() => {
-        return import(`./themes/${themeState.currentTheme}/dark.css`)
-    })
-    .then(() => {
+    .then((configs) => {
         app.mount('#app')
+
+        const { theme, themes, switchTheme, config } = useTheme()
+        Object.assign(config, configs)
+
+        themes.push(...Object.keys(config.themes))
+
+        if (themes.length > 0 && theme.value == '') {
+            theme.value = themes[0]
+            switchTheme(theme.value)
+        }
+    })
+
+    .catch((error) => {
+        console.error('Failed to load config:', error)
     })

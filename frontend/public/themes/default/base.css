@@ -1,9 +1,7 @@
 :root {
-    --color-bg-base: rgb(234, 235, 237);
+    --color-bg-base: rgb(246, 248, 250);
     --color-bg-card: rgb(255, 255, 255);
-
-    --color-bg-header: rgb(230, 230, 230);
-    --color-bg-footer: rgb(235, 235, 235);
+    --color-bg-chapter: rgb(227, 231, 241);
 
     --color-primary-base: rgb(34, 139, 230);
     --color-secondary-base: rgb(128, 0, 128);

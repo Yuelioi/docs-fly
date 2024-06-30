@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/html"
@@ -229,39 +230,55 @@ func SavePost(c *gin.Context) {
 	sendSuccessResponse(c, clientTime, responseData)
 
 }
+
 func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry) {
 	folder.Documents = make([]models.MetaData, 0)
 	folder.Children = make([]Chapter, 0)
 
-	// 过滤一下数据
 	remainingDocuments := make([]models.Entry, 0)
 	remainingCategories := make([]models.Entry, 0)
 
-	// 添加文件到当前文件夹
-	for _, doc := range documents {
-		if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == folder.MetaData.Depth+1 {
-			folder.Documents = append(folder.Documents, doc.MetaData)
-		} else {
-			remainingDocuments = append(remainingDocuments, doc)
+	var wg sync.WaitGroup
 
+	// 添加文件到当前文件夹
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for _, doc := range documents {
+			if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == folder.MetaData.Depth+1 {
+				folder.Documents = append(folder.Documents, doc.MetaData)
+			} else {
+				remainingDocuments = append(remainingDocuments, doc)
+			}
 		}
-	}
-	documents = remainingDocuments
+	}()
 
 	// 添加子文件夹到当前文件夹
-	for _, cat := range categories {
-		if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == folder.MetaData.Depth+1 {
-			childFolder := Chapter{
-				MetaData: cat.MetaData,
-				Filepath: cat.MetaData.Filepath,
-			}
-			buildFolderTree(&childFolder, categories, documents)
-			folder.Children = append(folder.Children, childFolder)
-		} else {
-			remainingCategories = append(remainingCategories, cat)
-		}
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for _, cat := range categories {
+			if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == folder.MetaData.Depth+1 {
+				childFolder := Chapter{
+					MetaData:  cat.MetaData,
+					Filepath:  cat.MetaData.Filepath,
+					Documents: make([]models.MetaData, 0),
+					Children:  make([]Chapter, 0),
+				}
+				if childFolder.MetaData.Depth < 4 {
+					buildFolderTree(&childFolder, categories, documents)
+				}
 
+				folder.Children = append(folder.Children, childFolder)
+			} else {
+				remainingCategories = append(remainingCategories, cat)
+			}
+		}
+	}()
+
+	wg.Wait()
+
+	documents = remainingDocuments
 	categories = remainingCategories
 }
 
@@ -287,17 +304,26 @@ func GetChapter(c *gin.Context) {
 		return
 	}
 
-	var categories, documents, filteredDocuments []models.Entry
+	var categories, documents, allEntries []models.Entry
 
-	db.Scopes(BasicModel, HasPrefixUrlPath(book), FindFolder).Find(&categories)
-	db.Scopes(BasicModel, HasPrefixUrlPath(book), FindFile).Find(&documents)
+	// TODO 分页
+
+	// 已过滤5级之后的文件, 请手动获取
+	db.Scopes(BasicModel, HasPrefixUrlPath(book)).Where("depth < ?", "5").Find(&allEntries)
 
 	// 需要忽略README文件
-	for _, doc := range documents {
-		if !(strings.ToLower(doc.Name) == "readme.md") {
-			filteredDocuments = append(filteredDocuments, doc)
+	for _, entry := range allEntries {
+		if strings.ToLower(entry.Name) == "readme.md" {
+			continue
+		}
+		if entry.IsDir {
+			categories = append(categories, entry)
+		} else {
+			documents = append(documents, entry)
 		}
 	}
+
+	// categories = categories[:50]
 
 	// 创建根文件夹
 	var rootEntry models.Entry
@@ -311,7 +337,7 @@ func GetChapter(c *gin.Context) {
 	}
 
 	// 构建文件夹树
-	buildFolderTree(&chapterMeta, categories, filteredDocuments)
+	buildFolderTree(&chapterMeta, categories, documents)
 
 	sendSuccessResponse(c, clientTime, chapterMeta)
 }

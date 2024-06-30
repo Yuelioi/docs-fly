@@ -1,0 +1,12 @@
+{
+  "themes": {
+    "default": [
+      "base.css",
+      "dark.css"
+    ],
+    "modern": [
+      "base.css",
+      "dark.css"
+    ]
+  }
+}

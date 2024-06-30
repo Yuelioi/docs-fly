@@ -36,6 +36,7 @@ export default defineConfig({
                 './src/stores/',
                 './src/services/',
                 './src/utils/**',
+                './src/hooks/**',
                 './src/plugins/*',
                 './src/database/'
             ]

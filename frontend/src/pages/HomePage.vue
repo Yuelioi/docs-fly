@@ -1,5 +1,12 @@
 <template>
     <div class="">
+        <button @click.prevent.stop="show = !show">对话框</button>
+        <VDialog v-model:show="show">
+            <template #header>11</template>
+            <HSearch></HSearch>
+            <template #footer>22</template>
+        </VDialog>
+
         <button @click="addNotify">添加事件</button>
         <div class="flex flex-col -mt-1">
             <!-- 主页手风琴 -->
@@ -13,7 +20,7 @@
 
                 <img
                     class="absolute top-0 object-cover w-full h-full"
-                    src="https://cdn.yuelili.com/docs/web/assert/banner-anime-girl-roller.jpg"
+                    src="https://cdn.yuelili.com/docs/web/assets/banner-anime-girl-roller.jpg"
                     alt="" />
             </div>
             <!-- 主页手风琴结束 -->
@@ -68,7 +75,7 @@
                         <div class="relative hidden w-1/2 sm:block">
                             <img
                                 class="object-cover w-full h-full ring-1 ring-white/10"
-                                src="https://cdn.yuelili.com/docs/web/assert/anime-girl.jpg"
+                                src="https://cdn.yuelili.com/docs/web/assets/anime-girl.jpg"
                                 alt="App screenshot"
                                 width="1824"
                                 height="1080" />
@@ -82,7 +89,7 @@
             <div class="container my-8">
                 <div class="rounded-b-none rounded-3xl border-radius isolate">
                     <img
-                        src="https://cdn.yuelili.com/docs/web/assert/anime-girl-dream.jpg"
+                        src="https://cdn.yuelili.com/docs/web/assets/anime-girl-dream.jpg"
                         alt=""
                         class="relative inset-0 object-cover object-top w-full h-full -translate-y-0 sm:h-64 sm:mt-16 -z-10" />
                 </div>
@@ -123,6 +130,8 @@
 import { MetaData } from '@/models/base'
 import { HomeStatistic } from '@/models/home'
 
+const show = ref(false)
+
 const yiyan = ref('')
 const statistic = ref<HomeStatistic>()
 
@@ -134,7 +143,7 @@ function addNotify() {
     Message({ message: '113', type: 'info', duration: 9999999 })
     Message({ message: '114', type: 'warn', duration: 9999999 })
     Message({ message: '115', type: 'error', duration: 9999999 })
-    Message({ message: '116', type: 'contract', duration: 9999999 })
+    Message({ message: '116', type: 'contrast', duration: 9999999 })
 }
 
 onMounted(async () => {

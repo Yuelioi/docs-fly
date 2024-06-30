@@ -1,49 +1,56 @@
 <template>
-    <div class="container h-16">
-        <div class="flex flex-row items-center justify-around sm:justify-between">
-            <!-- 左侧菜单 -->
-            <div class="flex">
-                <!-- LOGO -->
-                <div class="flex items-center">
-                    <a rel="home" href="#">
-                        <img
-                            class="h-8"
-                            itemprop="logo"
-                            src="https://cdn.yuelili.com/web/assets/logo.webp" />
-                    </a>
-                </div>
+    <div class="container h-16 flex items-center">
+        <div class="flex items-center justify-around sm:justify-between w-full">
+            <!-- # region logo区域 -->
+            <div class="flex items-center">
+                <a rel="home" href="#">
+                    <img
+                        class="h-8"
+                        itemprop="logo"
+                        src="https://cdn.yuelili.com/docs/web/assets/ydocs-256.png" />
+                </a>
+            </div>
+            <!-- # endregion logo区域 -->
+            <!-- # region 左侧菜单 PC端分类 -->
+            <div v-if="width > 576" class="flex flex-row">
+                <div
+                    class="relative flex items-center h-16 px-2 rounded-lg group"
+                    v-for="(nav, index_nav) in filteredNavs"
+                    :key="index_nav">
+                    <span class="text-sm font-bold cursor-default">{{ nav.metadata.title }}</span>
 
-                <!-- 分类 -->
-                <div class="flex flex-row">
-                    <div
-                        class="relative flex items-center h-16 px-2 rounded-lg group"
-                        v-for="(nav, index_nav) in filteredNavs"
-                        :key="index_nav">
-                        <span class="text-sm font-bold cursor-default">{{
-                            nav.metadata.title
-                        }}</span>
+                    <ul
+                        class="absolute top-[calc(100%-1px)] z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
+                        <router-link
+                            class="flex items-center w-full px-3 py-2 last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
+                            v-for="(child, index_item) in sortMeta(nav.children)"
+                            :key="index_item"
+                            :to="{
+                                name: 'book',
+                                params: {
+                                    bookPath: child.url.split('/')
+                                }
+                            }"
+                            ><div class="text-[1rem]"><BIconBook></BIconBook></div>
 
-                        <ul
-                            class="absolute top-[calc(100%-1px)] z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
-                            <router-link
-                                class="flex items-center w-full px-3 py-2 last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
-                                v-for="(child, index_item) in sortMeta(nav.children)"
-                                :key="index_item"
-                                :to="{
-                                    name: 'book',
-                                    params: {
-                                        bookPath: child.url.split('/')
-                                    }
-                                }"
-                                ><div class="text-[1rem]"><BIconBook></BIconBook></div>
-
-                                <span class="pl-2">{{ child.title }}</span></router-link
-                            >
-                        </ul>
-                    </div>
+                            <span class="pl-2">{{ child.title }}</span></router-link
+                        >
+                    </ul>
                 </div>
             </div>
-            <!-- 右侧菜单 -->
+            <!-- # endregion 左侧菜单 PC端分类 -->
+
+            <!-- # region 右侧菜单 手机端-->
+            <div v-if="width < 576" class="ml-auto flex">
+                <BIconList class="text-icon-base"></BIconList>
+
+                <div class="search">
+                    <HSearch v-model:showSearchDialog="showSearchDialog" />
+                </div>
+            </div>
+            <!-- # endregion 右侧菜单 手机端-->
+
+            <!-- # region 右侧菜单 PC端-->
             <div class="items-center justify-center hidden sm:flex">
                 <!-- 搜索 Start -->
                 <div class="search">
@@ -51,12 +58,28 @@
                 </div>
                 <!-- 搜索 End -->
 
-                <!-- 右侧工具 -->
-                <div class="items-center">
+                <div class="items-center flex">
                     <button @click="toggleDark()">
                         <div
                             class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline">
-                            <BIconSun v-if="isDark"></BIconSun> <BIconMoon v-else></BIconMoon>
+                            <BIconSun v-if="isDark"></BIconSun>
+                            <BIconMoonStars v-else></BIconMoonStars>
+                        </div>
+                    </button>
+                    <button class="group relative h-16">
+                        <div
+                            class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline">
+                            <BIconPalette class=""></BIconPalette>
+                            <div
+                                class="absolute top-[calc(100%+1px)] -right-1/2 z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
+                                <div
+                                    class="w-full px-4 py-2 last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
+                                    v-for="theme in themes"
+                                    @click="switchTheme(theme)"
+                                    :key="theme">
+                                    <span class="">{{ theme }}</span>
+                                </div>
+                            </div>
                         </div>
                     </button>
 
@@ -74,7 +97,7 @@
                             <BIconTranslate></BIconTranslate>
                         </div>
                     </button>
-                    <button v-if="!isAdmin" @click="showLoginWindow = true">
+                    <button v-if="!isAdmin" @click.prevent.stop="showLoginWindow = true">
                         <div
                             class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
                             <BIconPerson></BIconPerson>
@@ -87,11 +110,12 @@
                         </div>
                     </button>
 
-                    <div v-if="showLoginWindow">
-                        <LoginWindow v-model:showLoginWindow="showLoginWindow"></LoginWindow>
-                    </div>
+                    <VDialog v-model:show="showLoginWindow">
+                        <LoginWindow></LoginWindow>
+                    </VDialog>
                 </div>
             </div>
+            <!-- # endregion 右侧菜单 PC端-->
         </div>
     </div>
 
@@ -155,20 +179,27 @@ import { MetaData } from '@/models/base'
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 
+import { themes, switchTheme } from '@/hooks/useTheme'
+
 const route = useRoute()
 const router = useRouter()
+
+import { useWindowSize } from '@vueuse/core'
+
+const { width } = useWindowSize()
 
 import {
     BIconBook,
     BIconBoxArrowRight,
-    BIconMoon,
+    BIconMoonStars,
     BIconPerson,
     BIconStar,
     BIconSun,
     BIconTranslate,
     BIconList,
     BIconSearch,
-    BIconHouseHeart
+    BIconHouseHeart,
+    BIconPalette
 } from 'bootstrap-icons-vue'
 const basic = basicStore()
 const { locale, isAdmin } = storeToRefs(basic)

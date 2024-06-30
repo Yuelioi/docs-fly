@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { themeState } from './utils/themeManager'
+const { theme } = useTheme()
 </script>
 
 <template>
-    <div
-        :class="themeState.currentTheme"
-        class="text-sm bg-theme-base text-theme-base border-theme-base">
+    <div :class="theme" class="text-sm bg-theme-base text-theme-base border-theme-base">
         <div class="flex flex-col h-lvh">
             <!--  顶部导航栏  -->
             <div class="border shadow-md border-b-theme-base">
@@ -30,5 +28,3 @@ import { themeState } from './utils/themeManager'
 
     <BackTop />
 </template>
-
-<style scoped></style>

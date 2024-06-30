@@ -20,15 +20,6 @@ async function refreshDB() {
     }
 }
 
-function initLocalStorageParam(refValue: Ref, defaultValue: any, prop: string) {
-    const localData = localStorage.getItem(prop)
-    if (localData) {
-        refValue.value = localData
-    } else {
-        refValue.value = defaultValue
-    }
-}
-
 onMounted(async () => {
     // 初始化token
     const localToken = localStorage.getItem('token')
@@ -52,8 +43,8 @@ onMounted(async () => {
     }
 
     // 读取本地语言/昵称
-    initLocalStorageParam(locale, 'zh', 'locale')
-    initLocalStorageParam(nickname, 'zh', '看书大王')
+    // initLocalStorageParam(locale, 'zh', 'locale')
+    // initLocalStorageParam(nickname, 'zh', '看书大王')
 
     // 读取本地数据库
     const appVersionLocal = localStorage.getItem('appVersion')

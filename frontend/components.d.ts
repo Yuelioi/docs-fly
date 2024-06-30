@@ -24,5 +24,6 @@ declare module 'vue' {
     TheHeader: typeof import('./src/components/home/TheHeader.vue')['default']
     VClock: typeof import('./src/components/home/VClock.vue')['default']
     VComment: typeof import('./src/components/common/VComment.vue')['default']
+    VTest: typeof import('./src/components/VTest.vue')['default']
   }
 }

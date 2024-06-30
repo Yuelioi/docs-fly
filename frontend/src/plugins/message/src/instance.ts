@@ -18,7 +18,7 @@ export function Message(msgProps: Partial<MessageProps>) {
             showClose: msgProps.showClose ?? messageDefaults.showClose
         }
 
-        const container = registerMessageContainer()
-        registerMessage(container, props)
+        registerMessageContainer()
+        registerMessage(props)
     })
 }

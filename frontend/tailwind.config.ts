@@ -1,19 +1,10 @@
 import plugin from 'tailwindcss/plugin'
 import typography from '@tailwindcss/typography'
-/** @type {import('tailwindcss').Config} */
-
-function withOpacity(variableName) {
-    return ({ opacityValue }) => {
-        if (opacityValue != null) {
-            return `var(${variableName}, ${opacityValue})`
-        }
-        return `var(${variableName})`
-    }
-}
+import colors from 'tailwindcss/colors'
+import { Config } from 'tailwindcss'
 
 export default {
-    darkMode: 'selector',
-    content: ['./index.html', './src/**/*.{js,ts,vue}'],
+    content: ['./index.html', './src/**/*.{js,ts,vue,css}'],
     theme: {
         container: {
             center: true,
@@ -55,7 +46,7 @@ export default {
                     'text-muted': 'var(--color-text-muted)',
                     'text-inverse': 'var(--color-text-inverse)',
 
-                    primary: 'var(--color-primary)',
+                    primary: colors.blue,
                     secondary: 'var(--color-secondary)',
                     error: 'var(--color-error)',
                     warn: 'var(--color-warn)',
@@ -78,8 +69,6 @@ export default {
                 theme: {
                     base: 'var(--color-bg-base)',
                     card: 'var(--color-bg-card)',
-                    header: 'var(--color-bg-header)',
-                    footer: 'var(--color-bg-footer)',
 
                     primary: {
                         base: 'var(--color-bg-primary-base)',
@@ -129,9 +118,9 @@ export default {
         }
     },
     plugins: [
-        plugin(function ({ addComponents, addBase, theme }) {
+        plugin(function ({ addBase }) {
             addBase({})
         }),
         typography
     ]
-}
+} satisfies Config
