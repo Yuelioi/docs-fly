@@ -1,6 +1,6 @@
 <template>
-    <div class="container h-16 flex items-center">
-        <div class="flex items-center justify-around sm:justify-between w-full">
+    <div class="container flex items-center h-16">
+        <div class="flex items-center justify-around w-full sm:justify-between">
             <!-- # region logo区域 -->
             <div class="flex items-center">
                 <a rel="home" href="#">
@@ -11,7 +11,7 @@
                 </a>
             </div>
             <!-- # endregion logo区域 -->
-            <!-- # region 左侧菜单 PC端分类 -->
+            <!-- # region PC左侧菜单  -->
             <div v-if="width > 576" class="flex flex-row">
                 <div
                     class="relative flex items-center h-16 px-2 rounded-lg group"
@@ -22,7 +22,7 @@
                     <ul
                         class="absolute top-[calc(100%-1px)] z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
                         <router-link
-                            class="flex items-center w-full px-3 py-2 last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
+                            class="flex items-center w-full px-3 py-2 last:pb-4 last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
                             v-for="(child, index_item) in sortMeta(nav.children)"
                             :key="index_item"
                             :to="{
@@ -38,27 +38,33 @@
                     </ul>
                 </div>
             </div>
-            <!-- # endregion 左侧菜单 PC端分类 -->
+            <!-- # endregion PC左侧菜单  -->
 
-            <!-- # region 右侧菜单 手机端-->
-            <div v-if="width < 576" class="ml-auto flex">
+            <!-- # region 手机端右侧菜单 -->
+            <div v-if="width < 576" class="flex ml-auto">
                 <BIconList class="text-icon-base"></BIconList>
-
-                <div class="search">
-                    <HSearch v-model:showSearchDialog="showSearchDialog" />
-                </div>
             </div>
-            <!-- # endregion 右侧菜单 手机端-->
+            <!-- # endregion 手机端右侧菜单 手机端-->
 
-            <!-- # region 右侧菜单 PC端-->
+            <!-- # region PC端右侧菜单 -->
             <div class="items-center justify-center hidden sm:flex">
                 <!-- 搜索 Start -->
-                <div class="search">
-                    <HSearch v-model:showSearchDialog="showSearchDialog" />
+
+                <div class="relative flex items-center justify-center h-16 select-none">
+                    <div
+                        class="absolute -mt-2 top-2/4 left-3 text-surface-400 dark:text-surface-600">
+                        <BIconSearch></BIconSearch>
+                    </div>
+                    <span
+                        @click.prevent.stop="showSearchDialog = true"
+                        class="flex items-center h-10 pl-10 pr-4 text-sm bg-transparent border-2 rounded-full border-theme-base hover:border-theme-primary">
+                        搜索文档...
+                    </span>
                 </div>
+
                 <!-- 搜索 End -->
 
-                <div class="items-center flex">
+                <div class="flex items-center">
                     <button @click="toggleDark()">
                         <div
                             class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline">
@@ -66,14 +72,14 @@
                             <BIconMoonStars v-else></BIconMoonStars>
                         </div>
                     </button>
-                    <button class="group relative h-16">
+                    <button class="relative h-16 group">
                         <div
                             class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline">
                             <BIconPalette class=""></BIconPalette>
                             <div
                                 class="absolute top-[calc(100%+1px)] -right-1/2 z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
                                 <div
-                                    class="w-full px-4 py-2 last:pb-4 first:hover:rounded-t-lg last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
+                                    class="w-full px-4 py-2 last:pb-4 last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
                                     v-for="theme in themes"
                                     @click="switchTheme(theme)"
                                     :key="theme">
@@ -115,11 +121,11 @@
                     </VDialog>
                 </div>
             </div>
-            <!-- # endregion 右侧菜单 PC端-->
+            <!-- # endregion PC端右侧菜单 PC端-->
         </div>
     </div>
 
-    <!-- 手机端底部导航 -->
+    <!-- # region 手机端底部导航 -->
     <div
         class="fixed bottom-0 flex items-center justify-between w-full h-12 mt-12 md:hidden bg-theme-card">
         <div class="flex items-center justify-around flex-1">
@@ -133,7 +139,7 @@
                 <div class="flex flex-col items-center">
                     <BIconSearch></BIconSearch>
                     <span
-                        @click="showSearchDialog = true"
+                        @click.prevent.stop="showSearchDialog = true"
                         class="flex items-center text-sm bg-transparent">
                         搜索
                     </span>
@@ -151,7 +157,7 @@
                     </div>
                 </router-link>
             </button>
-            <button v-if="!isAdmin" @click="showLoginWindow = true">
+            <button v-if="!isAdmin" @click.prevent.stop="showLoginWindow = true">
                 <div
                     class="flex flex-col items-center p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
                     <BIconPerson class="text-icon-base"></BIconPerson>
@@ -167,6 +173,7 @@
             </button>
         </div>
     </div>
+    <!-- # endregion 手机端底部导航 -->
 
     <HSearchWithDialog v-model:showSearchDialog="showSearchDialog" v-model:navs="filteredNavs">
     </HSearchWithDialog>

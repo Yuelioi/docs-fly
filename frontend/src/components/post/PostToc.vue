@@ -1,7 +1,7 @@
 <template>
-    <div id="toc">
+    <div id="toc" class="overflow-scroll h-[calc(100%-4rem)]">
         <div
-            class="p-1 pl-4 text-sm border-l-2 cursor-pointer select-none toc-item hover:bg-theme-card border-theme-base hover:border-theme-primary hover:text-theme-primary hover:px-6"
+            class="p-1 pl-4 text-sm border-l-2 cursor-pointerselect-none toc-item hover:bg-theme-card border-theme-base hover:border-theme-primary hover:text-theme-primary hover:px-6"
             v-for="(item, i) in toc"
             :key="i">
             <div v-if="item.depth > 1" @click="jump">{{ item.title }}</div>

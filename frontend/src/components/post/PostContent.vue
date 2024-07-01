@@ -257,27 +257,33 @@ function clipboardListener() {
     }
 }
 
+function keyListener(event: KeyboardEvent) {
+    if (shortcuts.isFullScreenKey(event)) {
+        event.preventDefault()
+        switchFullscreen()
+    }
+
+    if (shortcuts.isEditKey(event)) {
+        event.preventDefault()
+        isEditing.value = !isEditing.value
+    }
+
+    if (shortcuts.isSaveKey(event)) {
+        event.preventDefault()
+        if (isEditing.value == true) {
+            save()
+        }
+    }
+}
+
 onMounted(async () => {
-    document.addEventListener('keydown', function (event: KeyboardEvent) {
-        if (shortcuts.isFullScreenKey(event)) {
-            event.preventDefault()
-            switchFullscreen()
-        }
-
-        if (shortcuts.isEditKey(event)) {
-            event.preventDefault()
-            isEditing.value = !isEditing.value
-        }
-
-        if (shortcuts.isSaveKey(event)) {
-            event.preventDefault()
-            if (isEditing.value == true) {
-                save()
-            }
-        }
-    })
+    document.addEventListener('keydown', keyListener)
 
     await refreshStarStatus()
+})
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', keyListener)
 })
 </script>
 <style scoped>

@@ -8,7 +8,6 @@ onMounted(async () => {
     for (const path in modules) {
         try {
             await modules[path]()
-            console.log(`${path} loaded`)
         } catch (error) {
             console.error(`Failed to load ${path}`, error)
         }

@@ -90,8 +90,12 @@ func findClosestDoc(chapter models.Entry, docs []models.Entry) models.Entry {
 func GetBook(c *gin.Context) {
 	bookPath := c.Query("bookPath")
 	locale := c.Query("locale")
-
 	clientTime := currentTime()
+
+	if bookPath == "" || locale == "" {
+		sendErrorResponse(c, http.StatusNotFound, clientTime, "参数不全")
+	}
+
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -103,8 +107,14 @@ func GetBook(c *gin.Context) {
 	var docs []models.Entry
 	var bookDatas []BookData
 
+	ok, cachedData := getCache(bookPath + locale)
+	if ok {
+		sendSuccessResponse(c, clientTime, cachedData)
+		return
+	}
+
 	// 查询分类章节和文章章节
-	err := db.Scopes(BasicModel, FindChapter, HasPrefixUrlPath(bookPath+"/"+locale)).Limit(50).Order("is_dir DESC, depth ASC, `order` ASC").Find(&chapters).Error
+	err := db.Scopes(BasicModel, FindChapter, HasPrefixUrlPath(bookPath+"/"+locale)).Order("is_dir DESC, depth ASC, `order` ASC").Find(&chapters).Error
 
 	if err != nil {
 		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Database query error")
@@ -144,7 +154,7 @@ func GetBook(c *gin.Context) {
 			})
 		}
 	}
-
+	saveCache(bookPath+locale, bookDatas)
 	sendSuccessResponse(c, clientTime, bookDatas)
 }
 

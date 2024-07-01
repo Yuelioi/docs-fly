@@ -1,13 +1,13 @@
 <template>
     <div class="">
-        <button @click.prevent.stop="show = !show">对话框</button>
+        <!-- <button @click.prevent.stop="show = !show">对话框</button>
         <VDialog v-model:show="show">
             <template #header>11</template>
             <HSearch></HSearch>
             <template #footer>22</template>
-        </VDialog>
+        </VDialog> -->
 
-        <button @click="addNotify">添加事件</button>
+        <!-- <button @click="addNotify">添加事件</button> -->
         <div class="flex flex-col -mt-1">
             <!-- 主页手风琴 -->
             <div class="w-full h-[33vh] relative">

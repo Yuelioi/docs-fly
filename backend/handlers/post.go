@@ -231,12 +231,7 @@ func SavePost(c *gin.Context) {
 
 }
 
-func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry) {
-	folder.Documents = make([]models.MetaData, 0)
-	folder.Children = make([]Chapter, 0)
-
-	remainingDocuments := make([]models.Entry, 0)
-	remainingCategories := make([]models.Entry, 0)
+func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry, currentDepth int) {
 
 	var wg sync.WaitGroup
 
@@ -245,11 +240,10 @@ func buildFolderTree(folder *Chapter, categories []models.Entry, documents []mod
 	go func() {
 		defer wg.Done()
 		for _, doc := range documents {
-			if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == folder.MetaData.Depth+1 {
+			if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == currentDepth {
 				folder.Documents = append(folder.Documents, doc.MetaData)
-			} else {
-				remainingDocuments = append(remainingDocuments, doc)
 			}
+
 		}
 	}()
 
@@ -258,28 +252,23 @@ func buildFolderTree(folder *Chapter, categories []models.Entry, documents []mod
 	go func() {
 		defer wg.Done()
 		for _, cat := range categories {
-			if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == folder.MetaData.Depth+1 {
+			if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == currentDepth {
 				childFolder := Chapter{
 					MetaData:  cat.MetaData,
 					Filepath:  cat.MetaData.Filepath,
 					Documents: make([]models.MetaData, 0),
 					Children:  make([]Chapter, 0),
 				}
-				if childFolder.MetaData.Depth < 4 {
-					buildFolderTree(&childFolder, categories, documents)
-				}
+				buildFolderTree(&childFolder, categories, documents, currentDepth+1)
 
 				folder.Children = append(folder.Children, childFolder)
-			} else {
-				remainingCategories = append(remainingCategories, cat)
 			}
+
 		}
 	}()
 
 	wg.Wait()
 
-	documents = remainingDocuments
-	categories = remainingCategories
 }
 
 // 获取当前书籍章节信息,没有章节则直接获取文档信息
@@ -301,15 +290,18 @@ func GetChapter(c *gin.Context) {
 	if len(parts) >= 3 {
 		book = strings.Join(parts[:3], "/")
 	} else {
+		sendErrorResponse(c, http.StatusBadRequest, clientTime, "Invalid post path")
+	}
+
+	ok, cachedData := getCache(book)
+	if ok {
+		sendSuccessResponse(c, clientTime, cachedData)
 		return
 	}
 
 	var categories, documents, allEntries []models.Entry
 
-	// TODO 分页
-
-	// 已过滤5级之后的文件, 请手动获取
-	db.Scopes(BasicModel, HasPrefixUrlPath(book)).Where("depth < ?", "5").Find(&allEntries)
+	db.Scopes(BasicModel, HasPrefixUrlPath(book)).Find(&allEntries)
 
 	// 需要忽略README文件
 	for _, entry := range allEntries {
@@ -323,8 +315,6 @@ func GetChapter(c *gin.Context) {
 		}
 	}
 
-	// categories = categories[:50]
-
 	// 创建根文件夹
 	var rootEntry models.Entry
 	db.Where("filepath = ? AND depth = ?", book, 2).First(&rootEntry)
@@ -337,7 +327,10 @@ func GetChapter(c *gin.Context) {
 	}
 
 	// 构建文件夹树
-	buildFolderTree(&chapterMeta, categories, documents)
+	buildFolderTree(&chapterMeta, categories, documents, 3)
+
+	// 将数据存储到缓存中
+	saveCache(book, chapterMeta)
 
 	sendSuccessResponse(c, clientTime, chapterMeta)
 }

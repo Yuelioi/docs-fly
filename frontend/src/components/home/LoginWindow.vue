@@ -1,16 +1,14 @@
 <template>
-    <div class="relative flex flex-col justify-center py-12">
+    <div class="relative flex flex-col justify-center">
         <div class="">
             <img
                 class="w-auto h-10 mx-auto"
                 src="https://cdn.yuelili.com/docs/web/assets/ydocs-256.png"
                 alt="Your Company" />
-            <h2 class="mt-10 text-2xl font-bold leading-9 tracking-tight text-center">
-                请登录账号
-            </h2>
+            <h2 class="mt-4 text-lg font-bold leading-9 tracking-tight text-center">登录</h2>
         </div>
 
-        <div class="mt-10">
+        <div class="mt-4">
             <form class="space-y-6" action="#" method="POST">
                 <div>
                     <label for="username" class="block text-sm font-medium leading-6">用户名</label>
@@ -46,7 +44,7 @@
                     <button
                         type="submit"
                         @click.prevent="login"
-                        class="flex w-full justify-center rounded-md bg-theme-primary-base px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        class="flex w-full justify-center rounded-md bg-theme-primary-base px-3 py-1.5 text-theme-text-inverse text-sm font-semibold leading-6 shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                         登录
                     </button>
                 </div>

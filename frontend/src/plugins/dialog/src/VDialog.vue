@@ -3,18 +3,18 @@
         <transition name="fade">
             <div
                 v-if="show"
-                class="overlay fixed w-screen h-screen top-0 left-0 z-40 bg-zinc-950 opacity-50"></div>
+                class="fixed top-0 left-0 z-40 w-screen h-screen opacity-50 overlay bg-zinc-950"></div>
         </transition>
         <transition name="bounce">
             <div
                 ref="dialogRef"
                 v-if="show"
-                class="fixed rounded-lg shadow-2xl -translate-x-1/2 left-1/2 right-1/2 z-50 top-32 min-w-[32rem] bg-theme-card">
-                <div class="flex flex-col p-8">
+                class="fixed z-50 -translate-x-1/2 rounded-lg shadow-2xl left-1/2 right-1/2 top-32 bg-theme-card w-[calc(90vw)]">
+                <div class="flex flex-col p-4">
                     <header class="flex items-center justify-between">
                         <slot name="header">{{ title }}</slot>
 
-                        <BIconX class="ml-auto m-2 text-icon-md" @click="show = false"></BIconX>
+                        <BIconX class="m-2 ml-auto text-icon-md" @click="show = false"></BIconX>
                     </header>
                     <main>
                         <slot></slot>
