@@ -1,6 +1,7 @@
 .dark {
     --color-bg-base: rgb(15, 23, 42);
     --color-bg-card: rgb(34, 36, 38);
+    --color-bg-chapter: rgb(227, 231, 241);
 
     --color-primary: rgb(28, 110, 183);
     --color-secondary: rgb(75, 0, 150);

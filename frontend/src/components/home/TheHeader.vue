@@ -10,7 +10,7 @@
                         src="https://cdn.yuelili.com/docs/web/assets/ydocs-256.png" />
                 </a>
             </div>
-            <!-- # endregion logo区域 -->
+            <!-- # endregion -->
             <!-- # region PC左侧菜单  -->
             <div v-if="width > 576" class="flex flex-row">
                 <div
@@ -20,7 +20,7 @@
                     <span class="text-sm font-bold cursor-default">{{ nav.metadata.title }}</span>
 
                     <ul
-                        class="absolute top-[calc(100%-1px)] z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
+                        class="absolute top-[4.25rem] z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
                         <router-link
                             class="flex items-center w-full px-3 py-2 last:pb-4 last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
                             v-for="(child, index_item) in sortMeta(nav.children)"
@@ -38,18 +38,45 @@
                     </ul>
                 </div>
             </div>
-            <!-- # endregion PC左侧菜单  -->
+            <!-- # endregion  -->
 
             <!-- # region 手机端右侧菜单 -->
-            <div v-if="width < 576" class="flex ml-auto">
+            <div v-if="width < 576" class="flex ml-auto group">
                 <BIconList class="text-icon-base"></BIconList>
+                <div
+                    class="absolute top-[4.25rem] right-2 w-24 bg-theme-chapter group-hover:scale-100">
+                    <div
+                        class="flex flex-col h-8 items-center m-1 last:rounded-b px-4 py-1 hover:bg-theme-primary-hover group/sub duration-300 ease-in-out origin-top-left bg-theme-base"
+                        v-for="(nav, index_nav) in filteredNavs"
+                        :key="index_nav">
+                        <div class="">
+                            <span class="text-sm cursor-default">{{ nav.metadata.title }}</span>
+                        </div>
+
+                        <ul
+                            class="group-hover/sub:scale-100 scale-0 bg-theme-chapter absolute right-[100%] top-0 rounded-b-lg">
+                            <router-link
+                                class="flex items-center bg-theme-base m-1 w-32 h-8 px-2 hover:bg-theme-primary-hover"
+                                v-for="(child, index_item) in sortMeta(nav.children)"
+                                :key="index_item"
+                                :to="{
+                                    name: 'book',
+                                    params: {
+                                        bookPath: child.url.split('/')
+                                    }
+                                }"
+                                ><div class="text-[1rem]"><BIconBook></BIconBook></div>
+
+                                <span class="pl-2 truncate">{{ child.title }}</span></router-link
+                            >
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <!-- # endregion 手机端右侧菜单 手机端-->
+            <!-- # endregion-->
 
             <!-- # region PC端右侧菜单 -->
             <div class="items-center justify-center hidden sm:flex">
-                <!-- 搜索 Start -->
-
                 <div class="relative flex items-center justify-center h-16 select-none">
                     <div
                         class="absolute -mt-2 top-2/4 left-3 text-surface-400 dark:text-surface-600">
@@ -61,9 +88,6 @@
                         搜索文档...
                     </span>
                 </div>
-
-                <!-- 搜索 End -->
-
                 <div class="flex items-center">
                     <button @click="toggleDark()">
                         <div
@@ -77,7 +101,7 @@
                             class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline">
                             <BIconPalette class=""></BIconPalette>
                             <div
-                                class="absolute top-[calc(100%+1px)] -right-1/2 z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
+                                class="absolute top-[calc(100%+4px)] -right-1/2 z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
                                 <div
                                     class="w-full px-4 py-2 last:pb-4 last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
                                     v-for="theme in themes"
@@ -121,7 +145,7 @@
                     </VDialog>
                 </div>
             </div>
-            <!-- # endregion PC端右侧菜单 PC端-->
+            <!-- # endregion-->
         </div>
     </div>
 
@@ -173,7 +197,7 @@
             </button>
         </div>
     </div>
-    <!-- # endregion 手机端底部导航 -->
+    <!-- # endregion -->
 
     <HSearchWithDialog v-model:showSearchDialog="showSearchDialog" v-model:navs="filteredNavs">
     </HSearchWithDialog>
