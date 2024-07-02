@@ -70,7 +70,7 @@ async function refreshBookContent(params: RouteParams, reload: boolean = true) {
         const tocData = JSON.parse(data['data']['toc'])
         toc.value = tocData
     } else {
-        await Message({ message: '获取文章失败', type: 'error' })
+        Message({ message: '获取文章失败', type: 'error' })
         postContent.value = ''
         postHtml.value = ''
         toc.value = []

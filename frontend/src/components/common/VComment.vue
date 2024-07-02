@@ -84,9 +84,9 @@ async function postNewComment() {
             getComments,
             (route.params['bookPath'] as string[]).join('/') + '/' + locale.value
         )
-        await Message({ message: '发布成功' })
+        Message({ message: '发布成功' })
     } else {
-        await Message({ message: '发布失败', type: 'warn' })
+        Message({ message: '发布失败', type: 'warn' })
     }
 }
 watch(route, () => {

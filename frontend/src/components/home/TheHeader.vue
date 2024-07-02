@@ -117,7 +117,7 @@
                     </button>
 
                     <VDialog v-model:show="showLoginWindow">
-                        <LoginWindow></LoginWindow>
+                        <LoginWindow v-model:show="showLoginWindow"></LoginWindow>
                     </VDialog>
                 </div>
             </div>
@@ -233,7 +233,7 @@ async function changeLocale() {
         locale.value = 'en'
     }
 
-    await Message({ message: `已切换为${translate('locale')}` })
+    Message({ message: `已切换为${translate('locale')}` })
     localStorage.setItem('locale', locale.value)
 
     const routeParams = route.params
@@ -262,7 +262,7 @@ async function changeLocale() {
 async function logout() {
     isAdmin.value = false
     localStorage.removeItem('token')
-    await Message({ message: '已成功登出', type: 'success' })
+    Message({ message: '已成功登出', type: 'success' })
 }
 
 function sortMeta(data: MetaData[]) {

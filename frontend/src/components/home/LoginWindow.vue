@@ -4,7 +4,7 @@
             <img
                 class="w-auto h-10 mx-auto"
                 src="https://cdn.yuelili.com/docs/web/assets/ydocs-256.png"
-                alt="Your Company" />
+                alt="YDocs" />
             <h2 class="mt-4 text-lg font-bold leading-9 tracking-tight text-center">登录</h2>
         </div>
 
@@ -57,7 +57,7 @@
 const basic = basicStore()
 let { isAdmin } = storeToRefs(basic)
 
-const showLoginWindow = defineModel('showLoginWindow')
+const showLoginWindow = defineModel('show', { type: Boolean })
 
 const username = ref('')
 const password = ref('')
@@ -69,9 +69,9 @@ async function login() {
             localStorage.setItem('token', data['data'])
             showLoginWindow.value = false
             isAdmin.value = true
-            await Message({ message: '登录成功', type: 'success' })
+            Message({ message: '登录成功', type: 'success' })
         } else {
-            await Message({ message: '登录失败', type: 'error' })
+            Message({ message: '登录失败', type: 'error' })
         }
     }
 }

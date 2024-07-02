@@ -51,7 +51,7 @@ async function refreshBookChapter(params: RouteParams) {
             await addDBBookData(params['bookPath'] as string[], locale.value, data['data'])
         } else {
             bookDatas.value = []
-            await Message({ message: '未找到书籍数据', type: 'warn' })
+            Message({ message: '未找到书籍数据', type: 'warn' })
         }
     }
 }

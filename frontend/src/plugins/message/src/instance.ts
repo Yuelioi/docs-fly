@@ -10,15 +10,13 @@ import { messageDefaults } from './model'
 import { registerMessageContainer, registerMessage } from './functions'
 
 export function Message(msgProps: Partial<MessageProps>) {
-    return new Promise(() => {
-        const props = {
-            message: msgProps.message ?? messageDefaults.message,
-            type: msgProps.type ?? messageDefaults.type,
-            duration: msgProps.duration ?? messageDefaults.duration,
-            showClose: msgProps.showClose ?? messageDefaults.showClose
-        }
+    const props = {
+        message: msgProps.message ?? messageDefaults.message,
+        type: msgProps.type ?? messageDefaults.type,
+        duration: msgProps.duration ?? messageDefaults.duration,
+        showClose: msgProps.showClose ?? messageDefaults.showClose
+    }
 
-        registerMessageContainer()
-        registerMessage(props)
-    })
+    registerMessageContainer()
+    registerMessage(props)
 }

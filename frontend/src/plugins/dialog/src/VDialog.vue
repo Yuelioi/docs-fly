@@ -29,7 +29,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineModel } from 'vue'
 import { BIconX } from 'bootstrap-icons-vue'
 
 const show = defineModel('show', { default: false, required: true })

@@ -12,7 +12,7 @@ async function refreshDB() {
     try {
         localStorage.setItem('appVersion', appVersion.value)
         await dbManager.clearDatabase()
-        await Message({ message: 'Database refresh successfully' })
+        Message({ message: 'Database refresh successfully' })
         console.log('Database refresh successfully')
     } catch (error) {
         Message({ message: 'Failed to clear database', type: 'warn' })

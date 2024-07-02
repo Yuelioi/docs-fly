@@ -110,11 +110,11 @@ async function save() {
         const [ok, data] = await savePost((params['postPath'] as string[]).join('/'), mdContent)
 
         if (ok) {
-            await Message({ message: '已保存', type: 'success' })
+            Message({ message: '已保存', type: 'success' })
             postContent.value = mdContent
             postHtml.value = data['content_html']
         } else {
-            await Message({ message: '保存失败', type: 'error' })
+            Message({ message: '保存失败', type: 'error' })
         }
     }
 }
@@ -130,14 +130,14 @@ async function starPost() {
     postStar.params = (route.params['postPath'] as string[]).slice(0, 3).join('/')
 
     await addPostStarData(postStar)
-    await Message({ message: '收藏成功' })
+    Message({ message: '收藏成功' })
 }
 async function unStarPost() {
     isStared.value = !isStared.value
     const key = route.fullPath
 
     await deletePostStarData(key)
-    await Message({ message: '已取消收藏' })
+    Message({ message: '已取消收藏' })
 }
 
 async function refreshStarStatus() {

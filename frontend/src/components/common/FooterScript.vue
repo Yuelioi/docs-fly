@@ -1,5 +1,5 @@
 <template>
-    <div class="text-theme-primary-200">111</div>
+    <div></div>
 </template>
 
 <script setup lang="ts">
