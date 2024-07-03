@@ -12,10 +12,18 @@
     <input type="text" v-model="num" />
 
     <div class="w-24 h-24" :style="getStyle()"></div>
+
+    <canvas ref="container" width="1000" height="1000"></canvas>
+
+    <canvas ref="container2" width="1000" height="1000" style="width: 100%; height: auto"></canvas>
 </template>
 
 <script setup lang="ts">
 const show = ref(false)
+import { Rive } from '@rive-app/canvas'
+
+const container = ref()
+const container2 = ref()
 
 function getStyle() {
     return { background: 'red' }
@@ -27,5 +35,20 @@ const AsyncComp = defineAsyncComponent({
     loadingComponent: h('div', ['<span>Loading</span>']),
     delay: 2000,
     timeout: 3000
+})
+
+onMounted(() => {
+    new Rive({
+        src: '/rive/water_bubble.riv',
+        canvas: container.value,
+        stateMachines: 'State Machine 1',
+        autoplay: true
+    })
+    new Rive({
+        src: 'https://cdn.motiondesign.school/uploads/2024/03/Belly.riv',
+        canvas: container2.value,
+        stateMachines: 'State Machine 1',
+        autoplay: true
+    })
 })
 </script>

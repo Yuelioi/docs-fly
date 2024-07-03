@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@rive-app/canvas':
+    specifier: ^2.19.0
+    version: 2.19.0
   '@vueuse/core':
     specifier: ^10.9.0
     version: 10.9.0(vue@3.4.21)
@@ -2087,6 +2090,10 @@ packages:
   /@polka/url@1.0.0-next.25:
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
     dev: true
+
+  /@rive-app/canvas@2.19.0:
+    resolution: {integrity: sha512-LKhcLWPjeOEWuROxjZuktxZ985gxySb9TI9tqqALorlY8nvRKtW+/9wqXhGVfz11DdScw73tgM3MgmSRF6beJQ==}
+    dev: false
 
   /@rollup/plugin-babel@5.3.1(@babel/core@7.24.7)(rollup@2.79.1):
     resolution: {integrity: sha512-WFfdLWU/xVWKeRQnKmIAQULUI7Il0gZnBIH/ZFO069wYIfPu+8zrfp/KMW0atmELoRDq8FbiP3VCss9MhCut7Q==}

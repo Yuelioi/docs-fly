@@ -15,6 +15,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@rive-app/canvas": "^2.19.0",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.8",
     "bootstrap-icons-vue": "^1.11.3",
