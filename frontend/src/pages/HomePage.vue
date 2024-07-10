@@ -1,7 +1,6 @@
 <template>
     <div class="">
-        <!-- <button @click.prevent.stop="show = !show">对话框</button>
-        <VDialog v-model:show="show">
+        <!-- <VDialog v-model:show="show">
             <template #header>11</template>
             <HSearch></HSearch>
             <template #footer>22</template>
@@ -26,7 +25,7 @@
             <!-- 主页手风琴结束 -->
 
             <!--  -->
-            <div class="container -mt-[15vh]">
+            <div class="container -mt-[15vh] lg:mt-16">
                 <div class="w-full">
                     <div
                         class="relative mt-4 overflow-hidden rounded-lg shadow-2xl sm:flex isolate bg-theme-base">
@@ -130,21 +129,14 @@
 import { MetaData } from '@/models/base'
 import { HomeStatistic } from '@/models/home'
 
+import { ref, onMounted } from 'vue'
+
 const show = ref(false)
 
 const yiyan = ref('')
 const statistic = ref<HomeStatistic>()
 
 const rndPostUrl = ref<string[]>(['intro'])
-
-function addNotify() {
-    Message({ message: '111', type: 'success', duration: 9999999 })
-    Message({ message: '112', type: 'secondary', duration: 9999999 })
-    Message({ message: '113', type: 'info', duration: 9999999 })
-    Message({ message: '114', type: 'warn', duration: 9999999 })
-    Message({ message: '115', type: 'error', duration: 9999999 })
-    Message({ message: '116', type: 'contrast', duration: 9999999 })
-}
 
 onMounted(async () => {
     await fetchHandleBasic(statistic, new HomeStatistic(), fetchStatisticHome)

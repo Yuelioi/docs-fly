@@ -9,9 +9,22 @@ import router from './router'
 import { VDialogPlugin } from './plugins/dialog'
 import { useTheme } from './hooks/useTheme'
 
+import PrimeVue from 'primevue/config'
+import Aura from '@primevue/themes/aura'
+import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
+
 const app = createApp(App)
 app.use(router)
 app.use(createPinia())
+app.use(ConfirmationService)
+app.use(ToastService)
+
+app.use(PrimeVue, {
+    theme: {
+        preset: Aura
+    }
+})
 
 app.use(VDialogPlugin)
 
