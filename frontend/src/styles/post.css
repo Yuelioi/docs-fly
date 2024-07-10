@@ -204,3 +204,10 @@ pre.vditor-reset,
         padding: 5rem !important;
     }
 }
+
+.prose
+    :where(tbody td:first-child, tfoot td:first-child):not(
+        :where([class~='not-prose'], [class~='not-prose'] *)
+    ) {
+    padding-inline-start: 0.5714286em;
+}

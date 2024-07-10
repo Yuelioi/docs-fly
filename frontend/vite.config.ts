@@ -71,4 +71,6 @@ export default defineConfig({
         }
     },
     publicDir: 'public'
+
+    // assetsInclude: ['**/*.riv']
 })

@@ -69,6 +69,7 @@ export default {
                 theme: {
                     base: 'var(--color-bg-base)',
                     card: 'var(--color-bg-card)',
+                    chapter: 'var(--color-bg-chapter)',
 
                     primary: {
                         base: 'var(--color-bg-primary-base)',
