@@ -1,15 +1,8 @@
 <template>
     <div class="">
-        <!-- <VDialog v-model:show="show">
-            <template #header>11</template>
-            <HSearch></HSearch>
-            <template #footer>22</template>
-        </VDialog> -->
-
-        <!-- <button @click="addNotify">添加事件</button> -->
         <div class="flex flex-col -mt-1">
             <!-- 主页手风琴 -->
-            <div class="w-full h-[33vh] relative">
+            <div class="w-full h-[33vh] lg:h-[50vh] relative">
                 <div class="flex items-center justify-center h-full select-none">
                     <span
                         class="absolute z-20 text-sm sm:text-base animated-text text-slate-200 top-1/3"
@@ -28,7 +21,7 @@
             <div class="container -mt-[15vh] lg:mt-16">
                 <div class="w-full">
                     <div
-                        class="relative mt-4 overflow-hidden rounded-lg shadow-2xl sm:flex isolate bg-theme-base">
+                        class="relative mt-4 overflow-hidden rounded-lg shadow-2xl sm:flex isolate">
                         <svg
                             viewBox="0 0 1024 1024"
                             class="absolute left-1/2 top-1/2 sm:left-1/4 sm:-translate-y-4 -z-10 size-[64rem] sm:size-[32rem] -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"
@@ -56,7 +49,7 @@
                             </p>
                             <div class="flex items-center justify-center mt-10 gap-x-6">
                                 <router-link
-                                    class="btn bg-theme-primary-base hover:bg-theme-primary-hover px-3.5 py-2.5"
+                                    class="btn hover: px-3.5 py-2.5"
                                     :to="{
                                         name: 'post',
                                         params: {
@@ -90,7 +83,7 @@
                     <img
                         src="https://cdn.yuelili.com/docs/web/assets/anime-girl-dream.jpg"
                         alt=""
-                        class="relative inset-0 object-cover object-top w-full h-full -translate-y-0 sm:h-64 sm:mt-16 -z-10" />
+                        class="relative inset-0 object-cover object-top w-full h-full -translate-y-0 sm:h-64 sm:mt-16 lg:h-[50vh] -z-10" />
                 </div>
                 <div class="flex text-sm text-center shadow-2xl *:pt-2">
                     <div class="border-2 border-r-0 rounded-es-lg basis-1/4">

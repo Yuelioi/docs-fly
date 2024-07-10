@@ -5,11 +5,10 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import VueDevTools from 'vite-plugin-vue-devtools'
 
-import dynamicThemePlugin from './tools/vite-plugin-dynamic-theme'
-
 import Components from 'unplugin-vue-components/vite'
-
 import AutoImport from 'unplugin-auto-import/vite'
+
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,7 +16,6 @@ export default defineConfig({
         vue(),
         vueJsx(),
         VueDevTools(),
-        dynamicThemePlugin(),
         AutoImport({
             dts: 'auto-imports.d.ts',
 
@@ -35,7 +33,6 @@ export default defineConfig({
             dirs: [
                 './src/stores/',
                 './src/services/',
-                './src/utils/**',
                 './src/hooks/**',
                 './src/plugins/*',
                 './src/database/'
@@ -44,6 +41,7 @@ export default defineConfig({
 
         Components({
             dirs: ['src/components'],
+            resolvers: [PrimeVueResolver()],
             extensions: ['vue', 'md'],
             include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
             exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/],
@@ -54,10 +52,7 @@ export default defineConfig({
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',
 
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
-            '@/models': fileURLToPath(new URL('./src/models', import.meta.url)),
-            '@/components': fileURLToPath(new URL('./src/components', import.meta.url)),
-            '@/utils': fileURLToPath(new URL('./src/utils', import.meta.url))
+            '@': fileURLToPath(new URL('./src', import.meta.url))
         }
     },
     css: {

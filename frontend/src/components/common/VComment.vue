@@ -7,7 +7,7 @@
                 cols="30"
                 rows="3"
                 v-model="commentContent"
-                class="w-full px-4 py-3 bg-theme-card rounded-br-md min-h-12"
+                class="w-full px-4 py-3 rounded-br-md min-h-12"
                 :placeholder="poem"></textarea>
         </div>
         <div class="flex mt-2">
@@ -16,21 +16,17 @@
                 <span class="text-sm select-none">{{ nickname }}</span>
                 <BIconArrowClockwise @click="refreshNickname"> </BIconArrowClockwise>
             </div>
-            <button
-                class="px-2 py-0 ml-4 btn bg-theme-primary-base hover:bg-theme-primary-hover"
-                @click="postNewComment">
-                发布
-            </button>
+            <button class="px-2 py-0 ml-4 btn hover:" @click="postNewComment">发布</button>
         </div>
     </div>
 
     <div class="comment-body">
-        <div class="border-b border-theme-text-muted" v-for="comment in comments" :key="comment.id">
+        <div class="border-b" v-for="comment in comments" :key="comment.id">
             <div class="my-4">
                 <div class="flex">
                     <div class="font-bold">{{ comment.nickname }}</div>
                     <div class="ml-4">{{ comment.content }}</div>
-                    <div class="ml-auto text-theme-text-muted">
+                    <div class="ml-auto">
                         {{ formatDate(comment.createdAt) }}
                     </div>
                 </div>
@@ -41,7 +37,7 @@
                     <div class="flex">
                         <div class="font-bold">{{ reply.nickname }}</div>
                         <div class="ml-4">{{ reply.content }}</div>
-                        <div class="ml-auto text-theme-text-muted">
+                        <div class="ml-auto">
                             {{ formatDate(reply.createdAt) }}
                         </div>
                     </div>

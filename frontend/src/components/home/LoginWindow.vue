@@ -19,7 +19,7 @@
                             type="username"
                             autocomplete="username"
                             required
-                            class="px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 bg-theme-base placeholder:text-gray-400 focus:ring-2 focus:ring-inset !focus:ring-indigo-600" />
+                            class="px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset !focus:ring-indigo-600" />
                     </div>
                 </div>
 
@@ -36,7 +36,7 @@
                             type="password"
                             autocomplete="current-password"
                             required
-                            class="bg-theme-base px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-200" />
+                            class="px-4 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-200" />
                     </div>
                 </div>
 
@@ -44,7 +44,7 @@
                     <button
                         type="submit"
                         @click.prevent="login"
-                        class="flex w-full justify-center rounded-md bg-theme-primary-base px-3 py-1.5 text-theme-text-inverse text-sm font-semibold leading-6 shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                         登录
                     </button>
                 </div>

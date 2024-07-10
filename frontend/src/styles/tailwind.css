@@ -4,15 +4,10 @@
 @tailwind screens;
 
 @layer base {
-    :root {
-        --color-primary: 255 115 179;
-        --color-secondary: 111 114 185;
-        /* ... */
-    }
 }
 
 @layer components {
     .btn {
-        @apply rounded-md text-theme-text-inverse text-sm font-semibold shadow-sm focus-visible:outline;
+        @apply rounded-md  text-sm font-semibold shadow-sm focus-visible:outline;
     }
 }

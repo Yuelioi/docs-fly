@@ -36,7 +36,6 @@
     margin-left: -1.75rem;
     font-size: 0.85rem;
     font-weight: normal;
-    color: rgba(88, 96, 105, 0.36);
 }
 
 .main img {
@@ -52,14 +51,6 @@ iframe {
     overflow-x: scroll;
 }
 
-.chroma tr {
-    background: #1e293b;
-}
-
-.chroma pre {
-    color: #e2e4e5;
-}
-
 .chroma table td {
     border: none;
 }
@@ -68,7 +59,6 @@ iframe {
     position: absolute;
     top: -1rem;
     right: 10px;
-    background: #e7e7e7;
     padding: 3px 6px;
     border-radius: 6px;
     font-size: small;
@@ -88,13 +78,11 @@ iframe {
 .chroma tr > td:first-child {
     padding: 1.5rem 0.6rem 0.6rem 0.6rem;
     border: none;
-    border-right: 2px solid #000000;
 }
 
 .chroma tr > td:nth-child(2) {
     padding: 1.5rem 0.6rem 0.6rem 0.75rem;
     border: none;
-    border-left: 2px solid #454545;
 }
 
 .chroma tr > td:nth-child(2) pre {
@@ -103,7 +91,6 @@ iframe {
 
 .chroma tr > td:nth-child(2) pre::before {
     content: attr(data-language);
-    color: rgba(235, 235, 235, 0.38);
     padding: 3px;
     position: absolute;
     top: -1.2rem;

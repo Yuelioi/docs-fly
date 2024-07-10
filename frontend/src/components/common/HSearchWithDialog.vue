@@ -4,36 +4,28 @@
 
         <VDialog v-model:show="showSearchDialog">
             <template #header>
-                <div class="flex items-center justify-between w-full pb-4 mt-4 border-b-2">
+                <div class="flex items-center justify-between w-full">
                     <!-- 书籍设置 -->
-                    <div class="pl-2 select-none">
+                    <div
+                        class="flex relative items-center justify-center text-sm join font-semibold text-center text-nowrap">
+                        <button class="btn btn-sm join-item">分类:</button>
                         <div
-                            class="relative flex items-center justify-center h-10 text-sm font-semibold text-center bg-transparent text-nowrap">
-                            <div class="flex items-center group">
-                                <span class="truncate">{{
-                                    currentOption.name ? currentOption.name : '筛选'
-                                }}</span>
-                                <BIconCaretDown
-                                    v-if="currentOption.name == ''"
-                                    class="ml-1"></BIconCaretDown>
-                                <div
-                                    v-show="currentOption.name.length > 0"
-                                    class="pl-2 text-icon-sm"
-                                    @click="currentOption.name = ''">
-                                    <BIconX></BIconX>
-                                </div>
-                            </div>
+                            class="join-item rounded-md h-8 w-24 flex items-center justify-center group">
+                            <span class="text-sm truncate bg-neutral-content px-2">{{
+                                currentOption.name ? currentOption.name : '选择分类'
+                            }}</span>
+                            <BIconCaretDown class="ml-2"></BIconCaretDown>
 
                             <div
-                                class="duration-300 ease-in-out origin-top-left z-[100] top-[3rem] rounded h-32">
+                                class="absolute top-full left-0 mt-1 scale-0 group-hover:scale-100 transition-transform duration-300 shadow-lg bg-white dark:bg-dark-light z-50">
                                 <ul
-                                    class="overflow-y-scroll text-base scale-0 rounded-md shadow-lg group-hover:scale-100 bg-theme-base dark:bg-dark-light ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                    class="overflow-y-scroll max-h-60 ring-1 ring-neutral ring-opacity-5 focus:outline-none">
                                     <li
                                         v-for="(option, index) in options"
-                                        class="flex items-center px-4 py-3 whitespace-normal last:pb-4 hover:bg-theme-primary-hover hover:rounded-lg"
                                         :key="index"
-                                        @click="select(option)">
-                                        <BIconBook class="mr-2 text-icon-sm"></BIconBook>
+                                        @click="select(option)"
+                                        class="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer">
+                                        <BIconBook class="mr-2 text-sm"></BIconBook>
                                         <span class="w-24 text-sm truncate">{{
                                             option.title
                                         }}</span>
@@ -42,6 +34,7 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- 搜索框 -->
                     <div class="flex items-center">
                         <div class="relative">
@@ -72,13 +65,13 @@
                     </div></div
             ></template>
 
-            <div class="flex items-center justify-center h-[40vh]">
+            <div class="flex items-center justify-center">
                 <transition name="result">
-                    <div v-if="searchResult.length" class="overflow-scroll first:pt-2">
+                    <div v-if="searchResult.length" class="first:pt-2">
                         <div v-for="(data, index) in searchResult" :key="data.url">
                             <div class="p-2">
                                 <div
-                                    class="relative p-4 border-b rounded-lg hover:bg-theme-primary-hover hover:rounded-lg">
+                                    class="relative p-4 border-b rounded-lg hover: hover:rounded-lg">
                                     <a class="relative max-w-[1/2]" v-bind:href="conventLink(data)">
                                         <div class="">
                                             <div class="">
@@ -111,7 +104,6 @@
                 <div v-if="searchResult.length == 0" class="">没有找到任何文章~</div>
             </div>
             <template #footer>
-                底部
                 <div v-if="searchResult.length > 0" class="pt-4 text-center border-t-4">
                     {{ '搜索耗时: ' + searchConsume }}
                 </div></template

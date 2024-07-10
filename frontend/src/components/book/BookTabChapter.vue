@@ -5,7 +5,7 @@
             v-else
             v-for="(chapter, index) in sortedBookDatas"
             :key="index"
-            class="flex items-center px-4 py-2 border-b border-dashed rounded-md hover:bg-theme-card"
+            class="flex items-center px-4 py-2 border-b border-dashed rounded-md hover:"
             :to="{
                 name: 'post',
                 params: {

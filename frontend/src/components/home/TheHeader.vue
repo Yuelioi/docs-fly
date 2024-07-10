@@ -20,9 +20,9 @@
                     <span class="text-sm font-bold cursor-default">{{ nav.metadata.title }}</span>
 
                     <ul
-                        class="absolute top-[4.25rem] z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
+                        class="absolute top-[4.25rem] z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg group-hover:scale-100">
                         <router-link
-                            class="flex items-center w-full px-3 py-2 last:pb-4 last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
+                            class="flex items-center w-full px-3 py-2 last:pb-4 last:hover:rounded-b-lg hover: whitespace-nowrap"
                             v-for="(child, index_item) in sortMeta(nav.children)"
                             :key="index_item"
                             :to="{
@@ -41,12 +41,11 @@
             <!-- # endregion  -->
 
             <!-- # region 手机端右侧菜单 -->
-            <div v-if="width < 576" class="flex ml-auto group">
+            <div v-if="width < 576" class="flex ml-auto group z-50">
                 <BIconList class="text-icon-base"></BIconList>
-                <div
-                    class="absolute top-[4.25rem] right-2 w-24 bg-theme-chapter group-hover:scale-100">
+                <div class="absolute top-[4.25rem] right-2 w-24 group-hover:scale-100 scale-0">
                     <div
-                        class="flex flex-col h-8 items-center m-1 last:rounded-b px-4 py-1 hover:bg-theme-primary-hover group/sub duration-300 ease-in-out origin-top-left bg-theme-base"
+                        class="flex flex-col h-8 items-center m-1 last:rounded-b px-4 py-1 hover: group/sub duration-300 ease-in-out origin-top-left"
                         v-for="(nav, index_nav) in filteredNavs"
                         :key="index_nav">
                         <div class="">
@@ -54,9 +53,9 @@
                         </div>
 
                         <ul
-                            class="group-hover/sub:scale-100 scale-0 bg-theme-chapter absolute right-[100%] top-0 rounded-b-lg">
+                            class="group-hover/sub:scale-100 scale-0 absolute right-[100%] top-0 rounded-b-lg">
                             <router-link
-                                class="flex items-center bg-theme-base m-1 w-32 h-8 px-2 hover:bg-theme-primary-hover"
+                                class="flex items-center m-1 w-32 h-8 px-2 hover:"
                                 v-for="(child, index_item) in sortMeta(nav.children)"
                                 :key="index_item"
                                 :to="{
@@ -76,66 +75,58 @@
             <!-- # endregion-->
 
             <!-- # region PC端右侧菜单 -->
-            <div class="items-center justify-center hidden sm:flex">
+            <div class="items-center justify-center relative hidden sm:flex">
                 <div class="relative flex items-center justify-center h-16 select-none">
-                    <div
-                        class="absolute -mt-2 top-2/4 left-3 text-surface-400 dark:text-surface-600">
+                    <div class="absolute -mt-2 top-2/4 left-3">
                         <BIconSearch></BIconSearch>
                     </div>
                     <span
                         @click.prevent.stop="showSearchDialog = true"
-                        class="flex items-center h-10 pl-10 pr-4 text-sm bg-transparent border-2 rounded-full border-theme-base hover:border-theme-primary">
+                        class="flex items-center h-10 pl-10 pr-4 text-sm bg-transparent border-2 rounded-full hover:">
                         搜索文档...
                     </span>
                 </div>
-                <div class="flex items-center">
-                    <button @click="toggleDark()">
+                <button @click="toggleColorScheme()">
+                    <div class="p-2 ml-2 rounded-lg outline-1 hover:outline">
+                        <BIconSun v-if="isDark"></BIconSun>
+                        <BIconMoonStars v-else></BIconMoonStars>
+                    </div>
+                </button>
+                <div class="flex items-center justify-center">
+                    <div
+                        class="p-2 ml-2 text-lg group/theme rounded-lg outline-1 hover:outline fontsize">
+                        <BIconPalette></BIconPalette>
                         <div
-                            class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline">
-                            <BIconSun v-if="isDark"></BIconSun>
-                            <BIconMoonStars v-else></BIconMoonStars>
+                            class="group-hover/theme:scale-100 scale-0 absolute top-full z-40 rounded-b-lg transition-transform duration-500">
+                            <select
+                                v-model="theme"
+                                class="select select-sm text-base-content text-sm data-choose-theme w-full max-w-xs">
+                                <option :value="_theme" v-for="_theme in themes" :key="_theme">
+                                    {{ _theme }}
+                                </option>
+                            </select>
                         </div>
-                    </button>
-                    <button class="relative h-16 group">
-                        <div
-                            class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline">
-                            <BIconPalette class=""></BIconPalette>
-                            <div
-                                class="absolute top-[calc(100%+4px)] -right-1/2 z-50 duration-300 ease-in-out origin-top-left scale-0 rounded-b-lg bg-theme-card group-hover:scale-100">
-                                <div
-                                    class="w-full px-4 py-2 last:pb-4 last:hover:rounded-b-lg hover:bg-theme-primary-hover whitespace-nowrap"
-                                    v-for="theme in themes"
-                                    @click="switchTheme(theme)"
-                                    :key="theme">
-                                    <span class="">{{ theme }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </button>
+                    </div>
 
                     <button>
                         <router-link :to="{ name: 'star' }" :key="'star'">
-                            <div
-                                class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                            <div class="p-2 ml-2 rounded-lg outline-1 hover:outline fontsize">
                                 <BIconStar></BIconStar>
                             </div>
                         </router-link>
                     </button>
                     <button @click="changeLocale">
-                        <div
-                            class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                        <div class="p-2 ml-2 text-lg rounded-lg outline-1 hover:outline fontsize">
                             <BIconTranslate></BIconTranslate>
                         </div>
                     </button>
                     <button v-if="!isAdmin" @click.prevent.stop="showLoginWindow = true">
-                        <div
-                            class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                        <div class="p-2 ml-2 text-lg rounded-lg outline-1 hover:outline fontsize">
                             <BIconPerson></BIconPerson>
                         </div>
                     </button>
                     <button v-else @click="logout">
-                        <div
-                            class="p-2 ml-2 text-lg rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                        <div class="p-2 ml-2 text-lg rounded-lg outline-1 hover:outline fontsize">
                             <BIconBoxArrowRight></BIconBoxArrowRight>
                         </div>
                     </button>
@@ -150,8 +141,7 @@
     </div>
 
     <!-- # region 手机端底部导航 -->
-    <div
-        class="fixed bottom-0 flex items-center justify-between w-full h-12 mt-12 md:hidden bg-theme-card">
+    <div class="fixed bottom-0 flex items-center justify-between w-full h-12 mt-12 md:hidden">
         <div class="flex items-center justify-around flex-1">
             <div>
                 <a href="#" class="flex flex-col items-center">
@@ -175,7 +165,7 @@
             <button>
                 <router-link :to="{ name: 'star' }" :key="'star'">
                     <div
-                        class="flex flex-col items-center p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                        class="flex flex-col items-center p-2 ml-2 rounded-lg outline-1 hover:outline fontsize">
                         <BIconStar class="text-icon-base"></BIconStar>
                         <span class="text-xs">收藏</span>
                     </div>
@@ -183,14 +173,13 @@
             </button>
             <button v-if="!isAdmin" @click.prevent.stop="showLoginWindow = true">
                 <div
-                    class="flex flex-col items-center p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                    class="flex flex-col items-center p-2 ml-2 rounded-lg outline-1 hover:outline fontsize">
                     <BIconPerson class="text-icon-base"></BIconPerson>
                     <span class="text-xs">登录</span>
                 </div>
             </button>
             <button v-else @click="logout">
-                <div
-                    class="p-2 ml-2 rounded-lg outline-theme-primary outline-1 hover:outline fontsize">
+                <div class="p-2 ml-2 rounded-lg outline-1 hover:outline fontsize">
                     <BIconBoxArrowRight class="text-icon-base"></BIconBoxArrowRight>
                     <span class="text-xs">注销</span>
                 </div>
@@ -206,11 +195,32 @@
 <script setup lang="ts">
 import { Nav } from '@/models/home'
 import { MetaData } from '@/models/base'
+import { useLocalStorage } from '@vueuse/core'
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 
-import { themes, switchTheme } from '@/hooks/useTheme'
+function toggleColorScheme() {
+    const element = document.querySelector('html')
+    element?.classList.toggle('dark')
+    toggleDark()
+}
+
+import { useTheme } from '@/hooks/useTheme'
+
+const theme = useLocalStorage('theme', '')
+const _themes = [
+    'light',
+    'corporate',
+    'lofi',
+    'wireframe',
+    'nord',
+    'dark',
+    'dracula',
+    'dim',
+    'sunset'
+]
+const { themes, switchTheme } = useTheme(_themes)
 
 const route = useRoute()
 const router = useRouter()
@@ -222,15 +232,15 @@ const { width } = useWindowSize()
 import {
     BIconBook,
     BIconBoxArrowRight,
-    BIconMoonStars,
     BIconPerson,
     BIconStar,
-    BIconSun,
     BIconTranslate,
     BIconList,
     BIconSearch,
     BIconHouseHeart,
-    BIconPalette
+    BIconPalette,
+    BIconSun,
+    BIconMoonStars
 } from 'bootstrap-icons-vue'
 const basic = basicStore()
 const { locale, isAdmin } = storeToRefs(basic)
@@ -295,6 +305,10 @@ function sortMeta(data: MetaData[]) {
     })
 }
 
+watch(theme, () => {
+    switchTheme(theme.value)
+})
+
 onMounted(async () => {
     const nav_data = await getDBNav()
     // 验证Nav数据库信息并排序
@@ -311,6 +325,8 @@ onMounted(async () => {
             navs.value = [new Nav()]
         }
     }
+
+    switchTheme(theme.value)
 })
 </script>
 

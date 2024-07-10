@@ -5,7 +5,7 @@
         </div>
         <span
             @click="showSearchDialog = true"
-            class="flex items-center h-10 pl-10 pr-4 text-sm bg-transparent border-2 rounded-full border-theme-base hover:border-theme-primary">
+            class="flex items-center h-10 pl-10 pr-4 text-sm bg-transparent border-2 rounded-full hover:">
             搜索文档...
         </span>
     </div>

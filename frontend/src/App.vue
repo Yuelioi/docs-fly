@@ -1,21 +1,17 @@
-<script setup lang="ts">
-const { theme } = useTheme()
-</script>
-
 <template>
-    <div :class="theme" class="text-sm bg-theme-base text-theme-base border-theme-base">
+    <div class="text-sm">
         <div class="flex flex-col h-lvh">
             <!--  顶部导航栏  -->
-            <div class="border shadow-md border-b-theme-base">
+            <div class="border shadow-md">
                 <TheHeader />
             </div>
 
-            <div class="flex-grow border-2 bg-theme-base border-t-theme-muted">
+            <div class="flex-grow">
                 <router-view></router-view>
             </div>
 
             <!--  页脚  -->
-            <div class="py-4 bg-theme-footer">
+            <div class="pt-4">
                 <!-- 版权申明 -->
                 <TheFooter />
                 <!-- 额外脚本 -->

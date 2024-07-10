@@ -4,7 +4,7 @@
             <img :src="bookStatistic.bookCover" alt="" />
         </div>
         <div class="flex flex-col space-y-6 *:border-b-2 select-none">
-            <div class="border-b-2 border-theme-base">
+            <div class="border-b-2">
                 <BIconBook class="inline-block"></BIconBook>
                 <span class="pl-2">书籍名称: {{ bookStatistic.bookTitle }}</span>
             </div>

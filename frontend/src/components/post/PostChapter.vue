@@ -13,9 +13,7 @@
                     </a>
                     <a
                         @click="(currentPage = 1), (isNavCollapsed = true)"
-                        :class="
-                            currentPage == 1 ? 'bg-theme-primary-hover text-theme-text-inverse' : ''
-                        "
+                        :class="currentPage == 1 ? ' ' : ''"
                         class="relative inline-flex items-center px-4 py-2 text-sm font-semibold select-none ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
                         >1</a
                     >
@@ -23,7 +21,7 @@
                         :class="
                             currentPage != 1 &&
                             currentPage != Math.ceil(chaptersData.length / virtual_limit_length)
-                                ? 'bg-theme-primary-hover text-theme-text-inverse'
+                                ? ' '
                                 : ''
                         "
                         class="relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 ring-1 ring-inset ring-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -37,7 +35,7 @@
                     <a
                         :class="
                             currentPage == Math.ceil(chaptersData.length / virtual_limit_length)
-                                ? 'bg-theme-primary-hover text-theme-text-inverse'
+                                ? ' '
                                 : ''
                         "
                         @click="
@@ -87,8 +85,8 @@
                             }"
                             :data-index="chapter.id"
                             :key="chapter.metadata.url"
-                            class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 text-theme-text-base hover:rounded dark:hover:bg-slate-800">
-                            <h5 class="mb-2 text-lg select-none text-theme-text-base">
+                            class="hover:border-slate-800 hover:pr-8 hover:bg-slate-300 dark:hover:border-slate-700 hover:rounded dark:hover:bg-slate-800">
+                            <h5 class="mb-2 text-lg select-none">
                                 {{ chapter.metadata.title }}
                             </h5></router-link
                         >
@@ -106,7 +104,7 @@
                                 }
                             }"
                             :key="chapter.metadata.url">
-                            <h5 class="mb-4 text-lg font-bold text-theme-text-base">
+                            <h5 class="mb-4 text-lg font-bold">
                                 {{ chapter_index + 1 + '. ' + chapter.metadata.title }}
                             </h5>
                         </router-link>
@@ -139,7 +137,7 @@
                                                 }
                                             }"
                                             :key="chapter_index + document_index"
-                                            class="pl-6 -ml-px hover:bg-theme-card hover:pl-7 hover:pr-4 hover:border-theme-primary hover:border-l-4"
+                                            class="pl-6 -ml-px hover: hover:pl-7 hover:pr-4 hover: hover:border-l-4"
                                             ><span>
                                                 {{
                                                     addZero(document_index + 1, 2) +
@@ -163,7 +161,7 @@
                                             }
                                         }"
                                         :key="chapter_index + document_index"
-                                        class="pl-4 -ml-px hover:bg-theme-card hover:pl-3.5 hover:pr-4 hover:border-theme-primary hover:border-l-4"
+                                        class="pl-4 -ml-px hover: hover:pl-3.5 hover:pr-4 hover: hover:border-l-4"
                                         @click.stop
                                         ><span>{{
                                             addZero(document_index + 1, 2) + '. ' + document.title

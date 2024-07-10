@@ -1,14 +1,14 @@
 <template>
     <div class="w-1/2 ml-[25%]">
         <div class="mx-2 my-8">
-            <div class="px-4 py-4 rounded-md bottom-2 bg-theme-warn-base">
+            <div class="px-4 py-4 rounded-md bottom-2">
                 注意, 此收藏夹存于本地浏览器, 请勿删除浏览器数据
             </div>
         </div>
 
         <ul role="list" class="mt-8 divide-y">
             <router-link
-                class="flex justify-between px-4 py-4 my-4 rounded gap-x-6 hover:bg-theme-primary-hover"
+                class="flex justify-between px-4 py-4 my-4 rounded gap-x-6 hover:"
                 v-for="(star, index) in stars"
                 :key="star.createdTime.toString()"
                 :to="{

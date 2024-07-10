@@ -83,35 +83,8 @@ html ::-webkit-scrollbar-track {
 h1,
 h2 {
     padding-bottom: 0.3em;
-    border-bottom: 1px solid #eaecef;
-}
-
-hr {
-    background-color: #eaecef;
-}
-
-blockquote {
-    color: #6a737d;
-    border-left: 0.25em solid #eaecef;
-}
-
-iframe {
-    border: 1px solid #d1d5da;
-}
-
-table tr {
-    background-color: #fafbfc;
-}
-
-table td,
-.vditor-reset table th {
-    border: 1px solid #dfe2e5;
 }
 
 td {
     padding: 0.6rem;
-}
-
-table tbody tr:nth-child(2n) {
-    background-color: #fff;
 }

@@ -1,17 +1,7 @@
 <template>
     <div class="flex pb-4 toolbar">
-        <button
-            type="button"
-            class="px-3 py-1 ml-auto btn bg-theme-primary-base hover:bg-theme-primary-hover"
-            @click="updateMeta">
-            更新
-        </button>
-        <button
-            type="button"
-            class="px-3 py-1 ml-3 btn bg-theme-primary-base hover:bg-theme-primary-hover"
-            @click="saveMeta">
-            保存
-        </button>
+        <button type="button" class="px-3 py-1 ml-auto btn hover:" @click="updateMeta">更新</button>
+        <button type="button" class="px-3 py-1 ml-3 btn hover:" @click="saveMeta">保存</button>
     </div>
     <div>
         <table class="w-full border-collapse table-auto">
