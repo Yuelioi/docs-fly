@@ -23,31 +23,9 @@ func ConvertFilepathToURL(filepath string) string {
 	return cleanedPath
 }
 
-// 查询字符串列表是否在字符串内
-func StringsInside(arr []string, query string) bool {
-	for _, cur := range arr {
-		if strings.Contains(query, cur) {
-			return true
-		}
-	}
-	return false
-}
-
 // 反斜杠改为正斜杠
 func ReplaceSlash(input string) string {
 	return strings.ReplaceAll(input, "\\", "/")
-}
-
-// 类型转换, 如果失败就用零值
-func Transform[T any](data any) T {
-
-	if value, ok := data.(T); ok {
-		// 如果转换成功，返回转换后的值
-		return value
-	}
-	// 如果转换失败，使用类型的零值
-	var zeroValue T
-	return zeroValue
 }
 
 func IsZeroType(data interface{}) bool {

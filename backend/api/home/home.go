@@ -1,10 +1,8 @@
-package handlers
-
-// HomePage
+package home
 
 import (
+	"docsfly/common"
 	"docsfly/models"
-	"docsfly/utils"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,7 +14,7 @@ import (
 
 // 获取顶部导航栏信息
 func GetNav(c *gin.Context) {
-	clientTime := currentTime()
+	clientTime := time.Now()
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -28,12 +26,12 @@ func GetNav(c *gin.Context) {
 	var books []models.Entry
 	var navs []Nav
 
-	if err := db.Scopes(BasicModel, FindCategory, FindFolder).Find(&cats).Error; err != nil {
-		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed to retrieve categories")
+	if err := db.Scopes(common.BasicModel, common.FindCategory, common.FindFolder).Find(&cats).Error; err != nil {
+		common.SendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed to retrieve categories")
 		return
 	}
-	if err := db.Scopes(BasicModel, FindBook, FindFolder).Find(&books).Error; err != nil {
-		sendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed to retrieve books")
+	if err := db.Scopes(common.BasicModel, common.FindBook, common.FindFolder).Find(&books).Error; err != nil {
+		common.SendErrorResponse(c, http.StatusInternalServerError, clientTime, "Failed to retrieve books")
 		return
 	}
 
@@ -47,11 +45,11 @@ func GetNav(c *gin.Context) {
 		}
 		navs = append(navs, nav)
 	}
-	sendSuccessResponse(c, clientTime, navs)
+	common.SendSuccessResponse(c, clientTime, navs)
 }
 
 func GetStatisticHome(c *gin.Context) {
-	clientTime := currentTime()
+	clientTime := time.Now()
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -66,8 +64,8 @@ func GetStatisticHome(c *gin.Context) {
 		TodayVisitorCount      int64
 	)
 
-	db.Scopes(BasicModel, FindBook, FindFolder).Count(&BooksCount)
-	db.Scopes(BasicModel, FindFile).Count(&DocumentsCount)
+	db.Scopes(common.BasicModel, common.FindBook, common.FindFolder).Count(&BooksCount)
+	db.Scopes(common.BasicModel, common.FindFile).Count(&DocumentsCount)
 
 	db.Model(models.Visitor{}).Count(&HistoricalVisitorCount)
 
@@ -81,12 +79,12 @@ func GetStatisticHome(c *gin.Context) {
 		HistoricalVisitorCount: HistoricalVisitorCount,
 		TodayVisitorCount:      TodayVisitorCount,
 	}
-	sendSuccessResponse(c, clientTime, statistic)
+	common.SendSuccessResponse(c, clientTime, statistic)
 
 }
 
 func Query(c *gin.Context) {
-	clientTime := currentTime()
+	clientTime := time.Now()
 
 	dbContext, exists := c.Get("db")
 	if !exists {
@@ -121,17 +119,17 @@ func Query(c *gin.Context) {
 	var results []SearchData
 
 	// 根据查询条件获取结果
-	query := db.Scopes(BasicModel)
+	query := db.Scopes(common.BasicModel)
 	if bookPath != "" {
-		query = query.Scopes(HasPrefixUrlPath(bookPath))
+		query = query.Scopes(common.HasPrefixUrlPath(bookPath))
 	}
 
 	// 获取总查询结果
 	query = query.Where("content LIKE ?", "%"+keyword+"%")
-	query.Scopes(BasicModel).Count(&totalCount)
+	query.Scopes(common.BasicModel).Count(&totalCount)
 
 	if totalCount == 0 {
-		sendErrorResponsePageData(c, http.StatusNotFound, clientTime, totalCount, page, pageSize, "No documents found")
+		common.SendErrorResponsePageData(c, http.StatusNotFound, clientTime, totalCount, page, pageSize, "No documents found")
 		return
 	}
 
@@ -140,7 +138,7 @@ func Query(c *gin.Context) {
 	query.Find(&documents)
 
 	if int64(offset) > totalCount {
-		sendErrorResponsePageData(c, http.StatusBadRequest, time.Now(), totalCount, page, pageSize, "Query result exceeds maximum value")
+		common.SendErrorResponsePageData(c, http.StatusBadRequest, time.Now(), totalCount, page, pageSize, "Query result exceeds maximum value")
 		return
 	}
 
@@ -173,14 +171,14 @@ func Query(c *gin.Context) {
 
 		nearbyText := string(runeText)
 
-		cat, book, locale, ok := utils.Filepath2Params(document.Filepath)
+		cat, book, locale, ok := filepath2Params(document.Filepath)
 
 		if ok {
 
 			var catTitle string
 			var bookTitle string
-			db.Scopes(BasicModel, MatchUrlPath(cat)).Select("title").Scan(&catTitle)
-			db.Scopes(BasicModel, MatchUrlPath(cat+"/"+book)).Select("title").Scan(&bookTitle)
+			db.Scopes(common.BasicModel, common.MatchUrlPath(cat)).Select("title").Scan(&catTitle)
+			db.Scopes(common.BasicModel, common.MatchUrlPath(cat+"/"+book)).Select("title").Scan(&bookTitle)
 
 			dsData := SearchData{
 				Index:         offset + i + 1,
@@ -197,9 +195,9 @@ func Query(c *gin.Context) {
 	}
 
 	if len(results) == 0 {
-		sendErrorResponsePageData(c, http.StatusNotFound, clientTime, totalCount, page, pageSize, "Keyword Match Error")
+		common.SendErrorResponsePageData(c, http.StatusNotFound, clientTime, totalCount, page, pageSize, "Keyword Match Error")
 		return
 	}
 
-	sendSuccessResponsePageData(c, clientTime, results, totalCount, page, pageSize)
+	common.SendSuccessResponsePageData(c, clientTime, results, totalCount, page, pageSize)
 }

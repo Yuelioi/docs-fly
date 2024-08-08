@@ -3,7 +3,6 @@ package database
 import (
 	"docsfly/global"
 	"docsfly/models"
-	"docsfly/utils"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +19,7 @@ import (
 //
 //	db *gorm.DB - 数据库连接对象
 func CreateAdminAccount(db *gorm.DB) {
-	hashedPassword, err := utils.HashPassword(global.AppConfig.Password)
+	hashedPassword, err := HashPassword(global.AppConfig.Password)
 	if err != nil {
 		fmt.Println("初始化管理员数据失败")
 		return
@@ -29,6 +29,14 @@ func CreateAdminAccount(db *gorm.DB) {
 		Password: hashedPassword,
 	}
 	db.Create(&userData)
+}
+
+func HashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
 }
 
 // WriteContentToDocsData 读取Markdown内容并保存回文档Document{}数据

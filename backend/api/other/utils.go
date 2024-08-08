@@ -1,131 +1,11 @@
-package handlers
+package other
 
 import (
-	"docsfly/models"
 	"math/rand"
-	"net/http"
-	"regexp"
 	"strings"
-	"sync"
-	"time"
-
-	"github.com/gin-gonic/gin"
-	extractor "github.com/huantt/plaintext-extractor"
-	"gorm.io/gorm"
 )
 
-func currentTime() time.Time {
-	return time.Now()
-}
-
-func sendSuccessResponse(c *gin.Context, clientTime time.Time, data interface{}) {
-	c.JSON(http.StatusOK, models.ResponseBasicData{
-		ClientTime: clientTime,
-		IP:         c.ClientIP(),
-		ServerTime: time.Now(),
-		StatusCode: http.StatusOK,
-		Data:       data,
-	})
-}
-
-func sendErrorResponse(c *gin.Context, statusCode int, clientTime time.Time, errMessage string) {
-
-	c.JSON(statusCode, models.ResponseBasicData{
-		ClientTime: clientTime,
-		IP:         c.ClientIP(),
-		ServerTime: time.Now(),
-		StatusCode: statusCode,
-		Data:       gin.H{"error": errMessage},
-	})
-	c.Abort()
-}
-
-func sendSuccessResponsePageData(c *gin.Context, clientTime time.Time, data interface{}, totalCount int64, page, pageSize int) {
-	c.JSON(http.StatusOK, models.ResponsePageData{
-		ClientTime: clientTime,
-		IP:         c.ClientIP(),
-		ServerTime: time.Now(),
-		StatusCode: http.StatusOK,
-		TotalCount: totalCount,
-		Page:       page,
-		PageSize:   pageSize,
-		Data:       data,
-	})
-}
-
-func sendErrorResponsePageData(c *gin.Context, statusCode int, clientTime time.Time, totalCount int64, page, pageSize int, errMessage string) {
-	c.JSON(statusCode, models.ResponsePageData{
-		ClientTime: clientTime,
-		IP:         c.ClientIP(),
-		ServerTime: time.Now(),
-		StatusCode: statusCode,
-		TotalCount: totalCount,
-		Page:       page,
-		PageSize:   pageSize,
-		Data:       gin.H{"error": errMessage},
-	})
-}
-
-func getFilepathByURL(db *gorm.DB, url string) string {
-	var filepath string
-	db.Model(models.Entry{}).Where("url = ?", url).Select("filepath").Scan(&filepath)
-	return filepath
-}
-
-func getCategoryAndBookByUrl(url string) (string, string) {
-	urlList := strings.Split(url, "/")
-	if len(urlList) < 2 {
-		return "", ""
-	}
-
-	return urlList[0], urlList[1]
-
-}
-
-// 根据关键词获取对应索引
-func indexOfKeywordInRuneSlice(runeSlice []rune, keyword string) int {
-	key := []rune(keyword)
-
-	for idx := range runeSlice {
-		// 检查索引范围，确保关键词不会超出切片边界
-		if idx+len(key) > len(runeSlice) {
-			break
-		}
-
-		if string(runeSlice[idx:idx+len(key)]) == keyword {
-			return idx
-		}
-	}
-	return -1
-}
-
-// 提取纯文本数据 过滤掉符号
-func extractPlainText(markdownContent string) (output *string, err error) {
-	extractor := extractor.NewMarkdownExtractor()
-	output, err = extractor.PlainText(markdownContent)
-
-	if err != nil {
-		return
-	}
-
-	var w sync.WaitGroup
-
-	w.Add(1)
-
-	go func() {
-		toReplaces := []string{"(\n\\s)+", "-", "\\|", "#", " ", "\t", "\r", "\n", "<iframe[^>]*>.*?</iframe>"}
-		for _, toReplace := range toReplaces {
-			re := regexp.MustCompile(toReplace)
-			*output = re.ReplaceAllString(*output, " ")
-		}
-		w.Done()
-	}()
-
-	w.Wait()
-	return output, nil
-}
-
-func RndName() string {
+func rndName() string {
 
 	el1 := []string{"废墟", "深海", "反应堆", "学园", "腐烂", "东京", "三维", "四次元", "少管所", "流星", "闪光", "南极", "消极", "幽浮", "网路", "暗狱", "离子态", "液态", "黑色", "抱抱", "暴力", "垃圾", "残暴", "残酷", "工口", "原味", "毛茸茸", "香香", "霹雳", "午夜", "美工刀", "爆浆", "机关枪", "无响应", "手术台", "麻风病", "虚拟", "速冻", "智能", "2000", "甜味", "华丽", "玛利亚", "无", "梦之", "蔷薇", "无政府", "酷酷", "西伯利亚", "人造", "法外", "追杀", "通缉", "女子", "微型", "男子", "超", "毁灭", "大型", "绝望", "阴间", "死亡", "坟场", "高科技", "奇妙", "魔法", "极限", "社会主义", "无聊"}
 	el2 := []string{"小丑", "仿生", "纳米", "原子", "丧", "电子", "十字架", "咩咩", "赛博", "野猪", "外星", "窒息", "变态", "触手", "小众", "悲情", "飞行", "绿色", "电动", "铁锈", "碎尸", "电音", "蠕动", "酸甜", "虚构", "乱码", "碳水", "内脏", "脑浆", "血管", "绷带", "不合格", "光滑", "标本", "酸性", "碱性", "404", "变身", "反常", "樱桃", "碳基", "矫情", "病娇", "进化", "潮湿", "砂糖", "高潮", "变异", "复合盐", "伏特加", "抑郁", "暴躁", "不爱说话", "废物", "失败", "幻想型", "社恐", "苦涩", "粘液", "浓厚", "快乐", "强制", "中二病", "恶魔", "emo", "激光", "发射", "限量版", "迷因", "堕落", "放射性"}
@@ -140,7 +20,7 @@ func RndName() string {
 
 }
 
-func RndPoem() string {
+func rndPoem() string {
 
 	poems := []string{
 		"醉后不知天在水，满船清梦压星河。",

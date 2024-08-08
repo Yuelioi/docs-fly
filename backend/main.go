@@ -4,13 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"docsfly/global"
-	"docsfly/routes"
+	"docsfly/router"
 )
 
 func main() {
 
 	engine := gin.Default()
-	routes.SetupRouter(engine)
+	router.SetupRouter(engine)
 	engine.Run(":" + global.AppConfig.Addr)
 
 }

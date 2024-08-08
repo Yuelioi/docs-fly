@@ -1,4 +1,4 @@
-package routes
+package router
 
 import (
 	"docsfly/database"
@@ -29,6 +29,7 @@ func DecodeQueryParams() gin.HandlerFunc {
 	}
 }
 
+// 连接数据库
 func DBMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := database.DbManager.Connect()

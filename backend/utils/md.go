@@ -37,6 +37,18 @@ func ReadMd(filepath string) ([]byte, error) {
 	return mdBytes, nil
 }
 
+// 类型转换, 如果失败就用零值
+func transform[T any](data any) T {
+
+	if value, ok := data.(T); ok {
+		// 如果转换成功，返回转换后的值
+		return value
+	}
+	// 如果转换失败，使用类型的零值
+	var zeroValue T
+	return zeroValue
+}
+
 // 读取Markdown文件的Meta信息
 func ReadMarkdownMeta(path string, info os.FileInfo, order uint) (metadata *models.MetaData, err error) {
 
@@ -60,10 +72,10 @@ func ReadMarkdownMeta(path string, info os.FileInfo, order uint) (metadata *mode
 	metaReader := meta.Get(context)
 
 	metadata = &models.MetaData{
-		Name:   Transform[string](metaReader["Name"]),
-		Title:  Transform[string](metaReader["Title"]),
-		Order:  Transform[uint](metaReader["Order"]),
-		Status: Transform[uint](metaReader["Status"]),
+		Name:   transform[string](metaReader["Name"]),
+		Title:  transform[string](metaReader["Title"]),
+		Order:  transform[uint](metaReader["Order"]),
+		Status: transform[uint](metaReader["Status"]),
 	}
 	return metadata, nil
 }
