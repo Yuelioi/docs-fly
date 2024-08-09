@@ -15,7 +15,7 @@ import (
 type AuthRouter struct{}
 
 func (ar *AuthRouter) Register(engine *gin.Engine) {
-	engine.POST("/"+global.AppConfig.APIVersion+"/auth/login", ar.LoginAuth)
+	engine.POST("/"+global.AppConfig.AppConfig.ApiVersion+"/auth/login", ar.LoginAuth)
 
 }
 

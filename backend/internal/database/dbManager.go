@@ -26,6 +26,12 @@ type SQLiteManager struct {
 	Db     *gorm.DB
 }
 
+var DbManager *SQLiteManager
+
+func init() {
+	DbManager = NewSQLiteManager(global.AppConfig.DBConfig.Database)
+}
+
 func NewSQLiteManager(dbFile string) *SQLiteManager {
 	sqlManager := SQLiteManager{DbFile: dbFile}
 
@@ -80,7 +86,7 @@ func (m *SQLiteManager) Connect() (*gorm.DB, error) {
 
 	var logLevel logger.LogLevel
 
-	switch global.AppConfig.LogLevel {
+	switch global.AppConfig.DBConfig.LogLevel {
 	case "silent":
 		logLevel = logger.Silent
 	case "error":
@@ -126,5 +132,3 @@ func (m *SQLiteManager) Connect() (*gorm.DB, error) {
 	m.Db = db
 	return db, nil
 }
-
-var DbManager = NewSQLiteManager(global.AppConfig.Database)

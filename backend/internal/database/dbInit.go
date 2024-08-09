@@ -48,7 +48,7 @@ type MetaMaps struct {
 // 初始化管理员信息 √
 func initAdminAccount(db *gorm.DB) {
 	var user models.User
-	db.Model(models.User{}).Where("username =?", global.AppConfig.Username).Find(&user)
+	db.Model(models.User{}).Where("username =?", global.AppConfig.DBConfig.Username).Find(&user)
 
 	if user.ID == 0 {
 		CreateAdminAccount(db)
@@ -100,7 +100,7 @@ func initLocalStore(metaMaps *MetaMaps, relative_path, relative_parent, parent s
 	if _, exists := metaMaps.Local.Maps[relative_parent]; !exists {
 
 		// 不存在就从本地读取
-		if err := utils.ReadJson(filepath.Join(parent, global.AppConfig.MetaFile), &local_MetasCache); err == nil {
+		if err := utils.ReadJson(filepath.Join(parent, global.AppConfig.DBConfig.MetaFile), &local_MetasCache); err == nil {
 			// 本地有直接写入 但是要防止零值
 			if local_MetasCache.Categories != nil {
 				for _, cat := range local_MetasCache.Categories {
@@ -216,7 +216,7 @@ func DBInit(db *gorm.DB) error {
 	// 数据库数据汇总
 	var dbDatas *DBDatas
 
-	root = utils.ReplaceSlash(global.AppConfig.Resource)
+	root = utils.ReplaceSlash(global.AppConfig.DBConfig.Resource)
 
 	// 写入管理员数据
 	initAdminAccount(db)

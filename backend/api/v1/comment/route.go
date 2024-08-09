@@ -10,6 +10,6 @@ type CommentRouter struct {
 }
 
 func (cr *CommentRouter) Register(engine *gin.Engine) {
-	engine.GET("/"+global.AppConfig.APIVersion+"/comment", GetComments)
-	engine.POST("/"+global.AppConfig.APIVersion+"/comment", SendComment)
+	engine.GET("/"+global.AppConfig.AppConfig.ApiVersion+"/comment", GetComments)
+	engine.POST("/"+global.AppConfig.AppConfig.ApiVersion+"/comment", SendComment)
 }

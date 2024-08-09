@@ -155,7 +155,7 @@ func BookMeta(c *gin.Context) {
 		return
 	}
 
-	metaPath := global.AppConfig.Resource + "/" + filePath + "/" + global.AppConfig.MetaFile
+	metaPath := global.AppConfig.DBConfig.Resource + "/" + filePath + "/" + global.AppConfig.DBConfig.MetaFile
 
 	var data map[string]interface{}
 	err := utils.ReadJson(metaPath, &data)
@@ -199,7 +199,7 @@ func UpdateBookMeta(c *gin.Context) {
 	filepath := getFilepathByURL(db, bookPath+"/"+locale)
 
 	// 保存meta.json
-	metapath := global.AppConfig.Resource + "/" + filepath + "/" + global.AppConfig.MetaFile
+	metapath := global.AppConfig.DBConfig.Resource + "/" + filepath + "/" + global.AppConfig.DBConfig.MetaFile
 	err = utils.WriteJson(metapath, metas)
 	if err != nil {
 		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Failed Save Data")

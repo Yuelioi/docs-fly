@@ -64,7 +64,7 @@ func VisitorInsertLog(c *gin.Context) {
 }
 
 func GetAppVersion(c *gin.Context) {
-	common.Responser.Success(c, time.Now(), global.AppConfig.AppVersion)
+	common.Responser.Success(c, time.Now(), global.AppConfig.AppConfig.AppVersion)
 }
 
 func GetRndName(c *gin.Context) {

@@ -123,9 +123,9 @@ func SavePost(c *gin.Context) {
 	var documentPath string
 
 	if documentInfo.IsDir {
-		documentPath = global.AppConfig.Resource + "/" + documentInfo.Filepath + "/" + "README.md"
+		documentPath = global.AppConfig.DBConfig.Resource + "/" + documentInfo.Filepath + "/" + "README.md"
 	} else {
-		documentPath = global.AppConfig.Resource + "/" + documentInfo.Filepath
+		documentPath = global.AppConfig.DBConfig.Resource + "/" + documentInfo.Filepath
 
 	}
 

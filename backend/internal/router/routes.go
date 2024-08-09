@@ -7,6 +7,7 @@ import (
 	"docsfly/api/v1/home"
 	"docsfly/api/v1/other"
 	"docsfly/api/v1/post"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,5 +32,5 @@ func registerRoutes(engine *gin.Engine) {
 		&other.OtherRouter{},
 		&post.BookRouter{},
 	)
-
+	log.Println("路由注册成功")
 }

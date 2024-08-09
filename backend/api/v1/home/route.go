@@ -10,7 +10,7 @@ type HomeRouter struct {
 }
 
 func (HomeRouter) Register(engine *gin.Engine) {
-	engine.GET("/"+global.AppConfig.APIVersion+"/nav", GetNav)
-	engine.GET("/"+global.AppConfig.APIVersion+"/statistic/home", GetStatisticHome)
-	engine.GET("/"+global.AppConfig.APIVersion+"/query", Query)
+	engine.GET("/"+global.AppConfig.AppConfig.ApiVersion+"/nav", GetNav)
+	engine.GET("/"+global.AppConfig.AppConfig.ApiVersion+"/statistic/home", GetStatisticHome)
+	engine.GET("/"+global.AppConfig.AppConfig.ApiVersion+"/query", Query)
 }
