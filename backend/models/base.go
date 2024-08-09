@@ -15,6 +15,6 @@ type MetaData struct {
 
 // 本地显示信息
 type MetaDatas struct {
-	Documents []MetaData `json:"documents"`
-	Categorys []MetaData `json:"categorys"`
+	Documents  []MetaData `json:"documents"`
+	Categories []MetaData `json:"categories"`
 }

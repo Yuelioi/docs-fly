@@ -13,7 +13,7 @@ export class MetaData {
 
 export class LocalMetaDatas {
     documents: MetaData[] = []
-    categorys: MetaData[] = []
+    categories: MetaData[] = []
 }
 
 export class ResponseData {

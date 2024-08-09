@@ -14,7 +14,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="*:px-4 *:py-2" v-for="meta in metas.categorys" :key="meta.url">
+                <tr class="*:px-4 *:py-2" v-for="meta in metas.categories" :key="meta.url">
                     <td>
                         <input type="text" class="bg-transparent" disabled v-model="meta.name" />
                     </td>
