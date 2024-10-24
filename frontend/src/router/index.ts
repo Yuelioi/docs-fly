@@ -3,8 +3,9 @@ import Home from '@/pages/HomePage.vue'
 import Post from '@/pages/PostPage.vue'
 import Book from '@/pages/BookPage.vue'
 import PostStar from '@/pages/PostStar.vue'
-import Intro from '@/pages/IntroPage.vue'
+import Search from '@/pages/SearchPage.vue'
 import NotFound from '@/pages/NotFound.vue'
+import BooksPage from '@/pages/BooksPage.vue'
 
 const routes = [
     {
@@ -12,11 +13,15 @@ const routes = [
         name: 'home',
         component: Home
     },
-
     {
         path: '/book/:bookPath+',
         name: 'book',
         component: Book
+    },
+    {
+        path: '/books/',
+        name: 'books',
+        component: BooksPage
     },
     {
         path: '/star',
@@ -24,9 +29,9 @@ const routes = [
         component: PostStar
     },
     {
-        path: '/intro',
-        name: 'intro',
-        component: Intro
+        path: '/search',
+        name: 'search',
+        component: Search
     },
     {
         path: '/post/:postPath+',

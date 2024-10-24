@@ -1,0 +1,14 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  update package:
+    cmds:
+      - npx npm-check-updates -u
+  dev:
+    cmds:
+      - pnpm dev

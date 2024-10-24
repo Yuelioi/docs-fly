@@ -8,7 +8,8 @@ import VueDevTools from 'vite-plugin-vue-devtools'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 
-import { PrimeVueResolver } from '@primevue/auto-import-resolver'
+import IconsResolver from 'unplugin-icons/resolver'
+import Icons from 'unplugin-icons/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -30,6 +31,7 @@ export default defineConfig({
                     type: true
                 }
             ],
+
             dirs: [
                 './src/stores/',
                 './src/services/',
@@ -41,17 +43,19 @@ export default defineConfig({
 
         Components({
             dirs: ['src/components'],
-            resolvers: [PrimeVueResolver()],
             extensions: ['vue', 'md'],
             include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
             exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/],
             dts: 'components.d.ts'
+        }),
+        Icons({
+            compiler: 'vue3',
+            autoInstall: true
         })
     ],
     resolve: {
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',
-
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
     },
