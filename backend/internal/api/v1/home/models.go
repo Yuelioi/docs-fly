@@ -1,6 +1,6 @@
 package home
 
-import "docsfly/models"
+import "docsfly/internal/models"
 
 type SearchResult struct {
 	SearchTime string       `json:"search_time"`

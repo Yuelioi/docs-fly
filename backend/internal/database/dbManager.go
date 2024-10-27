@@ -4,7 +4,7 @@ package database
 
 import (
 	"docsfly/internal/global"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"fmt"
 	"log"
 	"os"

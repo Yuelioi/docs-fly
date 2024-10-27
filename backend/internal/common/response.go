@@ -1,7 +1,7 @@
 package common
 
 import (
-	"docsfly/models"
+	"docsfly/internal/models"
 	"net/http"
 	"time"
 

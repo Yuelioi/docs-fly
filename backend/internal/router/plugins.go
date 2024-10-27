@@ -2,7 +2,7 @@ package router
 
 import (
 	"docsfly/internal/database"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"net/http"
 	"net/url"
 	"time"
@@ -47,7 +47,6 @@ func DBMiddleware() gin.HandlerFunc {
 		}
 
 		c.Set("db", db)
-
 		c.Next()
 	}
 }

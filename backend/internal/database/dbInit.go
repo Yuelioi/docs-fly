@@ -2,7 +2,7 @@ package database
 
 import (
 	"docsfly/internal/global"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"docsfly/pkg/utils"
 	"errors"
 	"fmt"

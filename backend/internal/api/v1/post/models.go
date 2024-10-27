@@ -1,6 +1,6 @@
 package post
 
-import "docsfly/models"
+import "docsfly/internal/models"
 
 type PostResponseBasicData struct {
 	ContentMarkdown string `json:"content_markdown"`

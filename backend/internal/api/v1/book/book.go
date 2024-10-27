@@ -3,7 +3,7 @@ package book
 import (
 	"docsfly/internal/common"
 	"docsfly/internal/global"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"docsfly/pkg/utils"
 	"encoding/json"
 	"net/http"

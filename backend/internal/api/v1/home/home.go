@@ -2,7 +2,7 @@ package home
 
 import (
 	"docsfly/internal/common"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"net/http"
 	"strconv"
 	"strings"

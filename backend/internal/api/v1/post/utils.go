@@ -2,7 +2,7 @@ package post
 
 import (
 	"bytes"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"encoding/json"
 	"fmt"
 	"strings"

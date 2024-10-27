@@ -2,7 +2,7 @@ package comment
 
 import (
 	"docsfly/internal/common"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"net/http"
 	"time"
 

@@ -1,7 +1,7 @@
 package common
 
 import (
-	"docsfly/models"
+	"docsfly/internal/models"
 
 	"gorm.io/gorm"
 )

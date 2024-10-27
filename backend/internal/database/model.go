@@ -1,7 +1,7 @@
 package database
 
 import (
-	"docsfly/models"
+	"docsfly/internal/models"
 )
 
 type LocalMetaDatasCache struct {

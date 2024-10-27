@@ -3,7 +3,7 @@ package other
 import (
 	"docsfly/internal/common"
 	"docsfly/internal/global"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"encoding/json"
 	"fmt"
 	"io"

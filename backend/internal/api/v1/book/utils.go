@@ -1,7 +1,7 @@
 package book
 
 import (
-	"docsfly/models"
+	"docsfly/internal/models"
 	"strings"
 	"sync"
 

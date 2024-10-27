@@ -1,0 +1,24 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  update package:
+    dir: frontend
+    cmds:
+      - npx npm-check-updates -u
+  front dev:
+    dir: backend
+    cmds:
+      - pnpm dev
+  backend dev:
+    dir: backend
+    cmds:
+      - go run
+  test:
+    dir: backend/test
+    cmds:
+      - go run .

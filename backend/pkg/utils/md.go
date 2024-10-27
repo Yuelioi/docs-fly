@@ -2,7 +2,7 @@ package utils
 
 import (
 	"bytes"
-	"docsfly/models"
+	"docsfly/internal/models"
 	"fmt"
 	"html/template"
 	"os"

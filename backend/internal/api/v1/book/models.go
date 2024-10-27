@@ -1,6 +1,6 @@
 package book
 
-import "docsfly/models"
+import "docsfly/internal/models"
 
 type BookData struct {
 	Url      string          `json:"url"`
