@@ -1,9 +1,33 @@
-package other
+package controllers
 
 import (
-	"math/rand"
+	"docsfly/internal/common"
+	"docsfly/internal/config"
+	"docsfly/internal/models"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"strings"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/rand"
+	"gorm.io/gorm"
 )
+
+type OtherController struct{}
+
+func (*OtherController) Register(engine *gin.Engine) {
+	engine.POST("/"+config.Instance.App.ApiVersion+"/ip", VisitorInsertLog)
+
+	engine.GET("/"+config.Instance.App.ApiVersion+"/app/version", GetAppVersion)
+	engine.GET("/"+config.Instance.App.ApiVersion+"/rand/nickname", GetRndName)
+	engine.GET("/"+config.Instance.App.ApiVersion+"/rand/poem", GetRndPoem)
+	engine.GET("/"+config.Instance.App.ApiVersion+"/rand/post", GetRndPost)
+
+	engine.GET("/"+config.Instance.App.ApiVersion+"/vendor/yiyan", GetYiYan)
+}
 
 func rndName() string {
 
@@ -48,4 +72,125 @@ func rndPoem() string {
 	// 拼接选取的元素
 	return selected
 
+}
+
+func VisitorInsertLog(c *gin.Context) {
+
+	url := c.Query("url")
+	dbContext, exists := c.Get("db")
+	if !exists {
+		return
+	}
+	db := dbContext.(*gorm.DB)
+
+	var count int64
+	db.Scopes(common.BasicModel, common.MatchUrlPath(url)).Count(&count)
+
+	if count == 0 {
+		ReturnFailResponse(c, http.StatusInternalServerError, "Can't find target link")
+		return
+	}
+
+	urlList := strings.Split(url, "/")
+
+	var category, book, locale string
+
+	if len(urlList) > 2 {
+		category = urlList[0]
+		book = urlList[1]
+		locale = urlList[2]
+	} else {
+		ReturnFailResponse(c, http.StatusInternalServerError, "Can't find target path")
+		return
+	}
+
+	today := time.Now().Local()
+
+	vs := models.Visitor{
+		IP:       c.ClientIP(),
+		URL:      url,
+		Time:     today,
+		Category: category,
+		Book:     book,
+		Locale:   locale,
+	}
+
+	db.Model(&models.Visitor{}).Create(&vs)
+
+	// 返回 IP 地址给客户端
+	ReturnSuccessResponse(c, gin.H{"message": "success"})
+}
+
+func GetAppVersion(c *gin.Context) {
+	ReturnSuccessResponse(c, config.Instance.App.AppVersion)
+}
+
+func GetRndName(c *gin.Context) {
+	ReturnSuccessResponse(c, rndName())
+}
+
+func GetRndPost(c *gin.Context) {
+
+	dbContext, exists := c.Get("db")
+	if !exists {
+		return
+	}
+	var doc models.Entry
+
+	db := dbContext.(*gorm.DB)
+	if err := db.Scopes(common.BasicModel, common.FindFile).Order("RANDOM()").First(&doc).Error; err != nil {
+		ReturnFailResponse(c, http.StatusInternalServerError, "Could not retrieve a random post")
+		return
+	}
+
+	ReturnSuccessResponse(c, doc.MetaData)
+}
+
+func GetRndPoem(c *gin.Context) {
+	ReturnSuccessResponse(c, rndPoem())
+}
+
+type Hitokoto struct {
+	ID         int    `json:"id"`
+	UUID       string `json:"uuid"`
+	Hitokoto   string `json:"hitokoto"`
+	Type       string `json:"type"`
+	From       string `json:"from"`
+	FromWho    string `json:"from_who"`
+	Creator    string `json:"creator"`
+	CreatorUID int    `json:"creator_uid"`
+	Reviewer   int    `json:"reviewer"`
+	CommitFrom string `json:"commit_from"`
+	CreatedAt  string `json:"created_at"`
+	Length     int    `json:"length"`
+}
+
+func yiyan() (Hitokoto, error) {
+	url := "https://v1.hitokoto.cn/?c=b"
+
+	// 发送 GET 请求
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("请求失败:", err)
+		return Hitokoto{}, err
+	}
+	defer resp.Body.Close()
+
+	// 读取响应体
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("读取响应体失败:", err)
+		return Hitokoto{}, err
+	}
+
+	var hitokoto Hitokoto
+	json.Unmarshal(body, &hitokoto)
+
+	// 输出响应体
+	return hitokoto, nil
+}
+
+func GetYiYan(c *gin.Context) {
+	hitokoto, _ := yiyan()
+	ReturnSuccessResponse(c, hitokoto)
 }

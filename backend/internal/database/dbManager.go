@@ -3,7 +3,7 @@ package database
 // 数据库管理
 
 import (
-	"docsfly/internal/global"
+	"docsfly/internal/config"
 	"docsfly/internal/models"
 	"fmt"
 	"log"
@@ -29,7 +29,7 @@ type SQLiteManager struct {
 var DbManager *SQLiteManager
 
 func init() {
-	DbManager = NewSQLiteManager(global.AppConfig.DBConfig.Database)
+	DbManager = NewSQLiteManager(config.Instance.Database.Resource)
 }
 
 func NewSQLiteManager(dbFile string) *SQLiteManager {
@@ -86,7 +86,7 @@ func (m *SQLiteManager) Connect() (*gorm.DB, error) {
 
 	var logLevel logger.LogLevel
 
-	switch global.AppConfig.DBConfig.LogLevel {
+	switch config.Instance.Database.LogLevel {
 	case "silent":
 		logLevel = logger.Silent
 	case "error":

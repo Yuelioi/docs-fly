@@ -1,26 +1,50 @@
-package book
+package controllers
 
 import (
 	"docsfly/internal/common"
-	"docsfly/internal/global"
+	"docsfly/internal/config"
 	"docsfly/internal/models"
 	"docsfly/pkg/utils"
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
+type BookController struct {
+}
+
+type BookData struct {
+	Url      string          `json:"url"`
+	IsDir    bool            `json:"is_dir"`
+	MetaData models.MetaData `json:"metadata"`
+}
+
+type PageData struct {
+	TotalCount int64         `json:"total_count"` // 总记录数
+	Page       int           `json:"page"`        // 当前页码 从1开始
+	PageSize   int           `json:"page_size"`   // 每页记录数
+	Pages      []interface{} `json:"pages"`
+}
+
+func (BookController) Register(e *gin.Engine) {
+	book := e.Group("/" + config.Instance.App.ApiVersion + "/book")
+
+	book.GET("/", Book)
+	book.GET("/statistic", BookStatistic)
+	book.GET("meta", BookMeta)
+	book.PUT("meta", UpdateBookMeta)
+}
+
 // 获取当前书籍章节信息,没有章节则直接获取文档信息
 func Book(c *gin.Context) {
 	bookPath := c.Query("bookPath")
 	locale := c.Query("locale")
-	clientTime := time.Now()
 
 	if bookPath == "" || locale == "" {
-		common.Responser.Fail(c, http.StatusNotFound, clientTime, "参数不全")
+		ReturnFailResponse(c, 400, "参数不全")
+		return
 	}
 
 	dbContext, exists := c.Get("db")
@@ -38,19 +62,19 @@ func Book(c *gin.Context) {
 	err := db.Scopes(common.BasicModel, common.FindChapter, common.HasPrefixUrlPath(bookPath+"/"+locale)).Order("is_dir DESC, depth ASC, `order` ASC").Find(&chapters).Error
 
 	if err != nil {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Database query error")
+		ReturnFailResponse(c, 400, "Database query error")
 		return
 	}
 
 	if len(chapters) == 0 {
-		common.Responser.Fail(c, http.StatusNotFound, clientTime, "Chapter does not exist or no matching documents found")
+		ReturnFailResponse(c, 400, "Chapter does not exist or no matching documents found")
 		return
 	}
 
 	err = db.Scopes(common.BasicModel, common.FindFile, common.HasPrefixUrlPath(bookPath+"/"+locale)).Where("depth > 3").Order("is_dir DESC, depth ASC, `order` ASC").Find(&docs).Error
 
 	if err != nil {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Database query error")
+		ReturnFailResponse(c, 400, "Database query error")
 		return
 	}
 
@@ -75,7 +99,8 @@ func Book(c *gin.Context) {
 			})
 		}
 	}
-	common.Responser.Success(c, clientTime, bookDatas)
+
+	ReturnSuccessResponse(c, bookDatas)
 }
 
 func BookStatistic(c *gin.Context) {
@@ -83,7 +108,6 @@ func BookStatistic(c *gin.Context) {
 	bookPath := c.Query("bookPath")
 	locale := c.Query("locale")
 
-	clientTime := time.Now()
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -99,7 +123,7 @@ func BookStatistic(c *gin.Context) {
 	category, book := getCategoryAndBookByUrl(bookPath)
 
 	if category == "" || book == "" {
-		common.Responser.Fail(c, http.StatusBadRequest, clientTime, "Book Don't Exist")
+		ReturnFailResponse(c, 400, "Book Don't Exist")
 		return
 	}
 
@@ -108,7 +132,7 @@ func BookStatistic(c *gin.Context) {
 	// 获取阅读量和书籍标题
 	err := db.Scopes(common.BasicModel, common.MatchUrlPath(bookPath)).Find(&bookRef).Error
 	if err != nil {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Error fetching book statistics")
+		ReturnFailResponse(c, 400, "Error fetching book statistics")
 		return
 	}
 
@@ -126,7 +150,7 @@ func BookStatistic(c *gin.Context) {
 		DocumentCount int64  `json:"document_count"`
 	}
 
-	common.Responser.Success(c, clientTime,
+	ReturnSuccessResponse(c,
 		bookStatistic{
 			BookCover:     bookRef.Icon,
 			BookTitle:     bookRef.Title,
@@ -140,7 +164,6 @@ func BookMeta(c *gin.Context) {
 	bookPath := c.Query("bookPath")
 	locale := c.Query("locale")
 
-	clientTime := time.Now()
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -151,20 +174,20 @@ func BookMeta(c *gin.Context) {
 	filePath := getFilepathByURL(db, bookPath+"/"+locale)
 
 	if filePath == "" {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Failed Find Target Category")
+		ReturnFailResponse(c, 400, "Failed Find Target Category")
 		return
 	}
 
-	metaPath := global.AppConfig.DBConfig.Resource + "/" + filePath + "/" + global.AppConfig.DBConfig.MetaFile
+	metaPath := config.Instance.Database.Resource + "/" + filePath + "/" + config.Instance.Database.MetaFile
 
 	var data map[string]interface{}
 	err := utils.ReadJson(metaPath, &data)
 
 	if err != nil {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Failed load data")
+		ReturnFailResponse(c, 400, "Failed load data")
 		return
 	}
-	common.Responser.Success(c, clientTime, data)
+	ReturnSuccessResponse(c, data)
 }
 
 func UpdateBookMeta(c *gin.Context) {
@@ -173,11 +196,9 @@ func UpdateBookMeta(c *gin.Context) {
 
 	metas_data := c.Query("metas")
 
-	clientTime := time.Now()
-
 	ok, err := common.TokenVerifyMiddleware(c)
 	if !ok {
-		common.Responser.Fail(c, http.StatusUnauthorized, clientTime, err.Error())
+		ReturnFailResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
@@ -185,7 +206,7 @@ func UpdateBookMeta(c *gin.Context) {
 	var metas models.MetaDatas
 
 	if err := json.Unmarshal([]byte(metas_data), &metas); err != nil {
-		common.Responser.Fail(c, http.StatusBadRequest, clientTime, err.Error())
+		ReturnFailResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -199,10 +220,10 @@ func UpdateBookMeta(c *gin.Context) {
 	filepath := getFilepathByURL(db, bookPath+"/"+locale)
 
 	// 保存meta.json
-	metapath := global.AppConfig.DBConfig.Resource + "/" + filepath + "/" + global.AppConfig.DBConfig.MetaFile
+	metapath := config.Instance.Database.Resource + "/" + filepath + "/" + config.Instance.Database.MetaFile
 	err = utils.WriteJson(metapath, metas)
 	if err != nil {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Failed Save Data")
+		ReturnFailResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -214,6 +235,6 @@ func UpdateBookMeta(c *gin.Context) {
 	for _, meta := range metas.Documents {
 		db.Model(&models.Entry{}).Where("filepath = ?", filepath+"/"+meta.Name).Updates(meta)
 	}
-	common.Responser.Success(c, clientTime, "Data saved successfully")
+	ReturnSuccessResponse(c, "Data saved successfully")
 
 }

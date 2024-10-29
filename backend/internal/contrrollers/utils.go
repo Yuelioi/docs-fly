@@ -1,12 +1,47 @@
-package home
+package controllers
 
 import (
+	"docsfly/internal/models"
 	"regexp"
 	"strings"
 	"sync"
 
 	extractor "github.com/huantt/plaintext-extractor"
+	"gorm.io/gorm"
 )
+
+var globalCache sync.Map
+
+func getCategoryAndBookByUrl(url string) (string, string) {
+	urlList := strings.Split(url, "/")
+	if len(urlList) < 2 {
+		return "", ""
+	}
+
+	return urlList[0], urlList[1]
+}
+
+func getFilepathByURL(db *gorm.DB, url string) string {
+	var filepath string
+	db.Model(models.Entry{}).Where("url = ?", url).Select("filepath").Scan(&filepath)
+	return filepath
+}
+
+func findClosestDoc(chapter models.Entry, docs []models.Entry) models.Entry {
+	var closestDoc models.Entry
+	minOrder := int(^uint(0) >> 1) // 初始化为最大值
+
+	for _, doc := range docs {
+		if strings.HasPrefix(doc.URL, chapter.URL) && int(doc.Order) < minOrder {
+			closestDoc = doc
+			minOrder = int(doc.Order)
+		}
+	}
+
+	return closestDoc
+}
+
+// home
 
 // 提取纯文本数据 过滤掉符号
 func extractPlainText(markdownContent string) (output *string, err error) {

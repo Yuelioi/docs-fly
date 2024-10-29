@@ -1,11 +1,9 @@
 package router
 
 import (
+	controllers "docsfly/internal/contrrollers"
 	"docsfly/internal/database"
-	"docsfly/internal/models"
-	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,13 +33,8 @@ func DBMiddleware() gin.HandlerFunc {
 		db, err := database.DbManager.Connect()
 
 		if err != nil {
-			c.JSON(http.StatusOK, models.ResponseBasicData{
-				ClientTime: time.Now(),
-				IP:         c.ClientIP(),
-				ServerTime: time.Now(),
-				StatusCode: http.StatusBadRequest,
-				Data:       gin.H{"error": "Cannot Connect Database"},
-			})
+			controllers.ReturnFailResponse(c, 400, "Cannot Connect Database")
+
 			c.Abort()
 			return
 		}

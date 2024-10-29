@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 
 	"docsfly/internal/config"
@@ -11,5 +13,12 @@ import (
 func main() {
 	engine := gin.Default()
 	router.SetupRouter(engine)
-	engine.Run(":" + config.AppConfig.ServerConfig.Addr)
+
+	engine.Run(fmt.Sprintf("%s:%d", config.Instance.System.Host, config.Instance.System.Port))
+
+	user := engine.Group("User")
+	{
+		user.GET("/user", func(c *gin.Context) {
+		})
+	}
 }

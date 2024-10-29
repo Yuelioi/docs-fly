@@ -1,7 +1,8 @@
-package home
+package controllers
 
 import (
 	"docsfly/internal/common"
+	"docsfly/internal/config"
 	"docsfly/internal/models"
 	"net/http"
 	"strconv"
@@ -12,9 +13,46 @@ import (
 	"gorm.io/gorm"
 )
 
+type HomeController struct {
+}
+
+func (HomeController) Register(engine *gin.Engine) {
+	engine.GET("/"+config.Instance.App.ApiVersion+"/nav", GetNav)
+	engine.GET("/"+config.Instance.App.ApiVersion+"/statistic/home", GetStatisticHome)
+	engine.GET("/"+config.Instance.App.ApiVersion+"/query", Query)
+}
+
+type SearchResult struct {
+	Result []SearchData `json:"result"`
+}
+
+// 主页搜索显示数据
+type SearchData struct {
+	Index         int    `json:"index"` // 从1开始!
+	Url           string `json:"url"`
+	Locale        string `json:"locale"`
+	CategoryTitle string `json:"category_title"`
+	BookTitle     string `json:"book_title"`
+	DocumentTitle string `json:"document_title"`
+	Content       string `json:"content"`
+}
+
+// 主页统计信息
+type HomeStatistic struct {
+	BookCount              int64 `json:"book_count"`
+	DocumentCount          int64 `json:"document_count"`
+	HistoricalVisitorCount int64 `json:"historical_visitor_count"`
+	TodayVisitorCount      int64 `json:"today_visitor_count"`
+}
+
+type Nav struct {
+	MetaData models.MetaData   `json:"metadata"`
+	Children []models.MetaData `json:"children"`
+}
+
 // 获取顶部导航栏信息
 func GetNav(c *gin.Context) {
-	clientTime := time.Now()
+
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -27,11 +65,11 @@ func GetNav(c *gin.Context) {
 	var navs []Nav
 
 	if err := db.Scopes(common.BasicModel, common.FindCategory, common.FindFolder).Find(&cats).Error; err != nil {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Failed to retrieve categories")
+		ReturnFailResponse(c, http.StatusInternalServerError, "Failed to retrieve categories")
 		return
 	}
 	if err := db.Scopes(common.BasicModel, common.FindBook, common.FindFolder).Find(&books).Error; err != nil {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, "Failed to retrieve books")
+		ReturnFailResponse(c, http.StatusInternalServerError, "Failed to retrieve books")
 		return
 	}
 
@@ -45,11 +83,11 @@ func GetNav(c *gin.Context) {
 		}
 		navs = append(navs, nav)
 	}
-	common.Responser.Success(c, clientTime, navs)
+	ReturnSuccessResponse(c, navs)
 }
 
 func GetStatisticHome(c *gin.Context) {
-	clientTime := time.Now()
+
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -79,12 +117,11 @@ func GetStatisticHome(c *gin.Context) {
 		HistoricalVisitorCount: HistoricalVisitorCount,
 		TodayVisitorCount:      TodayVisitorCount,
 	}
-	common.Responser.Success(c, clientTime, statistic)
+	ReturnSuccessResponse(c, statistic)
 
 }
 
 func Query(c *gin.Context) {
-	clientTime := time.Now()
 
 	dbContext, exists := c.Get("db")
 	if !exists {
@@ -129,7 +166,7 @@ func Query(c *gin.Context) {
 	query.Scopes(common.BasicModel).Count(&totalCount)
 
 	if totalCount == 0 {
-		common.Responser.FailPageData(c, http.StatusNotFound, clientTime, totalCount, page, pageSize, "No documents found")
+		ReturnFailResponse(c, http.StatusNotFound, "No documents found")
 		return
 	}
 
@@ -138,7 +175,7 @@ func Query(c *gin.Context) {
 	query.Find(&documents)
 
 	if int64(offset) > totalCount {
-		common.Responser.FailPageData(c, http.StatusBadRequest, time.Now(), totalCount, page, pageSize, "Query result exceeds maximum value")
+		ReturnFailResponse(c, http.StatusBadRequest, "Query result exceeds maximum value")
 		return
 	}
 
@@ -195,9 +232,9 @@ func Query(c *gin.Context) {
 	}
 
 	if len(results) == 0 {
-		common.Responser.FailPageData(c, http.StatusNotFound, clientTime, totalCount, page, pageSize, "Keyword Match Error")
+		ReturnFailResponse(c, http.StatusNotFound, "Keyword Match Error")
 		return
 	}
 
-	common.Responser.SuccessPageData(c, clientTime, results, totalCount, page, pageSize)
+	ReturnSuccessResponse(c, results)
 }

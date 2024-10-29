@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	System    *System
-	AppConfig *AppConfig
-	DBConfig  *DBConfig
+	System   *System
+	App      *App
+	Database *Database
 }
 
 type System struct {
@@ -18,23 +18,25 @@ type System struct {
 	Env  string `mapstructure:"env"`
 }
 
-type AppConfig struct {
+type App struct {
 	AppVersion string `mapstructure:"AppVersion"`
 	ApiVersion string `mapstructure:"ApiVersion"`
 }
 
-type DBConfig struct {
+type Database struct {
 	Resource string `mapstructure:"resource"`
 	MetaFile string `mapstructure:"metafile"`
 
 	Username string `mapstructure:"username"`
 	Password string
 
-	LogLevel  string // 添加日志等级配置
+	LogLevel  string
 	IntroFile string
 }
 
-func New() *Config {
+var Instance *Config
+
+func init() {
 
 	viper.SetConfigName("config") // 配置文件名（不包括扩展名）
 	viper.SetConfigType("toml")   // 如果配置文件名中没有扩展名，则需要设置类型
@@ -44,15 +46,14 @@ func New() *Config {
 		log.Fatalf("Error reading config file, %s", err)
 	}
 
-	config := &Config{
-		System:    &System{},
-		AppConfig: &AppConfig{},
-		DBConfig:  &DBConfig{},
+	Instance = &Config{
+		System:   &System{},
+		App:      &App{},
+		Database: &Database{},
 	}
 	// 解析配置到结构体
-	if err := viper.Unmarshal(&config); err != nil {
+	if err := viper.Unmarshal(&Instance); err != nil {
 		log.Fatalf("Unable to decode into struct, %v", err)
 	}
 
-	return config
 }

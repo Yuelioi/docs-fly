@@ -1,24 +1,162 @@
-package post
+package controllers
 
 import (
+	"bytes"
 	"docsfly/internal/common"
-	"docsfly/internal/global"
+	"docsfly/internal/config"
 	"docsfly/internal/models"
 	"docsfly/pkg/utils"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
-	"time"
+	"sync"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 	"gorm.io/gorm"
 )
+
+type PostController struct{}
+
+func (*PostController) Register(engine *gin.Engine) {
+	engine.GET("/"+config.Instance.App.ApiVersion+"/post", GetPost)
+	engine.GET("/"+config.Instance.App.ApiVersion+"/post/html", GetPostHtml)
+	engine.POST("/"+config.Instance.App.ApiVersion+"/post", SavePost)
+	engine.GET("/"+config.Instance.App.ApiVersion+"/post/chapter", GetChapter)
+}
+
+type PostResponseBasicData struct {
+	ContentMarkdown string `json:"content_markdown"`
+	ContentHTML     string `json:"content_html"`
+	TOC             string `json:"toc"`
+}
+
+// 一个章节的信息
+type Chapter struct {
+	MetaData  models.MetaData   `json:"metadata"`
+	Filepath  string            `json:"filepath"`
+	Documents []models.MetaData `json:"documents"`
+	Children  []Chapter         `json:"children"`
+}
+
+// 文章目录
+type Toc struct {
+	ID    string `json:"id"`
+	Depth uint   `json:"depth"`
+	Title string `json:"title"`
+}
+
+func textContent(n *html.Node) string {
+	var b bytes.Buffer
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if c.Type == html.TextNode {
+			b.WriteString(c.Data)
+		}
+	}
+	return b.String()
+}
+
+func loopNode(n *html.Node, entries *[]Toc) {
+	if n.Type == html.ElementNode && (n.DataAtom == atom.H1 || n.DataAtom == atom.H2) {
+		for _, a := range n.Attr {
+			if a.Key == "id" {
+				*entries = append(*entries, Toc{
+					ID:    a.Val,
+					Depth: uint(getDepth(n.DataAtom)),
+					Title: textContent(n),
+				})
+			}
+		}
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		loopNode(c, entries)
+	}
+}
+
+func generateTOC(htmlContent string) ([]byte, error) {
+	doc, err := html.Parse(strings.NewReader(htmlContent))
+	if err != nil {
+		return []byte{'[', ']'}, err
+	}
+
+	var entries []Toc
+
+	loopNode(doc, &entries)
+
+	jsonData, err := json.Marshal(entries)
+	if err != nil {
+		fmt.Println("Error marshalling JSON:", err)
+		return jsonData, err
+	}
+
+	if string(jsonData) == "null" {
+		jsonData = []byte{'[', ']'}
+	}
+
+	return jsonData, nil
+}
+
+func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry, currentDepth int) {
+
+	var wg sync.WaitGroup
+
+	// 添加文件到当前文件夹
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for _, doc := range documents {
+			if strings.HasPrefix(doc.Filepath, folder.Filepath+"/") && doc.Depth == currentDepth {
+				folder.Documents = append(folder.Documents, doc.MetaData)
+			}
+
+		}
+	}()
+
+	// 添加子文件夹到当前文件夹
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for _, cat := range categories {
+			if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == currentDepth {
+				childFolder := Chapter{
+					MetaData:  cat.MetaData,
+					Filepath:  cat.MetaData.Filepath,
+					Documents: make([]models.MetaData, 0),
+					Children:  make([]Chapter, 0),
+				}
+				buildFolderTree(&childFolder, categories, documents, currentDepth+1)
+
+				folder.Children = append(folder.Children, childFolder)
+			}
+
+		}
+	}()
+
+	wg.Wait()
+}
+
+func getDepth(node atom.Atom) int {
+	switch node {
+	case atom.H1:
+		return 1
+	case atom.H2:
+		return 2
+	case atom.H3:
+		return 3
+	case atom.H4:
+		return 3
+	default:
+		return 0
+	}
+}
 
 // 文章页面获取文章markdown
 func GetPost(c *gin.Context) {
 	postPath := c.Query("postPath")
-	clientTime := time.Now()
+
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -61,7 +199,7 @@ func GetPost(c *gin.Context) {
 
 	// 文件没有内容 文件夹没有子级 那就报错吧
 	if htmlContent == "" {
-		common.Responser.Fail(c, http.StatusNotFound, clientTime, "No documents found")
+		ReturnFailResponse(c, http.StatusNotFound, "No documents found")
 		return
 	}
 
@@ -73,7 +211,7 @@ func GetPost(c *gin.Context) {
 		TOC:             string(toc),
 	}
 
-	common.Responser.Success(c, clientTime, responseData)
+	ReturnSuccessResponse(c, responseData)
 
 }
 
@@ -102,11 +240,11 @@ func GetPostHtml(c *gin.Context) {
 func SavePost(c *gin.Context) {
 	postPath := c.Query("postPath")
 	content := c.Query("content")
-	clientTime := time.Now()
+
 	ok, err := common.TokenVerifyMiddleware(c)
 
 	if !ok {
-		common.Responser.Fail(c, http.StatusUnauthorized, clientTime, err.Error())
+		ReturnFailResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
@@ -123,9 +261,9 @@ func SavePost(c *gin.Context) {
 	var documentPath string
 
 	if documentInfo.IsDir {
-		documentPath = global.AppConfig.DBConfig.Resource + "/" + documentInfo.Filepath + "/" + "README.md"
+		documentPath = config.Instance.Database.Resource + "/" + documentInfo.Filepath + "/" + "README.md"
 	} else {
-		documentPath = global.AppConfig.DBConfig.Resource + "/" + documentInfo.Filepath
+		documentPath = config.Instance.Database.Resource + "/" + documentInfo.Filepath
 
 	}
 
@@ -133,7 +271,7 @@ func SavePost(c *gin.Context) {
 	err_write := os.WriteFile(documentPath, []byte(content), 0644)
 
 	if err_write != nil {
-		common.Responser.Fail(c, http.StatusInternalServerError, clientTime, err_write.Error())
+		ReturnFailResponse(c, http.StatusInternalServerError, err_write.Error())
 
 		return
 	}
@@ -158,7 +296,7 @@ func SavePost(c *gin.Context) {
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
 	}
-	common.Responser.Success(c, clientTime, responseData)
+	ReturnSuccessResponse(c, responseData)
 
 }
 
@@ -166,7 +304,6 @@ func SavePost(c *gin.Context) {
 func GetChapter(c *gin.Context) {
 	postPath := c.Query("postPath")
 
-	clientTime := time.Now()
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -181,12 +318,12 @@ func GetChapter(c *gin.Context) {
 	if len(parts) >= 3 {
 		book = strings.Join(parts[:3], "/")
 	} else {
-		common.Responser.Fail(c, http.StatusBadRequest, clientTime, "Invalid post path")
+		ReturnFailResponse(c, http.StatusBadRequest, "Invalid post path")
 	}
 
 	// ok, cachedData := getCache(book)
 	// if ok {
-	// 	common.Responser.Success(c, clientTime, cachedData)
+	// 	ReturnSuccessResponse(c,  cachedData)
 	// 	return
 	// }
 
@@ -222,5 +359,5 @@ func GetChapter(c *gin.Context) {
 
 	// 将数据存储到缓存中
 
-	common.Responser.Success(c, clientTime, chapterMeta)
+	ReturnSuccessResponse(c, chapterMeta)
 }

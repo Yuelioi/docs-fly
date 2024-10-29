@@ -1,7 +1,7 @@
 package database
 
 import (
-	"docsfly/internal/global"
+	"docsfly/internal/config"
 	"docsfly/internal/models"
 	"encoding/json"
 	"fmt"
@@ -19,13 +19,13 @@ import (
 //
 //	db *gorm.DB - 数据库连接对象
 func CreateAdminAccount(db *gorm.DB) {
-	hashedPassword, err := HashPassword(global.AppConfig.DBConfig.Password)
+	hashedPassword, err := HashPassword(config.Instance.Database.Password)
 	if err != nil {
 		fmt.Println("初始化管理员数据失败")
 		return
 	}
 	userData := models.User{
-		Username: global.AppConfig.DBConfig.Username,
+		Username: config.Instance.Database.Username,
 		Password: hashedPassword,
 	}
 	db.Create(&userData)
@@ -64,9 +64,9 @@ func WriteContentToDocsData(datas ...*[]models.Entry) {
 
 				var contentPath string
 				if docsData.IsDir {
-					contentPath = filepath.Join(global.AppConfig.DBConfig.Resource, docsData.Filepath, global.AppConfig.DBConfig.IntroFile)
+					contentPath = filepath.Join(config.Instance.Database.Resource, docsData.Filepath, config.Instance.Database.IntroFile)
 				} else {
-					contentPath = filepath.Join(global.AppConfig.DBConfig.Resource, docsData.Filepath)
+					contentPath = filepath.Join(config.Instance.Database.Resource, docsData.Filepath)
 
 				}
 				content, err := os.ReadFile(contentPath)
@@ -132,7 +132,7 @@ func WriteMetaData(
 				fmt.Println(err.Error())
 			}
 
-			outputPath := filepath.Join(global.AppConfig.DBConfig.Resource, meta.ParentFolder, global.AppConfig.DBConfig.MetaFile)
+			outputPath := filepath.Join(config.Instance.Database.Resource, meta.ParentFolder, config.Instance.Database.MetaFile)
 
 			err = os.WriteFile(outputPath, data, 0644)
 			if err != nil {
@@ -152,7 +152,7 @@ func checkReadme(metaMaps MetaMaps, relative_path string) bool {
 
 	relative_READMEPath := relative_path + "/" + "README.md"
 
-	realPath := filepath.Join(global.AppConfig.DBConfig.Resource, relative_READMEPath)
+	realPath := filepath.Join(config.Instance.Database.Resource, relative_READMEPath)
 
 	// 检查文件是否存在
 	fileInfo, err := os.Stat(realPath)
@@ -219,7 +219,7 @@ func WalkSkip(root string, info os.FileInfo, path string) error {
 		return ErrSkip
 	}
 
-	if info.Name() == global.AppConfig.DBConfig.MetaFile {
+	if info.Name() == config.Instance.Database.MetaFile {
 		return ErrSkip
 	}
 	if info.Name() == "main.db" {

@@ -1,17 +1,24 @@
-package comment
+package controllers
 
 import (
 	"docsfly/internal/common"
+	"docsfly/internal/config"
 	"docsfly/internal/models"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
+type CommentController struct {
+}
+
+func (cr *CommentController) Register(engine *gin.Engine) {
+	engine.GET("/"+config.Instance.App.ApiVersion+"/comment", GetComments)
+	engine.POST("/"+config.Instance.App.ApiVersion+"/comment", SendComment)
+}
+
 func GetComments(c *gin.Context) {
-	clientTime := time.Now()
 	url := c.Query("url")
 	dbContext, exists := c.Get("db")
 	if !exists {
@@ -24,12 +31,11 @@ func GetComments(c *gin.Context) {
 
 	db.Model(models.Comment{}).Preload("Replies").Where("parent = 0").Scopes(common.MatchUrlPath(url)).Find(&comments)
 
-	common.Responser.Success(c, clientTime, comments)
+	ReturnSuccessResponse(c, comments)
 
 }
 
 func SendComment(c *gin.Context) {
-	clientTime := time.Now()
 	dbContext, exists := c.Get("db")
 	if !exists {
 		return
@@ -39,22 +45,22 @@ func SendComment(c *gin.Context) {
 
 	var comment models.Comment
 	if err := c.ShouldBindJSON(&comment); err != nil {
-		common.Responser.Fail(c, http.StatusBadRequest, clientTime, "Invalid request payload")
+		ReturnFailResponse(c, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
 	comment.IP = c.ClientIP()
 
 	if comment.Nickname == "" || comment.Content == "" || comment.URL == "" {
-		common.Responser.Fail(c, http.StatusBadRequest, clientTime, "Invalid comment data")
+		ReturnFailResponse(c, http.StatusBadRequest, "Invalid comment data")
 		return
 	}
 
 	if err := db.Create(&comment).Error; err != nil {
-		common.Responser.Fail(c, http.StatusBadRequest, clientTime, "Failed to save comment,Database error")
+		ReturnFailResponse(c, http.StatusBadRequest, "Failed to save comment,Database error")
 		return
 	}
 
-	common.Responser.Success(c, clientTime, gin.H{"message": "Comment posted successfully", "comment": comment})
+	ReturnSuccessResponse(c, comment)
 
 }
