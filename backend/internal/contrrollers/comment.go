@@ -32,7 +32,6 @@ func GetComments(c *gin.Context) {
 	db.Model(models.Comment{}).Preload("Replies").Where("parent = 0").Scopes(common.MatchUrlPath(url)).Find(&comments)
 
 	ReturnSuccessResponse(c, comments)
-
 }
 
 func SendComment(c *gin.Context) {

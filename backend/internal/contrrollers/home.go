@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"docsfly/pkg/logger"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -52,6 +54,7 @@ type Nav struct {
 
 // 获取顶部导航栏信息
 func GetNav(c *gin.Context) {
+	logger.Write("日志信息", "home")
 
 	dbContext, exists := c.Get("db")
 	if !exists {
