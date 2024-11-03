@@ -3,8 +3,10 @@ package logger
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path"
+	"runtime/debug"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -63,7 +65,7 @@ func setOutputFile(level logrus.Level, logName string) {
 	logrus.SetLevel(level)
 }
 
-func LoggerToFile() *gin.LoggerConfig {
+func LoggerToFile() gin.LoggerConfig {
 	if _, err := os.Stat("./runtime/log"); os.IsNotExist(err) {
 		err = os.Mkdir("./runtime/log", os.ModePerm)
 		if err != nil {
@@ -75,10 +77,9 @@ func LoggerToFile() *gin.LoggerConfig {
 
 	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		fmt.Println("open log file failed, err ", err)
-		return nil
+		panic(fmt.Sprintf("create log dir '%s' failed, error: %s", "./runtime/log", err))
 	}
-	conf := &gin.LoggerConfig{
+	conf := gin.LoggerConfig{
 		Formatter: func(params gin.LogFormatterParams) string {
 			return fmt.Sprintf("%s - [%s] \"%s %s %s %d\" %s %s\n",
 				params.TimeStamp.Format("2006-01-02 15:04:05"),
@@ -95,6 +96,38 @@ func LoggerToFile() *gin.LoggerConfig {
 	return conf
 }
 
-func Recover() {
+func Recover(c *gin.Context) {
+	defer func() {
+		if err := recover(); err != nil {
+			if _, errDir := os.Stat("./runtime/log"); os.IsNotExist(errDir) {
+				errDir = os.MkdirAll("./runtime/log", os.ModePerm)
+				if errDir != nil {
+					panic(fmt.Errorf("create log dir '%s' error: %s", "./runtime/log", errDir))
+				}
 
+				timeStr := time.Now().Format("2006-01-02")
+				fileName := path.Join("./runtime/log", "error_"+timeStr+".log")
+
+				f, errFile := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+				if errFile != nil {
+					fmt.Println("open log file failed, err ", errFile)
+					return
+				}
+
+				timeNowStr := time.Now().Format("2006-01-02 15:04:05")
+				f.WriteString("panic at " + timeNowStr + "\n")
+				f.WriteString(fmt.Sprintf("err: %v", err))
+				f.WriteString("stacktrace from " + string(debug.Stack()) + "\n")
+				f.WriteString("---------------------------------\n")
+				f.Close()
+
+				c.JSON(http.StatusOK, gin.H{
+					"code":    500,
+					"message": fmt.Sprintf("err: %v", err),
+				})
+				c.Abort()
+			}
+		}
+	}()
+	c.Next()
 }

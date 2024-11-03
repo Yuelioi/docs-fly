@@ -3,6 +3,7 @@ package controllers
 import (
 	"docsfly/internal/common"
 	"docsfly/internal/config"
+	"docsfly/internal/dao"
 	"docsfly/internal/models"
 	"net/http"
 	"strconv"
@@ -12,7 +13,6 @@ import (
 	"docsfly/pkg/logger"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type HomeController struct {
@@ -24,60 +24,25 @@ func (HomeController) Register(engine *gin.Engine) {
 	engine.GET("/"+config.Instance.App.ApiVersion+"/query", Query)
 }
 
-type SearchResult struct {
-	Result []SearchData `json:"result"`
-}
-
-// 主页搜索显示数据
-type SearchData struct {
-	Index         int    `json:"index"` // 从1开始!
-	Url           string `json:"url"`
-	Locale        string `json:"locale"`
-	CategoryTitle string `json:"category_title"`
-	BookTitle     string `json:"book_title"`
-	DocumentTitle string `json:"document_title"`
-	Content       string `json:"content"`
-}
-
-// 主页统计信息
-type HomeStatistic struct {
-	BookCount              int64 `json:"book_count"`
-	DocumentCount          int64 `json:"document_count"`
-	HistoricalVisitorCount int64 `json:"historical_visitor_count"`
-	TodayVisitorCount      int64 `json:"today_visitor_count"`
-}
-
-type Nav struct {
-	MetaData models.MetaData   `json:"metadata"`
-	Children []models.MetaData `json:"children"`
-}
-
 // 获取顶部导航栏信息
 func GetNav(c *gin.Context) {
 	logger.Write("日志信息", "home")
 
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-
-	db := dbContext.(*gorm.DB)
-
 	var cats []models.Entry
 	var books []models.Entry
-	var navs []Nav
+	var navs []models.Nav
 
-	if err := db.Scopes(common.BasicModel, common.FindCategory, common.FindFolder).Find(&cats).Error; err != nil {
+	if err := dao.Db.Scopes(common.BasicModel, common.FindCategory, common.FindFolder).Find(&cats).Error; err != nil {
 		ReturnFailResponse(c, http.StatusInternalServerError, "Failed to retrieve categories")
 		return
 	}
-	if err := db.Scopes(common.BasicModel, common.FindBook, common.FindFolder).Find(&books).Error; err != nil {
+	if err := dao.Db.Scopes(common.BasicModel, common.FindBook, common.FindFolder).Find(&books).Error; err != nil {
 		ReturnFailResponse(c, http.StatusInternalServerError, "Failed to retrieve books")
 		return
 	}
 
 	for _, cat := range cats {
-		nav := Nav{}
+		nav := models.Nav{}
 		nav.MetaData = cat.MetaData
 		for _, book := range books {
 			if strings.HasPrefix(book.Filepath, cat.Filepath) {
@@ -91,13 +56,6 @@ func GetNav(c *gin.Context) {
 
 func GetStatisticHome(c *gin.Context) {
 
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-
-	db := dbContext.(*gorm.DB)
-
 	var (
 		BooksCount             int64
 		DocumentsCount         int64
@@ -105,16 +63,16 @@ func GetStatisticHome(c *gin.Context) {
 		TodayVisitorCount      int64
 	)
 
-	db.Scopes(common.BasicModel, common.FindBook, common.FindFolder).Count(&BooksCount)
-	db.Scopes(common.BasicModel, common.FindFile).Count(&DocumentsCount)
+	dao.Db.Scopes(common.BasicModel, common.FindBook, common.FindFolder).Count(&BooksCount)
+	dao.Db.Scopes(common.BasicModel, common.FindFile).Count(&DocumentsCount)
 
-	db.Model(models.Visitor{}).Count(&HistoricalVisitorCount)
+	dao.Db.Model(models.Visitor{}).Count(&HistoricalVisitorCount)
 
 	// today := time.Now().Format("2006-01-02") 不能用(DATE(time))
 	today := time.Now().Truncate(24 * time.Hour)
-	db.Model(models.Visitor{}).Where("time > ?", today).Count(&TodayVisitorCount)
+	dao.Db.Model(models.Visitor{}).Where("time > ?", today).Count(&TodayVisitorCount)
 
-	statistic := HomeStatistic{
+	statistic := models.HomeStatistic{
 		BookCount:              BooksCount,
 		DocumentCount:          DocumentsCount,
 		HistoricalVisitorCount: HistoricalVisitorCount,
@@ -125,13 +83,6 @@ func GetStatisticHome(c *gin.Context) {
 }
 
 func Query(c *gin.Context) {
-
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-
-	db := dbContext.(*gorm.DB)
 
 	bookPath := c.Query("bookPath")
 	keyword := c.Query("keyword")
@@ -156,10 +107,10 @@ func Query(c *gin.Context) {
 
 	var documents []models.Entry
 	var totalCount int64
-	var results []SearchData
+	var results []models.SearchData
 
 	// 根据查询条件获取结果
-	query := db.Scopes(common.BasicModel)
+	query := dao.Db.Scopes(common.BasicModel)
 	if bookPath != "" {
 		query = query.Scopes(common.HasPrefixUrlPath(bookPath))
 	}
@@ -217,10 +168,10 @@ func Query(c *gin.Context) {
 
 			var catTitle string
 			var bookTitle string
-			db.Scopes(common.BasicModel, common.MatchUrlPath(cat)).Select("title").Scan(&catTitle)
-			db.Scopes(common.BasicModel, common.MatchUrlPath(cat+"/"+book)).Select("title").Scan(&bookTitle)
+			dao.Db.Scopes(common.BasicModel, common.MatchUrlPath(cat)).Select("title").Scan(&catTitle)
+			dao.Db.Scopes(common.BasicModel, common.MatchUrlPath(cat+"/"+book)).Select("title").Scan(&bookTitle)
 
-			dsData := SearchData{
+			dsData := models.SearchData{
 				Index:         offset + i + 1,
 				Url:           document.URL,
 				CategoryTitle: catTitle,

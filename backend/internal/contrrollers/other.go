@@ -3,6 +3,7 @@ package controllers
 import (
 	"docsfly/internal/common"
 	"docsfly/internal/config"
+	"docsfly/internal/dao"
 	"docsfly/internal/models"
 	"encoding/json"
 	"fmt"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/rand"
-	"gorm.io/gorm"
 )
 
 type OtherController struct{}
@@ -77,14 +77,9 @@ func rndPoem() string {
 func VisitorInsertLog(c *gin.Context) {
 
 	url := c.Query("url")
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-	db := dbContext.(*gorm.DB)
 
 	var count int64
-	db.Scopes(common.BasicModel, common.MatchUrlPath(url)).Count(&count)
+	dao.Db.Scopes(common.BasicModel, common.MatchUrlPath(url)).Count(&count)
 
 	if count == 0 {
 		ReturnFailResponse(c, http.StatusInternalServerError, "Can't find target link")
@@ -115,7 +110,7 @@ func VisitorInsertLog(c *gin.Context) {
 		Locale:   locale,
 	}
 
-	db.Model(&models.Visitor{}).Create(&vs)
+	dao.Db.Model(&models.Visitor{}).Create(&vs)
 
 	// 返回 IP 地址给客户端
 	ReturnSuccessResponse(c, gin.H{"message": "success"})
@@ -131,14 +126,9 @@ func GetRndName(c *gin.Context) {
 
 func GetRndPost(c *gin.Context) {
 
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
 	var doc models.Entry
 
-	db := dbContext.(*gorm.DB)
-	if err := db.Scopes(common.BasicModel, common.FindFile).Order("RANDOM()").First(&doc).Error; err != nil {
+	if err := dao.Db.Scopes(common.BasicModel, common.FindFile).Order("RANDOM()").First(&doc).Error; err != nil {
 		ReturnFailResponse(c, http.StatusInternalServerError, "Could not retrieve a random post")
 		return
 	}
