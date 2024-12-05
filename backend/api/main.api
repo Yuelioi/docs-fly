@@ -1,0 +1,4 @@
+syntax = "v1"
+
+import "./document.api"
+import "./comment.api"

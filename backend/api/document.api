@@ -1,0 +1,30 @@
+syntax = "v1"
+
+import "./_base.api"
+
+
+
+@server(
+	prefix: /v1
+	group: document
+)
+
+service main {
+	@doc "获取页面评论"
+	@handler Document
+	get /document/:id  returns (Document)
+
+	@doc "发布文章"
+	// 需要作者信息
+	@handler PushDocument
+	post /document (Document) returns (IDResponse)
+
+	@doc "更新文章"
+	// 需要作者信息
+	@handler UpdateDocument
+	put /document/:id (Document) returns (IDResponse)
+
+	@doc "删除文章"
+	@handler DeleteDocument
+	delete /document/:id (Document) returns (IDResponse)
+}

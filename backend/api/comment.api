@@ -1,0 +1,14 @@
+syntax = "v1"
+
+import "./_base.api"
+
+type Comment {
+	Model
+	Author  string `json:"author" gorm:"size:255"` // 评论作者的名称
+	Email   string `json:"email" gorm:"size:255"`  // 评论作者的电子邮箱
+	IP      string `json:"ip" gorm:"size:45"`      // 评论作者的IP地址，IPv6地址最长为45字符
+	PostID  int64  `json:"post_id"`                // 关联文章
+	Content string `json:"content"`                // 评论内容
+	Parent  string `json:"parent"`                 // 回复评论的ID
+
+}

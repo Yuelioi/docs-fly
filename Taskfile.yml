@@ -6,19 +6,9 @@ vars:
   GREETING: Hello, World!
 
 tasks:
-  update package:
-    dir: frontend
+  api-rebuild-go:
     cmds:
-      - npx npm-check-updates -u
-  front dev:
-    dir: backend
-    cmds:
-      - pnpm dev
-  backend dev:
-    dir: backend
-    cmds:
-      - go run
-  test:
-    dir: backend/test
-    cmds:
-      - go run .
+      - powershell -Command "if (Test-Path 'backend\\internal\\types\\types.go') { Remove-Item 'backend\\internal\\types\\types.go' -Recurse -Force }"
+      - goctl api go --api ./backend/api/main.api --dir backend
+      - go run ./backend/clean/afterApiBuild.go
+      - powershell -Command "if (Test-Path 'backend\internal\config') { Remove-Item 'backend\internal\config' -Recurse -Force }"

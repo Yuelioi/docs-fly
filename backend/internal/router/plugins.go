@@ -1,8 +1,8 @@
 package router
 
 import (
+	"docsfly/internal/common/db"
 	controllers "docsfly/internal/contrrollers"
-	"docsfly/internal/database"
 	"net/url"
 
 	"github.com/gin-gonic/gin"
@@ -30,7 +30,7 @@ func DecodeQueryParams() gin.HandlerFunc {
 // 连接数据库
 func DBMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := database.DbManager.Connect()
+		db, err := db.DbManager.Connect()
 
 		if err != nil {
 			controllers.ReturnFailResponse(c, 400, "Cannot Connect Database")
