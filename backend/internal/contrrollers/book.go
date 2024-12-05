@@ -3,6 +3,7 @@ package controllers
 import (
 	"docsfly/internal/common"
 	"docsfly/internal/config"
+	"docsfly/internal/dao"
 	"docsfly/internal/models"
 	"docsfly/pkg/utils"
 	"encoding/json"
@@ -13,19 +14,6 @@ import (
 )
 
 type BookController struct {
-}
-
-type BookData struct {
-	Url      string          `json:"url"`
-	IsDir    bool            `json:"is_dir"`
-	MetaData models.MetaData `json:"metadata"`
-}
-
-type PageData struct {
-	TotalCount int64         `json:"total_count"` // 总记录数
-	Page       int           `json:"page"`        // 当前页码 从1开始
-	PageSize   int           `json:"page_size"`   // 每页记录数
-	Pages      []interface{} `json:"pages"`
 }
 
 func (BookController) Register(e *gin.Engine) {
@@ -47,19 +35,12 @@ func Book(c *gin.Context) {
 		return
 	}
 
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-
-	db := dbContext.(*gorm.DB)
-
 	var chapters []models.Entry
 	var docs []models.Entry
-	var bookDatas []BookData
+	var bookDatas []models.BookData
 
 	// 查询分类章节和文章章节
-	err := db.Scopes(common.BasicModel, common.FindChapter, common.HasPrefixUrlPath(bookPath+"/"+locale)).Order("is_dir DESC, depth ASC, `order` ASC").Find(&chapters).Error
+	err := dao.Db.Scopes(common.BasicModel, common.FindChapter, common.HasPrefixUrlPath(bookPath+"/"+locale)).Order("is_dir DESC, depth ASC, `order` ASC").Find(&chapters).Error
 
 	if err != nil {
 		ReturnFailResponse(c, 400, "Database query error")
@@ -71,7 +52,7 @@ func Book(c *gin.Context) {
 		return
 	}
 
-	err = db.Scopes(common.BasicModel, common.FindFile, common.HasPrefixUrlPath(bookPath+"/"+locale)).Where("depth > 3").Order("is_dir DESC, depth ASC, `order` ASC").Find(&docs).Error
+	err = dao.Db.Scopes(common.BasicModel, common.FindFile, common.HasPrefixUrlPath(bookPath+"/"+locale)).Where("depth > 3").Order("is_dir DESC, depth ASC, `order` ASC").Find(&docs).Error
 
 	if err != nil {
 		ReturnFailResponse(c, 400, "Database query error")
@@ -84,7 +65,7 @@ func Book(c *gin.Context) {
 			closeDoc := findClosestDoc(chapter, docs)
 
 			if closeDoc.URL != "" {
-				chapter := BookData{
+				chapter := models.BookData{
 					Url:      closeDoc.URL,
 					IsDir:    true,
 					MetaData: chapter.MetaData,
@@ -92,7 +73,7 @@ func Book(c *gin.Context) {
 				bookDatas = append(bookDatas, chapter)
 			}
 		} else {
-			bookDatas = append(bookDatas, BookData{
+			bookDatas = append(bookDatas, models.BookData{
 				Url:      chapter.URL,
 				IsDir:    false,
 				MetaData: chapter.MetaData,
@@ -108,13 +89,6 @@ func BookStatistic(c *gin.Context) {
 	bookPath := c.Query("bookPath")
 	locale := c.Query("locale")
 
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-
-	db := dbContext.(*gorm.DB)
-
 	var bookRef models.Entry
 	var bookReadCount int64
 	var chapterCount int64
@@ -127,20 +101,20 @@ func BookStatistic(c *gin.Context) {
 		return
 	}
 
-	db.Model(models.Visitor{}).Where("category = ?", category).Where("book = ?", book).Count(&bookReadCount)
+	dao.Db.Model(models.Visitor{}).Where("category = ?", category).Where("book = ?", book).Count(&bookReadCount)
 
 	// 获取阅读量和书籍标题
-	err := db.Scopes(common.BasicModel, common.MatchUrlPath(bookPath)).Find(&bookRef).Error
+	err := dao.Db.Scopes(common.BasicModel, common.MatchUrlPath(bookPath)).Find(&bookRef).Error
 	if err != nil {
 		ReturnFailResponse(c, 400, "Error fetching book statistics")
 		return
 	}
 
 	// 获取章节数量
-	db.Scopes(common.BasicModel, common.FindChapter, common.HasPrefixUrlPath(bookPath+"/"+locale)).Count(&chapterCount)
+	dao.Db.Scopes(common.BasicModel, common.FindChapter, common.HasPrefixUrlPath(bookPath+"/"+locale)).Count(&chapterCount)
 
 	// 获取书籍数量
-	db.Scopes(common.BasicModel, common.FindFile, common.HasPrefixUrlPath(bookPath+"/"+locale)).Count(&documentCount)
+	dao.Db.Scopes(common.BasicModel, common.FindFile, common.HasPrefixUrlPath(bookPath+"/"+locale)).Count(&documentCount)
 
 	type bookStatistic struct {
 		BookCover     string `json:"book_cover"`
@@ -229,11 +203,11 @@ func UpdateBookMeta(c *gin.Context) {
 
 	// 更新数据库
 	for _, meta := range metas.Categories {
-		db.Model(&models.Entry{}).Where("filepath = ?", filepath+"/"+meta.Name).Updates(meta)
+		dao.Db.Model(&models.Entry{}).Where("filepath = ?", filepath+"/"+meta.Name).Updates(meta)
 	}
 
 	for _, meta := range metas.Documents {
-		db.Model(&models.Entry{}).Where("filepath = ?", filepath+"/"+meta.Name).Updates(meta)
+		dao.Db.Model(&models.Entry{}).Where("filepath = ?", filepath+"/"+meta.Name).Updates(meta)
 	}
 	ReturnSuccessResponse(c, "Data saved successfully")
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"docsfly/internal/common"
 	"docsfly/internal/config"
+	"docsfly/internal/dao"
 	"docsfly/internal/models"
 	"docsfly/pkg/utils"
 	"encoding/json"
@@ -16,7 +17,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
-	"gorm.io/gorm"
 )
 
 type PostController struct{}
@@ -26,27 +26,6 @@ func (*PostController) Register(engine *gin.Engine) {
 	engine.GET("/"+config.Instance.App.ApiVersion+"/post/html", GetPostHtml)
 	engine.POST("/"+config.Instance.App.ApiVersion+"/post", SavePost)
 	engine.GET("/"+config.Instance.App.ApiVersion+"/post/chapter", GetChapter)
-}
-
-type PostResponseBasicData struct {
-	ContentMarkdown string `json:"content_markdown"`
-	ContentHTML     string `json:"content_html"`
-	TOC             string `json:"toc"`
-}
-
-// 一个章节的信息
-type Chapter struct {
-	MetaData  models.MetaData   `json:"metadata"`
-	Filepath  string            `json:"filepath"`
-	Documents []models.MetaData `json:"documents"`
-	Children  []Chapter         `json:"children"`
-}
-
-// 文章目录
-type Toc struct {
-	ID    string `json:"id"`
-	Depth uint   `json:"depth"`
-	Title string `json:"title"`
 }
 
 func textContent(n *html.Node) string {
@@ -59,11 +38,11 @@ func textContent(n *html.Node) string {
 	return b.String()
 }
 
-func loopNode(n *html.Node, entries *[]Toc) {
+func loopNode(n *html.Node, entries *[]models.Toc) {
 	if n.Type == html.ElementNode && (n.DataAtom == atom.H1 || n.DataAtom == atom.H2) {
 		for _, a := range n.Attr {
 			if a.Key == "id" {
-				*entries = append(*entries, Toc{
+				*entries = append(*entries, models.Toc{
 					ID:    a.Val,
 					Depth: uint(getDepth(n.DataAtom)),
 					Title: textContent(n),
@@ -82,7 +61,7 @@ func generateTOC(htmlContent string) ([]byte, error) {
 		return []byte{'[', ']'}, err
 	}
 
-	var entries []Toc
+	var entries []models.Toc
 
 	loopNode(doc, &entries)
 
@@ -99,7 +78,7 @@ func generateTOC(htmlContent string) ([]byte, error) {
 	return jsonData, nil
 }
 
-func buildFolderTree(folder *Chapter, categories []models.Entry, documents []models.Entry, currentDepth int) {
+func buildFolderTree(folder *models.Chapter, categories []models.Entry, documents []models.Entry, currentDepth int) {
 
 	var wg sync.WaitGroup
 
@@ -121,11 +100,11 @@ func buildFolderTree(folder *Chapter, categories []models.Entry, documents []mod
 		defer wg.Done()
 		for _, cat := range categories {
 			if strings.HasPrefix(cat.Filepath, folder.Filepath+"/") && cat.Depth == currentDepth {
-				childFolder := Chapter{
+				childFolder := models.Chapter{
 					MetaData:  cat.MetaData,
 					Filepath:  cat.MetaData.Filepath,
 					Documents: make([]models.MetaData, 0),
-					Children:  make([]Chapter, 0),
+					Children:  make([]models.Chapter, 0),
 				}
 				buildFolderTree(&childFolder, categories, documents, currentDepth+1)
 
@@ -157,26 +136,19 @@ func getDepth(node atom.Atom) int {
 func GetPost(c *gin.Context) {
 	postPath := c.Query("postPath")
 
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-
-	db := dbContext.(*gorm.DB)
-
 	// TODO 没有文章 就尝试切换语言
 
 	var entryInfo models.Entry
 	var htmlContent string
-	db.Scopes(common.BasicModel, common.MatchUrlPath(postPath)).First(&entryInfo)
+	dao.Db.Scopes(common.BasicModel, common.MatchUrlPath(postPath)).First(&entryInfo)
 
 	if entryInfo.IsDir && entryInfo.Content == "" {
 
 		var cats []models.Entry
-		db.Scopes(common.BasicModel, common.HasPrefixUrlPath(postPath), common.FindFolder).Where("depth = ?", entryInfo.Depth+1).Find(&cats)
+		dao.Db.Scopes(common.BasicModel, common.HasPrefixUrlPath(postPath), common.FindFolder).Where("depth = ?", entryInfo.Depth+1).Find(&cats)
 
 		var docs []models.Entry
-		db.Scopes(common.BasicModel, common.HasPrefixUrlPath(postPath), common.FindFile).Where("depth = ?", entryInfo.Depth+1).Find(&docs)
+		dao.Db.Scopes(common.BasicModel, common.HasPrefixUrlPath(postPath), common.FindFile).Where("depth = ?", entryInfo.Depth+1).Find(&docs)
 
 		htmlContent = "<h2>小节</h2><ul>"
 
@@ -205,7 +177,7 @@ func GetPost(c *gin.Context) {
 
 	toc, _ := generateTOC(htmlContent)
 
-	responseData := PostResponseBasicData{
+	responseData := models.PostResponseBasicData{
 		ContentMarkdown: entryInfo.Content,
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
@@ -222,7 +194,7 @@ func GetPostHtml(c *gin.Context) {
 	htmlContent := string(utils.MarkdownToHTML([]byte(content)))
 
 	toc, _ := generateTOC(htmlContent)
-	responseData := PostResponseBasicData{
+	responseData := models.PostResponseBasicData{
 		ContentMarkdown: "",
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
@@ -248,15 +220,8 @@ func SavePost(c *gin.Context) {
 		return
 	}
 
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-
-	db := dbContext.(*gorm.DB)
-
 	var documentInfo models.Entry
-	db.Scopes(common.BasicModel, common.MatchUrlPath(postPath)).First(&documentInfo)
+	dao.Db.Scopes(common.BasicModel, common.MatchUrlPath(postPath)).First(&documentInfo)
 
 	var documentPath string
 
@@ -278,7 +243,7 @@ func SavePost(c *gin.Context) {
 
 	// 写入数据库
 	documentInfo.Content = content
-	if err := db.Save(documentInfo).Error; err != nil {
+	if err := dao.Db.Save(documentInfo).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -291,7 +256,7 @@ func SavePost(c *gin.Context) {
 		return
 	}
 
-	responseData := PostResponseBasicData{
+	responseData := models.PostResponseBasicData{
 		ContentMarkdown: documentInfo.Content,
 		ContentHTML:     htmlContent,
 		TOC:             string(toc),
@@ -303,13 +268,6 @@ func SavePost(c *gin.Context) {
 // 获取当前书籍章节信息,没有章节则直接获取文档信息
 func GetChapter(c *gin.Context) {
 	postPath := c.Query("postPath")
-
-	dbContext, exists := c.Get("db")
-	if !exists {
-		return
-	}
-
-	db := dbContext.(*gorm.DB)
 
 	parts := strings.Split(postPath, "/")
 	var book string
@@ -329,7 +287,7 @@ func GetChapter(c *gin.Context) {
 
 	var categories, documents, allEntries []models.Entry
 
-	db.Scopes(common.BasicModel, common.HasPrefixUrlPath(book)).Find(&allEntries)
+	dao.Db.Scopes(common.BasicModel, common.HasPrefixUrlPath(book)).Find(&allEntries)
 
 	// 需要忽略README文件
 	for _, entry := range allEntries {
@@ -345,13 +303,13 @@ func GetChapter(c *gin.Context) {
 
 	// 创建根文件夹
 	var rootEntry models.Entry
-	db.Where("filepath = ? AND depth = ?", book, 2).First(&rootEntry)
+	dao.Db.Where("filepath = ? AND depth = ?", book, 2).First(&rootEntry)
 
-	chapterMeta := Chapter{
+	chapterMeta := models.Chapter{
 		MetaData:  rootEntry.MetaData,
 		Filepath:  rootEntry.MetaData.Filepath,
 		Documents: make([]models.MetaData, 0),
-		Children:  make([]Chapter, 0),
+		Children:  make([]models.Chapter, 0),
 	}
 
 	// 构建文件夹树
