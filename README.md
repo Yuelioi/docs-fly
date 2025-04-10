@@ -16,6 +16,6 @@
 
 ## 后端
 
-框架: [Gin Web Framework](https://gin-gonic.com/)
+框架: [go-zero]([https://gin-gonic.com/](https://go-zero.dev/docs/concepts/overview))
 
 数据库:  [GORM - The fantastic ORM library for Golang](https://gorm.io/index.html)
